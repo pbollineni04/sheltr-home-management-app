@@ -14,13 +14,15 @@ import {
   Plus,
   Filter,
   TrendingUp,
-  Settings
+  Settings,
+  Shield
 } from "lucide-react";
 import DashboardOverview from "@/components/DashboardOverview";
 import HomeTimeline from "@/components/HomeTimeline";
 import TasksLists from "@/components/TasksLists";
 import ExpenseTracker from "@/components/ExpenseTracker";
 import SheltrHelper from "@/components/SheltrHelper";
+import WarrantyVault from "@/components/WarrantyVault";
 import Navigation from "@/components/Navigation";
 
 const Index = () => {
@@ -41,7 +43,7 @@ const Index = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-5 w-full max-w-2xl mx-auto mb-8">
+          <TabsList className="grid grid-cols-6 w-full max-w-3xl mx-auto mb-8">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <Home className="w-4 h-4" />
               <span className="hidden sm:inline">Dashboard</span>
@@ -57,6 +59,10 @@ const Index = () => {
             <TabsTrigger value="expenses" className="flex items-center gap-2">
               <DollarSign className="w-4 h-4" />
               <span className="hidden sm:inline">Expenses</span>
+            </TabsTrigger>
+            <TabsTrigger value="vault" className="flex items-center gap-2">
+              <Shield className="w-4 h-4" />
+              <span className="hidden sm:inline">Vault</span>
             </TabsTrigger>
             <TabsTrigger value="helper" className="flex items-center gap-2">
               <Brain className="w-4 h-4" />
@@ -78,6 +84,10 @@ const Index = () => {
 
           <TabsContent value="expenses">
             <ExpenseTracker />
+          </TabsContent>
+
+          <TabsContent value="vault">
+            <WarrantyVault />
           </TabsContent>
 
           <TabsContent value="helper">
