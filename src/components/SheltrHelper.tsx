@@ -78,7 +78,7 @@ const SheltrHelper = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-4">
       {/* Header */}
       <div className="text-center">
         <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -122,20 +122,20 @@ const SheltrHelper = () => {
       </Card>
 
       {/* Chat Interface */}
-      <Card className="h-96 flex flex-col">
-        <CardHeader>
+      <Card className="flex flex-col">
+        <CardHeader className="flex-shrink-0">
           <CardTitle className="flex items-center gap-2">
             <MessageCircle className="w-5 h-5" />
             Chat
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex-1 flex flex-col">
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+        <CardContent className="flex flex-col p-0">
+          {/* Messages Container - Fixed height with scroll */}
+          <div className="h-80 overflow-y-auto p-6 space-y-4">
             {messages.map((msg) => (
               <div key={msg.id} className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {msg.sender === 'assistant' && (
-                  <Avatar className="w-8 h-8 bg-orange-100">
+                  <Avatar className="w-8 h-8 bg-orange-100 flex-shrink-0">
                     <Brain className="w-4 h-4 text-orange-600" />
                   </Avatar>
                 )}
@@ -152,7 +152,7 @@ const SheltrHelper = () => {
                   </p>
                 </div>
                 {msg.sender === 'user' && (
-                  <Avatar className="w-8 h-8 bg-blue-100">
+                  <Avatar className="w-8 h-8 bg-blue-100 flex-shrink-0">
                     <Home className="w-4 h-4 text-blue-600" />
                   </Avatar>
                 )}
@@ -160,21 +160,23 @@ const SheltrHelper = () => {
             ))}
           </div>
 
-          {/* Input */}
-          <div className="flex gap-2">
-            <Input
-              placeholder="Ask me anything about your home..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-              className="flex-1"
-            />
-            <Button 
-              onClick={handleSendMessage}
-              className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
-            >
-              <Send className="w-4 h-4" />
-            </Button>
+          {/* Input - Fixed at bottom */}
+          <div className="flex-shrink-0 p-6 pt-0 border-t bg-white">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Ask me anything about your home..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                className="flex-1"
+              />
+              <Button 
+                onClick={handleSendMessage}
+                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 flex-shrink-0"
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
