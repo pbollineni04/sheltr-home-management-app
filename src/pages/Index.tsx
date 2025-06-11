@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,6 +25,7 @@ import SheltrHelper from "@/components/SheltrHelper";
 import WarrantyVault from "@/components/WarrantyVault";
 import MoveInOut from "@/components/MoveInOut";
 import Navigation from "@/components/Navigation";
+import EnergyTracker from "@/components/EnergyTracker";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -45,7 +45,7 @@ const Index = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-7 w-full max-w-4xl mx-auto mb-8">
+          <TabsList className="grid grid-cols-8 w-full max-w-5xl mx-auto mb-8">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <Home className="w-4 h-4" />
               <span className="hidden sm:inline">Dashboard</span>
@@ -73,6 +73,10 @@ const Index = () => {
             <TabsTrigger value="helper" className="flex items-center gap-2">
               <Brain className="w-4 h-4" />
               <span className="hidden sm:inline">Helper</span>
+            </TabsTrigger>
+            <TabsTrigger value="energy" className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4" />
+              <span className="hidden sm:inline">Energy</span>
             </TabsTrigger>
           </TabsList>
 
@@ -102,6 +106,10 @@ const Index = () => {
 
           <TabsContent value="helper">
             <SheltrHelper />
+          </TabsContent>
+
+          <TabsContent value="energy">
+            <EnergyTracker />
           </TabsContent>
         </Tabs>
       </main>
