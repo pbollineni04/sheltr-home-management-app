@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,8 @@ import {
   TrendingUp,
   Settings,
   Shield,
-  Move
+  Move,
+  Bell
 } from "lucide-react";
 import DashboardOverview from "@/components/DashboardOverview";
 import HomeTimeline from "@/components/HomeTimeline";
@@ -26,6 +28,7 @@ import WarrantyVault from "@/components/WarrantyVault";
 import MoveInOut from "@/components/MoveInOut";
 import Navigation from "@/components/Navigation";
 import EnergyTracker from "@/components/EnergyTracker";
+import SmartAlerts from "@/components/SmartAlerts";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -45,7 +48,7 @@ const Index = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-8 w-full max-w-5xl mx-auto mb-8">
+          <TabsList className="grid grid-cols-9 w-full max-w-6xl mx-auto mb-8">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <Home className="w-4 h-4" />
               <span className="hidden sm:inline">Dashboard</span>
@@ -77,6 +80,10 @@ const Index = () => {
             <TabsTrigger value="energy" className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4" />
               <span className="hidden sm:inline">Energy</span>
+            </TabsTrigger>
+            <TabsTrigger value="alerts" className="flex items-center gap-2">
+              <Bell className="w-4 h-4" />
+              <span className="hidden sm:inline">Alerts</span>
             </TabsTrigger>
           </TabsList>
 
@@ -110,6 +117,10 @@ const Index = () => {
 
           <TabsContent value="energy">
             <EnergyTracker />
+          </TabsContent>
+
+          <TabsContent value="alerts">
+            <SmartAlerts />
           </TabsContent>
         </Tabs>
       </main>
