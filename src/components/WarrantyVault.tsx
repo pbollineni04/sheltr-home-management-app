@@ -1,37 +1,23 @@
+
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   Shield, 
   FileText, 
-  Upload, 
   Plus,
-  Calendar,
-  AlertTriangle,
-  Search,
-  Filter,
-  Download,
-  Eye,
-  Scan,
-  Loader2
+  Search
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-interface Document {
-  id: number;
-  name: string;
-  type: 'warranty' | 'insurance' | 'certificate';
-  category: string;
-  expirationDate: string;
-  uploadDate: string;
-  fileUrl?: string;
-  reminderDays: number;
-  notes?: string;
-}
+import { Document, NewDocumentForm } from "@/types/warranty";
+import { getExpirationStatus } from "@/utils/documentProcessor";
+import DocumentUpload from "./warranty/DocumentUpload";
+import DocumentForm from "./warranty/DocumentForm";
+import DocumentList from "./warranty/DocumentList";
+import AlertsSection from "./warranty/AlertsSection";
 
 const WarrantyVault = () => {
   const { toast } = useToast();
@@ -71,27 +57,15 @@ const WarrantyVault = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [isScanning, setIsScanning] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [newDocument, setNewDocument] = useState({
+  const [newDocument, setNewDocument] = useState<NewDocumentForm>({
     name: "",
-    type: "warranty" as const,
+    type: "warranty",
     category: "",
     expirationDate: "",
     reminderDays: 30,
     notes: ""
   });
-
-  const getExpirationStatus = (expirationDate: string, reminderDays: number) => {
-    const expDate = new Date(expirationDate);
-    const today = new Date();
-    const reminderDate = new Date(expDate);
-    reminderDate.setDate(reminderDate.getDate() - reminderDays);
-
-    if (expDate < today) return 'expired';
-    if (reminderDate <= today) return 'warning';
-    return 'active';
-  };
 
   const filteredDocuments = documents.filter(doc => {
     const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -108,72 +82,11 @@ const WarrantyVault = () => {
     getExpirationStatus(doc.expirationDate, doc.reminderDays) === 'expired'
   );
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setUploadedFile(file);
-    setIsScanning(true);
-
-    // Simulate OCR processing
-    setTimeout(() => {
-      // Mock extracted data based on file name patterns
-      const fileName = file.name.toLowerCase();
-      let extractedData = {
-        name: "",
-        type: "warranty" as const,
-        category: "",
-        expirationDate: "",
-        notes: ""
-      };
-
-      if (fileName.includes('warranty')) {
-        extractedData = {
-          name: "Product Warranty Document",
-          type: "warranty",
-          category: "Electronics",
-          expirationDate: "2025-12-31",
-          notes: "Extracted from uploaded document"
-        };
-      } else if (fileName.includes('insurance')) {
-        extractedData = {
-          name: "Insurance Policy",
-          type: "insurance",
-          category: "Property",
-          expirationDate: "2024-12-31",
-          notes: "Policy details extracted automatically"
-        };
-      } else if (fileName.includes('certificate')) {
-        extractedData = {
-          name: "Service Certificate",
-          type: "certificate",
-          category: "Services",
-          expirationDate: "2024-11-30",
-          notes: "Certificate information extracted"
-        };
-      } else {
-        // Generic extraction
-        extractedData = {
-          name: file.name.replace(/\.[^/.]+$/, ""), // Remove file extension
-          type: "warranty",
-          category: "General",
-          expirationDate: "2025-06-30",
-          notes: "Document uploaded and processed"
-        };
-      }
-
-      setNewDocument(prev => ({
-        ...prev,
-        ...extractedData
-      }));
-
-      setIsScanning(false);
-      
-      toast({
-        title: "Document Scanned",
-        description: "Information extracted and form auto-filled. Please review and adjust as needed."
-      });
-    }, 2000);
+  const handleExtractedData = (data: Partial<NewDocumentForm>) => {
+    setNewDocument(prev => ({
+      ...prev,
+      ...data
+    }));
   };
 
   const resetForm = () => {
@@ -204,26 +117,6 @@ const WarrantyVault = () => {
     });
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'expired':
-        return <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">Expired</span>;
-      case 'warning':
-        return <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Expiring Soon</span>;
-      default:
-        return <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Active</span>;
-    }
-  };
-
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'warranty': return <Shield className="w-4 h-4 text-blue-600" />;
-      case 'insurance': return <Shield className="w-4 h-4 text-green-600" />;
-      case 'certificate': return <FileText className="w-4 h-4 text-purple-600" />;
-      default: return <FileText className="w-4 h-4" />;
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -236,26 +129,10 @@ const WarrantyVault = () => {
       </div>
 
       {/* Alerts */}
-      {(expiringDocuments.length > 0 || expiredDocuments.length > 0) && (
-        <Card className="border-yellow-200 bg-yellow-50">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="w-5 h-5 text-yellow-600" />
-              <h3 className="font-semibold text-yellow-800">Document Alerts</h3>
-            </div>
-            {expiredDocuments.length > 0 && (
-              <p className="text-sm text-red-700 mb-1">
-                {expiredDocuments.length} document(s) have expired
-              </p>
-            )}
-            {expiringDocuments.length > 0 && (
-              <p className="text-sm text-yellow-700">
-                {expiringDocuments.length} document(s) expiring soon
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      )}
+      <AlertsSection 
+        expiringCount={expiringDocuments.length}
+        expiredCount={expiredDocuments.length}
+      />
 
       {/* Search and Actions */}
       <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
@@ -283,107 +160,17 @@ const WarrantyVault = () => {
               <DialogTitle>Add New Document</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              {/* File Upload Section */}
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                <div className="flex flex-col items-center gap-2">
-                  {isScanning ? (
-                    <>
-                      <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-                      <p className="text-sm text-gray-600">Scanning document...</p>
-                    </>
-                  ) : uploadedFile ? (
-                    <>
-                      <FileText className="w-8 h-8 text-green-600" />
-                      <p className="text-sm font-medium">{uploadedFile.name}</p>
-                      <p className="text-xs text-gray-500">Information extracted successfully</p>
-                    </>
-                  ) : (
-                    <>
-                      <Scan className="w-8 h-8 text-gray-400" />
-                      <p className="text-sm text-gray-600">Upload a document to auto-fill details</p>
-                    </>
-                  )}
-                </div>
-                <input
-                  type="file"
-                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  id="file-upload"
-                  disabled={isScanning}
-                />
-                <label
-                  htmlFor="file-upload"
-                  className={`mt-3 inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 cursor-pointer transition-colors ${isScanning ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  <Upload className="w-4 h-4" />
-                  {uploadedFile ? 'Replace File' : 'Upload Document'}
-                </label>
-              </div>
-
-              {/* Form Fields */}
-              <div>
-                <Label htmlFor="name">Document Name</Label>
-                <Input
-                  id="name"
-                  value={newDocument.name}
-                  onChange={(e) => setNewDocument({...newDocument, name: e.target.value})}
-                  placeholder="e.g., Dishwasher Warranty"
-                />
-              </div>
-              <div>
-                <Label htmlFor="type">Type</Label>
-                <select
-                  id="type"
-                  value={newDocument.type}
-                  onChange={(e) => setNewDocument({...newDocument, type: e.target.value as any})}
-                  className="w-full h-10 px-3 border border-input rounded-md"
-                >
-                  <option value="warranty">Warranty</option>
-                  <option value="insurance">Insurance</option>
-                  <option value="certificate">Certificate</option>
-                </select>
-              </div>
-              <div>
-                <Label htmlFor="category">Category</Label>
-                <Input
-                  id="category"
-                  value={newDocument.category}
-                  onChange={(e) => setNewDocument({...newDocument, category: e.target.value})}
-                  placeholder="e.g., Appliances, HVAC, Property"
-                />
-              </div>
-              <div>
-                <Label htmlFor="expiration">Expiration Date</Label>
-                <Input
-                  id="expiration"
-                  type="date"
-                  value={newDocument.expirationDate}
-                  onChange={(e) => setNewDocument({...newDocument, expirationDate: e.target.value})}
-                />
-              </div>
-              <div>
-                <Label htmlFor="reminder">Reminder (days before)</Label>
-                <Input
-                  id="reminder"
-                  type="number"
-                  value={newDocument.reminderDays}
-                  onChange={(e) => setNewDocument({...newDocument, reminderDays: parseInt(e.target.value)})}
-                  placeholder="30"
-                />
-              </div>
-              <div>
-                <Label htmlFor="notes">Notes</Label>
-                <Input
-                  id="notes"
-                  value={newDocument.notes}
-                  onChange={(e) => setNewDocument({...newDocument, notes: e.target.value})}
-                  placeholder="Additional details..."
-                />
-              </div>
-              <Button onClick={handleAddDocument} className="w-full" disabled={isScanning}>
-                {isScanning ? 'Processing...' : 'Add Document'}
-              </Button>
+              <DocumentUpload
+                onExtractedData={handleExtractedData}
+                uploadedFile={uploadedFile}
+                setUploadedFile={setUploadedFile}
+              />
+              <DocumentForm
+                formData={newDocument}
+                onChange={setNewDocument}
+                onSubmit={handleAddDocument}
+                isProcessing={false}
+              />
             </div>
           </DialogContent>
         </Dialog>
@@ -398,44 +185,7 @@ const WarrantyVault = () => {
           <TabsTrigger value="certificate">Certificates</TabsTrigger>
         </TabsList>
 
-        <TabsContent value={activeTab} className="mt-6">
-          <div className="grid gap-4">
-            {filteredDocuments.map((doc) => {
-              const status = getExpirationStatus(doc.expirationDate, doc.reminderDays);
-              return (
-                <Card key={doc.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3 flex-1">
-                        {getTypeIcon(doc.type)}
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900">{doc.name}</h3>
-                          <p className="text-sm text-gray-600">{doc.category}</p>
-                          {doc.notes && (
-                            <p className="text-sm text-gray-500 mt-1">{doc.notes}</p>
-                          )}
-                          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                            <span>Expires: {new Date(doc.expirationDate).toLocaleDateString()}</span>
-                            <span>Uploaded: {new Date(doc.uploadDate).toLocaleDateString()}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {getStatusBadge(status)}
-                        <Button variant="ghost" size="sm">
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Download className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </TabsContent>
+        <DocumentList documents={filteredDocuments} activeTab={activeTab} />
       </Tabs>
 
       {filteredDocuments.length === 0 && (
