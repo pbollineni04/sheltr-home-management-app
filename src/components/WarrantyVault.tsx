@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,7 +15,9 @@ import {
   Search,
   Filter,
   Download,
-  Eye
+  Eye,
+  Scan,
+  Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -70,6 +71,8 @@ const WarrantyVault = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [newDocument, setNewDocument] = useState({
     name: "",
     type: "warranty" as const,
@@ -105,13 +108,75 @@ const WarrantyVault = () => {
     getExpirationStatus(doc.expirationDate, doc.reminderDays) === 'expired'
   );
 
-  const handleAddDocument = () => {
-    const newDoc: Document = {
-      id: documents.length + 1,
-      ...newDocument,
-      uploadDate: new Date().toISOString().split('T')[0]
-    };
-    setDocuments([...documents, newDoc]);
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploadedFile(file);
+    setIsScanning(true);
+
+    // Simulate OCR processing
+    setTimeout(() => {
+      // Mock extracted data based on file name patterns
+      const fileName = file.name.toLowerCase();
+      let extractedData = {
+        name: "",
+        type: "warranty" as const,
+        category: "",
+        expirationDate: "",
+        notes: ""
+      };
+
+      if (fileName.includes('warranty')) {
+        extractedData = {
+          name: "Product Warranty Document",
+          type: "warranty",
+          category: "Electronics",
+          expirationDate: "2025-12-31",
+          notes: "Extracted from uploaded document"
+        };
+      } else if (fileName.includes('insurance')) {
+        extractedData = {
+          name: "Insurance Policy",
+          type: "insurance",
+          category: "Property",
+          expirationDate: "2024-12-31",
+          notes: "Policy details extracted automatically"
+        };
+      } else if (fileName.includes('certificate')) {
+        extractedData = {
+          name: "Service Certificate",
+          type: "certificate",
+          category: "Services",
+          expirationDate: "2024-11-30",
+          notes: "Certificate information extracted"
+        };
+      } else {
+        // Generic extraction
+        extractedData = {
+          name: file.name.replace(/\.[^/.]+$/, ""), // Remove file extension
+          type: "warranty",
+          category: "General",
+          expirationDate: "2025-06-30",
+          notes: "Document uploaded and processed"
+        };
+      }
+
+      setNewDocument(prev => ({
+        ...prev,
+        ...extractedData
+      }));
+
+      setIsScanning(false);
+      
+      toast({
+        title: "Document Scanned",
+        description: "Information extracted and form auto-filled. Please review and adjust as needed."
+      });
+    }, 2000);
+  };
+
+  const resetForm = () => {
     setNewDocument({
       name: "",
       type: "warranty",
@@ -120,6 +185,18 @@ const WarrantyVault = () => {
       reminderDays: 30,
       notes: ""
     });
+    setUploadedFile(null);
+  };
+
+  const handleAddDocument = () => {
+    const newDoc: Document = {
+      id: documents.length + 1,
+      ...newDocument,
+      uploadDate: new Date().toISOString().split('T')[0],
+      fileUrl: uploadedFile ? URL.createObjectURL(uploadedFile) : undefined
+    };
+    setDocuments([...documents, newDoc]);
+    resetForm();
     setIsAddDialogOpen(false);
     toast({
       title: "Document Added",
@@ -191,18 +268,60 @@ const WarrantyVault = () => {
             className="pl-10"
           />
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
+          setIsAddDialogOpen(open);
+          if (!open) resetForm();
+        }}>
           <DialogTrigger asChild>
             <Button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700">
               <Plus className="w-4 h-4 mr-2" />
               Add Document
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add New Document</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
+              {/* File Upload Section */}
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <div className="flex flex-col items-center gap-2">
+                  {isScanning ? (
+                    <>
+                      <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+                      <p className="text-sm text-gray-600">Scanning document...</p>
+                    </>
+                  ) : uploadedFile ? (
+                    <>
+                      <FileText className="w-8 h-8 text-green-600" />
+                      <p className="text-sm font-medium">{uploadedFile.name}</p>
+                      <p className="text-xs text-gray-500">Information extracted successfully</p>
+                    </>
+                  ) : (
+                    <>
+                      <Scan className="w-8 h-8 text-gray-400" />
+                      <p className="text-sm text-gray-600">Upload a document to auto-fill details</p>
+                    </>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="file-upload"
+                  disabled={isScanning}
+                />
+                <label
+                  htmlFor="file-upload"
+                  className={`mt-3 inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 cursor-pointer transition-colors ${isScanning ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <Upload className="w-4 h-4" />
+                  {uploadedFile ? 'Replace File' : 'Upload Document'}
+                </label>
+              </div>
+
+              {/* Form Fields */}
               <div>
                 <Label htmlFor="name">Document Name</Label>
                 <Input
@@ -262,8 +381,8 @@ const WarrantyVault = () => {
                   placeholder="Additional details..."
                 />
               </div>
-              <Button onClick={handleAddDocument} className="w-full">
-                Add Document
+              <Button onClick={handleAddDocument} className="w-full" disabled={isScanning}>
+                {isScanning ? 'Processing...' : 'Add Document'}
               </Button>
             </div>
           </DialogContent>
