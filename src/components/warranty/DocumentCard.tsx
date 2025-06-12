@@ -1,15 +1,17 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Shield, FileText, Eye, Download } from "lucide-react";
+import { Shield, FileText, Eye, Download, Archive, Trash2 } from "lucide-react";
 import { Document } from "@/types/warranty";
 import { getExpirationStatus } from "@/utils/documentProcessor";
 
 interface DocumentCardProps {
   document: Document;
+  onArchive?: (id: number) => void;
+  onDelete?: (id: number) => void;
 }
 
-const DocumentCard = ({ document }: DocumentCardProps) => {
+const DocumentCard = ({ document, onArchive, onDelete }: DocumentCardProps) => {
   const status = getExpirationStatus(document.expirationDate, document.reminderDays);
 
   const getStatusBadge = (status: string) => {
@@ -58,6 +60,27 @@ const DocumentCard = ({ document }: DocumentCardProps) => {
             <Button variant="ghost" size="sm">
               <Download className="w-4 h-4" />
             </Button>
+            {onArchive && (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => onArchive(document.id)}
+                title="Archive"
+              >
+                <Archive className="w-4 h-4" />
+              </Button>
+            )}
+            {onDelete && (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => onDelete(document.id)}
+                title="Delete"
+                className="text-red-600 hover:text-red-700"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
           </div>
         </div>
       </CardContent>

@@ -70,15 +70,25 @@ const WarrantyVault = () => {
   const filteredDocuments = documents.filter(doc => {
     const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          doc.category.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Handle archive tab - only show archived documents
+    if (activeTab === "archive") {
+      return matchesSearch && doc.archived;
+    }
+    
+    // For all other tabs, exclude archived documents
+    const notArchived = !doc.archived;
     const matchesTab = activeTab === "all" || doc.type === activeTab;
-    return matchesSearch && matchesTab;
+    return matchesSearch && matchesTab && notArchived;
   });
 
-  const expiringDocuments = documents.filter(doc => 
+  const activeDocuments = documents.filter(doc => !doc.archived);
+  
+  const expiringDocuments = activeDocuments.filter(doc => 
     getExpirationStatus(doc.expirationDate, doc.reminderDays) === 'warning'
   );
 
-  const expiredDocuments = documents.filter(doc => 
+  const expiredDocuments = activeDocuments.filter(doc => 
     getExpirationStatus(doc.expirationDate, doc.reminderDays) === 'expired'
   );
 
@@ -114,6 +124,26 @@ const WarrantyVault = () => {
     toast({
       title: "Document Added",
       description: "Your document has been securely stored in the vault."
+    });
+  };
+
+  const handleArchiveDocument = (id: number) => {
+    setDocuments(docs => 
+      docs.map(doc => 
+        doc.id === id ? { ...doc, archived: true } : doc
+      )
+    );
+    toast({
+      title: "Document Archived",
+      description: "The document has been moved to the archive."
+    });
+  };
+
+  const handleDeleteDocument = (id: number) => {
+    setDocuments(docs => docs.filter(doc => doc.id !== id));
+    toast({
+      title: "Document Deleted",
+      description: "The document has been permanently deleted."
     });
   };
 
@@ -178,14 +208,20 @@ const WarrantyVault = () => {
 
       {/* Document Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-4 w-full max-w-md">
+        <TabsList className="grid grid-cols-5 w-full max-w-lg">
           <TabsTrigger value="all">All</TabsTrigger>
           <TabsTrigger value="warranty">Warranties</TabsTrigger>
           <TabsTrigger value="insurance">Insurance</TabsTrigger>
           <TabsTrigger value="certificate">Certificates</TabsTrigger>
+          <TabsTrigger value="archive">Archive</TabsTrigger>
         </TabsList>
 
-        <DocumentList documents={filteredDocuments} activeTab={activeTab} />
+        <DocumentList 
+          documents={filteredDocuments} 
+          activeTab={activeTab}
+          onArchive={activeTab !== "archive" ? handleArchiveDocument : undefined}
+          onDelete={handleDeleteDocument}
+        />
       </Tabs>
 
       {filteredDocuments.length === 0 && (
@@ -193,11 +229,18 @@ const WarrantyVault = () => {
           <CardContent className="p-12 text-center">
             <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No documents found</h3>
-            <p className="text-gray-600 mb-4">Get started by adding your first warranty or insurance document.</p>
-            <Button onClick={() => setIsAddDialogOpen(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Document
-            </Button>
+            <p className="text-gray-600 mb-4">
+              {activeTab === "archive" 
+                ? "No archived documents yet." 
+                : "Get started by adding your first warranty or insurance document."
+              }
+            </p>
+            {activeTab !== "archive" && (
+              <Button onClick={() => setIsAddDialogOpen(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Document
+              </Button>
+            )}
           </CardContent>
         </Card>
       )}

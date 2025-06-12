@@ -1,4 +1,3 @@
-
 export interface Document {
   id: number;
   name: string;
@@ -9,6 +8,7 @@ export interface Document {
   fileUrl?: string;
   reminderDays: number;
   notes?: string;
+  archived?: boolean;
 }
 
 export type DocumentType = 'warranty' | 'insurance' | 'certificate';
