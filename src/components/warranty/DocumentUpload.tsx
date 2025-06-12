@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { FileText, Upload, Scan, Loader2 } from "lucide-react";
+import { FileText, Upload, Scan, Loader2, Eye } from "lucide-react";
 import { processDocument } from "@/utils/documentProcessor";
 import { NewDocumentForm } from "@/types/warranty";
 import { useToast } from "@/hooks/use-toast";
@@ -19,6 +19,17 @@ const DocumentUpload = ({ onExtractedData, uploadedFile, setUploadedFile }: Docu
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'application/pdf'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please upload an image (JPG, PNG, GIF) or PDF file.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setUploadedFile(file);
     setIsScanning(true);
 
@@ -28,14 +39,15 @@ const DocumentUpload = ({ onExtractedData, uploadedFile, setUploadedFile }: Docu
       setIsScanning(false);
       
       toast({
-        title: "Document Scanned",
-        description: "Information extracted and form auto-filled. Please review and adjust as needed."
+        title: "Document Scanned Successfully",
+        description: "Text extracted and form auto-filled. Please review and adjust as needed."
       });
     } catch (error) {
       setIsScanning(false);
+      console.error('OCR Error:', error);
       toast({
-        title: "Scan Failed",
-        description: "Could not extract information from document.",
+        title: "OCR Processing Failed",
+        description: "Could not extract text from document. Please fill the form manually.",
         variant: "destructive"
       });
     }
@@ -46,25 +58,30 @@ const DocumentUpload = ({ onExtractedData, uploadedFile, setUploadedFile }: Docu
       <div className="flex flex-col items-center gap-2">
         {isScanning ? (
           <>
-            <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-            <p className="text-sm text-gray-600">Scanning document...</p>
+            <div className="relative">
+              <Eye className="w-8 h-8 text-blue-600" />
+              <Loader2 className="w-4 h-4 text-blue-600 animate-spin absolute -top-1 -right-1" />
+            </div>
+            <p className="text-sm text-gray-600">Scanning document with OCR...</p>
+            <p className="text-xs text-gray-500">This may take a few moments</p>
           </>
         ) : uploadedFile ? (
           <>
             <FileText className="w-8 h-8 text-green-600" />
             <p className="text-sm font-medium">{uploadedFile.name}</p>
-            <p className="text-xs text-gray-500">Information extracted successfully</p>
+            <p className="text-xs text-gray-500">OCR processing completed</p>
           </>
         ) : (
           <>
             <Scan className="w-8 h-8 text-gray-400" />
-            <p className="text-sm text-gray-600">Upload a document to auto-fill details</p>
+            <p className="text-sm text-gray-600">Upload a document for OCR text extraction</p>
+            <p className="text-xs text-gray-500">Supports JPG, PNG, GIF, and PDF files</p>
           </>
         )}
       </div>
       <input
         type="file"
-        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+        accept=".pdf,.jpg,.jpeg,.png,.gif"
         onChange={handleFileUpload}
         className="hidden"
         id="file-upload"
