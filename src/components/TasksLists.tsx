@@ -12,60 +12,27 @@ import {
   AlertTriangle,
   Home,
   Wrench,
-  ShoppingCart
+  ShoppingCart,
+  Loader2
 } from "lucide-react";
+import { useTasks, TaskListType } from "@/hooks/useTasks";
 
 const TasksLists = () => {
   const [newTask, setNewTask] = useState("");
-  const [selectedList, setSelectedList] = useState("maintenance");
+  const [selectedList, setSelectedList] = useState<TaskListType>("maintenance");
+  const { 
+    tasks, 
+    isLoading, 
+    createTask, 
+    updateTask, 
+    deleteTask, 
+    isCreating 
+  } = useTasks();
 
   const taskLists = [
-    { id: "maintenance", label: "Maintenance", icon: Wrench, color: "green" },
-    { id: "projects", label: "Projects", icon: Home, color: "blue" },
-    { id: "shopping", label: "Shopping", icon: ShoppingCart, color: "purple" }
-  ];
-
-  const tasks = [
-    {
-      id: 1,
-      title: "Replace HVAC filters",
-      description: "Monthly maintenance task",
-      list: "maintenance",
-      priority: "medium",
-      dueDate: "2024-06-15",
-      completed: false,
-      room: "Basement"
-    },
-    {
-      id: 2,
-      title: "Clean gutters",
-      description: "Remove leaves and debris",
-      list: "maintenance",
-      priority: "high",
-      dueDate: "2024-06-10",
-      completed: true,
-      room: "Exterior"
-    },
-    {
-      id: 3,
-      title: "Paint guest bedroom",
-      description: "Prep walls and apply two coats",
-      list: "projects",
-      priority: "low",
-      dueDate: "2024-07-01",
-      completed: false,
-      room: "Guest Bedroom"
-    },
-    {
-      id: 4,
-      title: "Buy LED bulbs",
-      description: "Replace all incandescent bulbs",
-      list: "shopping",
-      priority: "medium",
-      dueDate: "2024-06-20",
-      completed: false,
-      room: "Whole House"
-    }
+    { id: "maintenance" as TaskListType, label: "Maintenance", icon: Wrench, color: "green" },
+    { id: "projects" as TaskListType, label: "Projects", icon: Home, color: "blue" },
+    { id: "shopping" as TaskListType, label: "Shopping", icon: ShoppingCart, color: "purple" }
   ];
 
   const getPriorityColor = (priority: string) => {
@@ -77,9 +44,40 @@ const TasksLists = () => {
     return colors[priority as keyof typeof colors] || "bg-gray-100 text-gray-800";
   };
 
-  const filteredTasks = tasks.filter(task => task.list === selectedList);
+  const filteredTasks = tasks.filter(task => task.list_type === selectedList);
   const pendingTasks = filteredTasks.filter(task => !task.completed);
   const completedTasks = filteredTasks.filter(task => task.completed);
+
+  const handleAddTask = () => {
+    if (!newTask.trim()) return;
+    
+    createTask({
+      title: newTask,
+      list_type: selectedList,
+      priority: "medium",
+    });
+    
+    setNewTask("");
+  };
+
+  const handleToggleComplete = (task: any) => {
+    updateTask({
+      id: task.id,
+      updates: { completed: !task.completed }
+    });
+  };
+
+  const getTaskCounts = (listType: TaskListType) => {
+    return tasks.filter(t => t.list_type === listType && !t.completed).length;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -89,8 +87,22 @@ const TasksLists = () => {
           <h2 className="text-3xl font-bold text-gray-900">Tasks & Lists</h2>
           <p className="text-gray-600">Organize maintenance and projects</p>
         </div>
-        <Button className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700">
-          <Plus className="w-4 h-4 mr-2" />
+        <Button 
+          className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
+          onClick={() => {
+            createTask({
+              title: "New Task",
+              list_type: selectedList,
+              priority: "medium",
+            });
+          }}
+          disabled={isCreating}
+        >
+          {isCreating ? (
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          ) : (
+            <Plus className="w-4 h-4 mr-2" />
+          )}
           Add Task
         </Button>
       </div>
@@ -109,7 +121,7 @@ const TasksLists = () => {
               <IconComponent className="w-4 h-4" />
               {list.label}
               <Badge variant="secondary" className="ml-1">
-                {tasks.filter(t => t.list === list.id && !t.completed).length}
+                {getTaskCounts(list.id)}
               </Badge>
             </Button>
           );
@@ -124,9 +136,13 @@ const TasksLists = () => {
               placeholder="Add a new task..."
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleAddTask()}
               className="flex-1"
+              disabled={isCreating}
             />
-            <Button>Add</Button>
+            <Button onClick={handleAddTask} disabled={isCreating || !newTask.trim()}>
+              {isCreating ? <Loader2 className="w-4 h-4 animate-spin" /> : "Add"}
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -142,7 +158,11 @@ const TasksLists = () => {
           <Card key={task.id} className="hover:shadow-md transition-shadow">
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
-                <Checkbox className="mt-1" />
+                <Checkbox 
+                  checked={task.completed}
+                  onCheckedChange={() => handleToggleComplete(task)}
+                  className="mt-1" 
+                />
                 <div className="flex-1">
                   <div className="flex items-start justify-between mb-2">
                     <h4 className="font-semibold text-gray-900">{task.title}</h4>
@@ -150,16 +170,22 @@ const TasksLists = () => {
                       {task.priority}
                     </Badge>
                   </div>
-                  <p className="text-gray-600 mb-2">{task.description}</p>
+                  {task.description && (
+                    <p className="text-gray-600 mb-2">{task.description}</p>
+                  )}
                   <div className="flex items-center gap-4 text-sm text-gray-500">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      Due: {new Date(task.dueDate).toLocaleDateString()}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Home className="w-4 h-4" />
-                      {task.room}
-                    </span>
+                    {task.due_date && (
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" />
+                        Due: {new Date(task.due_date).toLocaleDateString()}
+                      </span>
+                    )}
+                    {task.room && (
+                      <span className="flex items-center gap-1">
+                        <Home className="w-4 h-4" />
+                        {task.room}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -180,10 +206,16 @@ const TasksLists = () => {
             <Card key={task.id} className="opacity-75">
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
-                  <Checkbox checked className="mt-1" />
+                  <Checkbox 
+                    checked={task.completed}
+                    onCheckedChange={() => handleToggleComplete(task)}
+                    className="mt-1" 
+                  />
                   <div className="flex-1">
                     <h4 className="font-semibold text-gray-600 line-through">{task.title}</h4>
-                    <p className="text-gray-500 text-sm">{task.description}</p>
+                    {task.description && (
+                      <p className="text-gray-500 text-sm">{task.description}</p>
+                    )}
                   </div>
                 </div>
               </CardContent>
