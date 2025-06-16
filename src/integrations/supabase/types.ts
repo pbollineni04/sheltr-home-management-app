@@ -9,6 +9,220 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      alerts: {
+        Row: {
+          alert_type: string
+          alert_type_enum: Database["public"]["Enums"]["alert_type"] | null
+          auto_task_created: boolean
+          deleted_at: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          resolved: boolean
+          resolved_at: string | null
+          sensor_id: string | null
+          severity: Database["public"]["Enums"]["alert_severity"]
+          timestamp: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_type: string
+          alert_type_enum?: Database["public"]["Enums"]["alert_type"] | null
+          auto_task_created?: boolean
+          deleted_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          resolved?: boolean
+          resolved_at?: string | null
+          sensor_id?: string | null
+          severity?: Database["public"]["Enums"]["alert_severity"]
+          timestamp?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_type?: string
+          alert_type_enum?: Database["public"]["Enums"]["alert_type"] | null
+          auto_task_created?: boolean
+          deleted_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          resolved?: boolean
+          resolved_at?: string | null
+          sensor_id?: string | null
+          severity?: Database["public"]["Enums"]["alert_severity"]
+          timestamp?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alerts_sensor_id_fkey"
+            columns: ["sensor_id"]
+            isOneToOne: false
+            referencedRelation: "sensors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          archived: boolean
+          category: string | null
+          created_at: string
+          document_type: Database["public"]["Enums"]["document_type"] | null
+          expiration_date: string | null
+          file_url: string | null
+          id: string
+          metadata: Json | null
+          name: string
+          notes: string | null
+          reminder_days: number | null
+          type: string
+          updated_at: string
+          upload_date: string
+          user_id: string
+        }
+        Insert: {
+          archived?: boolean
+          category?: string | null
+          created_at?: string
+          document_type?: Database["public"]["Enums"]["document_type"] | null
+          expiration_date?: string | null
+          file_url?: string | null
+          id?: string
+          metadata?: Json | null
+          name: string
+          notes?: string | null
+          reminder_days?: number | null
+          type: string
+          updated_at?: string
+          upload_date?: string
+          user_id: string
+        }
+        Update: {
+          archived?: boolean
+          category?: string | null
+          created_at?: string
+          document_type?: Database["public"]["Enums"]["document_type"] | null
+          expiration_date?: string | null
+          file_url?: string | null
+          id?: string
+          metadata?: Json | null
+          name?: string
+          notes?: string | null
+          reminder_days?: number | null
+          type?: string
+          updated_at?: string
+          upload_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      expenses: {
+        Row: {
+          amount: number
+          category: Database["public"]["Enums"]["expense_category"]
+          created_at: string
+          date: string
+          deleted_at: string | null
+          description: string
+          id: string
+          metadata: Json | null
+          receipt_url: string | null
+          room: string | null
+          room_id: string | null
+          updated_at: string
+          user_id: string
+          vendor: string | null
+        }
+        Insert: {
+          amount: number
+          category: Database["public"]["Enums"]["expense_category"]
+          created_at?: string
+          date: string
+          deleted_at?: string | null
+          description: string
+          id?: string
+          metadata?: Json | null
+          receipt_url?: string | null
+          room?: string | null
+          room_id?: string | null
+          updated_at?: string
+          user_id: string
+          vendor?: string | null
+        }
+        Update: {
+          amount?: number
+          category?: Database["public"]["Enums"]["expense_category"]
+          created_at?: string
+          date?: string
+          deleted_at?: string | null
+          description?: string
+          id?: string
+          metadata?: Json | null
+          receipt_url?: string | null
+          room?: string | null
+          room_id?: string | null
+          updated_at?: string
+          user_id?: string
+          vendor?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      predictive_insights: {
+        Row: {
+          category: string
+          confidence_score: number
+          created_at: string
+          days_until: number | null
+          description: string | null
+          id: string
+          recommendation: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          confidence_score: number
+          created_at?: string
+          days_until?: number | null
+          description?: string | null
+          id?: string
+          recommendation?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          confidence_score?: number
+          created_at?: string
+          days_until?: number | null
+          description?: string | null
+          id?: string
+          recommendation?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -33,6 +247,238 @@ export type Database = {
         }
         Relationships: []
       }
+      rooms: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sensors: {
+        Row: {
+          battery_level: number | null
+          created_at: string
+          current_value: number | null
+          deleted_at: string | null
+          id: string
+          last_update: string | null
+          location: string
+          metadata: Json | null
+          name: string
+          status: string
+          type: Database["public"]["Enums"]["sensor_type"]
+          unit: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          battery_level?: number | null
+          created_at?: string
+          current_value?: number | null
+          deleted_at?: string | null
+          id?: string
+          last_update?: string | null
+          location: string
+          metadata?: Json | null
+          name: string
+          status?: string
+          type: Database["public"]["Enums"]["sensor_type"]
+          unit?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          battery_level?: number | null
+          created_at?: string
+          current_value?: number | null
+          deleted_at?: string | null
+          id?: string
+          last_update?: string | null
+          location?: string
+          metadata?: Json | null
+          name?: string
+          status?: string
+          type?: Database["public"]["Enums"]["sensor_type"]
+          unit?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          completed: boolean
+          created_at: string
+          deleted_at: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          list_type: Database["public"]["Enums"]["task_list_type"]
+          metadata: Json | null
+          priority: Database["public"]["Enums"]["task_priority"]
+          room: string | null
+          room_id: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          list_type?: Database["public"]["Enums"]["task_list_type"]
+          metadata?: Json | null
+          priority?: Database["public"]["Enums"]["task_priority"]
+          room?: string | null
+          room_id?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          deleted_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          list_type?: Database["public"]["Enums"]["task_list_type"]
+          metadata?: Json | null
+          priority?: Database["public"]["Enums"]["task_priority"]
+          room?: string | null
+          room_id?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      timeline_events: {
+        Row: {
+          category: Database["public"]["Enums"]["timeline_category"]
+          cost: number | null
+          created_at: string
+          date: string
+          deleted_at: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          room: string | null
+          room_id: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["timeline_category"]
+          cost?: number | null
+          created_at?: string
+          date: string
+          deleted_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          room?: string | null
+          room_id?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["timeline_category"]
+          cost?: number | null
+          created_at?: string
+          date?: string
+          deleted_at?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          room?: string | null
+          room_id?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "timeline_events_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      utility_readings: {
+        Row: {
+          cost: number | null
+          created_at: string
+          id: string
+          reading_date: string
+          trend_direction: string | null
+          trend_percent: number | null
+          unit: string
+          updated_at: string
+          usage_amount: number
+          user_id: string
+          utility_type: Database["public"]["Enums"]["utility_type"]
+        }
+        Insert: {
+          cost?: number | null
+          created_at?: string
+          id?: string
+          reading_date: string
+          trend_direction?: string | null
+          trend_percent?: number | null
+          unit: string
+          updated_at?: string
+          usage_amount: number
+          user_id: string
+          utility_type: Database["public"]["Enums"]["utility_type"]
+        }
+        Update: {
+          cost?: number | null
+          created_at?: string
+          id?: string
+          reading_date?: string
+          trend_direction?: string | null
+          trend_percent?: number | null
+          unit?: string
+          updated_at?: string
+          usage_amount?: number
+          user_id?: string
+          utility_type?: Database["public"]["Enums"]["utility_type"]
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -41,7 +487,42 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      alert_severity: "low" | "medium" | "high" | "critical"
+      alert_type:
+        | "sensor_alert"
+        | "maintenance_reminder"
+        | "warranty_expiration"
+        | "utility_anomaly"
+        | "security_breach"
+      document_type:
+        | "warranty"
+        | "insurance"
+        | "certificate"
+        | "manual"
+        | "receipt"
+        | "inspection"
+      expense_category:
+        | "renovation"
+        | "maintenance"
+        | "appliances"
+        | "services"
+        | "utilities"
+      sensor_type:
+        | "temperature"
+        | "humidity"
+        | "motion"
+        | "door"
+        | "window"
+        | "smoke"
+        | "water_leak"
+      task_list_type: "maintenance" | "projects" | "shopping"
+      task_priority: "low" | "medium" | "high"
+      timeline_category:
+        | "renovation"
+        | "maintenance"
+        | "purchase"
+        | "inspection"
+      utility_type: "electricity" | "gas" | "water" | "internet"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -156,6 +637,48 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      alert_severity: ["low", "medium", "high", "critical"],
+      alert_type: [
+        "sensor_alert",
+        "maintenance_reminder",
+        "warranty_expiration",
+        "utility_anomaly",
+        "security_breach",
+      ],
+      document_type: [
+        "warranty",
+        "insurance",
+        "certificate",
+        "manual",
+        "receipt",
+        "inspection",
+      ],
+      expense_category: [
+        "renovation",
+        "maintenance",
+        "appliances",
+        "services",
+        "utilities",
+      ],
+      sensor_type: [
+        "temperature",
+        "humidity",
+        "motion",
+        "door",
+        "window",
+        "smoke",
+        "water_leak",
+      ],
+      task_list_type: ["maintenance", "projects", "shopping"],
+      task_priority: ["low", "medium", "high"],
+      timeline_category: [
+        "renovation",
+        "maintenance",
+        "purchase",
+        "inspection",
+      ],
+      utility_type: ["electricity", "gas", "water", "internet"],
+    },
   },
 } as const
