@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -44,9 +43,12 @@ export const useTimeline = () => {
         query = query.lte('date', filters.endDate);
       }
 
-      // Apply category filter
+      // Apply category filter - fix the type issue here
       if (filters?.category && filters.category !== 'all') {
-        query = query.eq('category', filters.category);
+        const validCategories = ['maintenance', 'renovation', 'purchase', 'inspection'];
+        if (validCategories.includes(filters.category)) {
+          query = query.eq('category', filters.category as 'maintenance' | 'renovation' | 'purchase' | 'inspection');
+        }
       }
 
       const { data, error } = await query;
