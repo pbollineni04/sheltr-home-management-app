@@ -391,6 +391,7 @@ export type Database = {
           room: string | null
           room_id: string | null
           tags: string[] | null
+          task_id: string | null
           title: string
           updated_at: string
           user_id: string
@@ -407,6 +408,7 @@ export type Database = {
           room?: string | null
           room_id?: string | null
           tags?: string[] | null
+          task_id?: string | null
           title: string
           updated_at?: string
           user_id: string
@@ -423,6 +425,7 @@ export type Database = {
           room?: string | null
           room_id?: string | null
           tags?: string[] | null
+          task_id?: string | null
           title?: string
           updated_at?: string
           user_id?: string
@@ -433,6 +436,13 @@ export type Database = {
             columns: ["room_id"]
             isOneToOne: false
             referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timeline_events_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
             referencedColumns: ["id"]
           },
         ]
