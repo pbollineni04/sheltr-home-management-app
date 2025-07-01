@@ -96,10 +96,10 @@ const ExpenseTracker = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">Expense Tracker</h2>
-          <p className="text-gray-600">Monitor all home-related spending</p>
+          <h2 className="text-3xl font-bold text-foreground">Expense Tracker</h2>
+          <p className="text-muted-foreground">Monitor all home-related spending</p>
         </div>
-        <Button className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700">
+        <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
           <Plus className="w-4 h-4 mr-2" />
           Add Expense
         </Button>
@@ -111,8 +111,8 @@ const ExpenseTracker = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">This Month</p>
-                <p className="text-3xl font-bold text-gray-900">${thisMonthExpenses.toLocaleString()}</p>
+                <p className="text-sm font-medium text-muted-foreground">This Month</p>
+                <p className="text-3xl font-bold text-foreground">${thisMonthExpenses.toLocaleString()}</p>
               </div>
               <TrendingUp className="w-8 h-8 text-green-600" />
             </div>
@@ -124,12 +124,12 @@ const ExpenseTracker = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Expenses</p>
-                <p className="text-3xl font-bold text-gray-900">${totalExpenses.toLocaleString()}</p>
+                <p className="text-sm font-medium text-muted-foreground">Total Expenses</p>
+                <p className="text-3xl font-bold text-foreground">${totalExpenses.toLocaleString()}</p>
               </div>
               <DollarSign className="w-8 h-8 text-blue-600" />
             </div>
-            <p className="text-sm text-gray-600 mt-2">All time</p>
+            <p className="text-sm text-muted-foreground mt-2">All time</p>
           </CardContent>
         </Card>
         
@@ -137,12 +137,12 @@ const ExpenseTracker = () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Avg per Month</p>
-                <p className="text-3xl font-bold text-gray-900">${Math.round(totalExpenses / 12).toLocaleString()}</p>
+                <p className="text-sm font-medium text-muted-foreground">Avg per Month</p>
+                <p className="text-3xl font-bold text-foreground">${Math.round(totalExpenses / 12).toLocaleString()}</p>
               </div>
               <TrendingDown className="w-8 h-8 text-purple-600" />
             </div>
-            <p className="text-sm text-gray-600 mt-2">12 month average</p>
+            <p className="text-sm text-muted-foreground mt-2">12 month average</p>
           </CardContent>
         </Card>
       </div>
@@ -180,8 +180,8 @@ const ExpenseTracker = () => {
                     <IconComponent className={`w-5 h-5 ${text}`} />
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{category.label}</p>
-                    <p className="text-lg font-bold text-gray-900">
+                    <p className="font-medium text-foreground">{category.label}</p>
+                    <p className="text-lg font-bold text-foreground">
                       ${category.amount.toLocaleString()}
                     </p>
                   </div>
@@ -200,15 +200,15 @@ const ExpenseTracker = () => {
         <CardContent>
           <div className="space-y-4">
             {expenses.map((expense) => (
-              <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
+              <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-1">
-                    <h4 className="font-medium text-gray-900">{expense.description}</h4>
+                    <h4 className="font-medium text-foreground">{expense.description}</h4>
                     <Badge className={getCategoryColor(expense.category)}>
                       {expense.category}
                     </Badge>
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span>{expense.vendor}</span>
                     <span className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
@@ -221,7 +221,7 @@ const ExpenseTracker = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-xl font-bold text-gray-900">${expense.amount.toLocaleString()}</p>
+                  <p className="text-xl font-bold text-foreground">${expense.amount.toLocaleString()}</p>
                 </div>
               </div>
             ))}
