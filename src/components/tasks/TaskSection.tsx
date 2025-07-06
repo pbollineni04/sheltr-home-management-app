@@ -14,7 +14,7 @@ interface TaskSectionProps {
 const TaskSection = ({ title, icon: IconComponent, tasks, onToggleComplete, onDelete }: TaskSectionProps) => {
   return (
     <div className="space-y-4">
-      <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+      <h3 className="text-xl font-semibold text-foreground flex items-center gap-2">
         <IconComponent className="w-5 h-5" />
         {title} ({tasks.length})
       </h3>

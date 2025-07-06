@@ -15,11 +15,11 @@ interface TaskCardProps {
 const TaskCard = ({ task, onToggleComplete, onDelete }: TaskCardProps) => {
   const getPriorityColor = (priority: string) => {
     const colors = {
-      high: "bg-red-100 text-red-800",
-      medium: "bg-yellow-100 text-yellow-800",
-      low: "bg-green-100 text-green-800"
+      high: "bg-destructive/10 text-destructive",
+      medium: "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300",
+      low: "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
     };
-    return colors[priority as keyof typeof colors] || "bg-gray-100 text-gray-800";
+    return colors[priority as keyof typeof colors] || "bg-muted text-muted-foreground";
   };
 
   return (
@@ -33,7 +33,7 @@ const TaskCard = ({ task, onToggleComplete, onDelete }: TaskCardProps) => {
           />
           <div className="flex-1">
             <div className="flex items-start justify-between mb-2">
-              <h4 className={`font-semibold ${task.completed ? 'text-gray-600 line-through' : 'text-gray-900'}`}>
+              <h4 className={`font-semibold ${task.completed ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
                 {task.title}
               </h4>
               <div className="flex items-center gap-2">
@@ -44,18 +44,18 @@ const TaskCard = ({ task, onToggleComplete, onDelete }: TaskCardProps) => {
                   variant="ghost"
                   size="sm"
                   onClick={() => onDelete(task.id)}
-                  className="text-red-600 hover:text-red-800"
+                  className="text-destructive hover:text-destructive/80"
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
             </div>
             {task.description && (
-              <p className={`mb-2 ${task.completed ? 'text-gray-500 text-sm line-through' : 'text-gray-600'}`}>
+              <p className={`mb-2 ${task.completed ? 'text-muted-foreground text-sm line-through' : 'text-muted-foreground'}`}>
                 {task.description}
               </p>
             )}
-            <div className="flex items-center gap-4 text-sm text-gray-500">
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
               {task.due_date && (
                 <span className="flex items-center gap-1">
                   <Clock className="w-4 h-4" />
