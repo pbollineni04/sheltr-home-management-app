@@ -24,7 +24,7 @@ import HomeTimeline from "@/components/HomeTimeline";
 import TasksLists from "@/components/TasksLists";
 import ExpenseTracker from "@/components/ExpenseTracker";
 import SheltrHelper from "@/components/SheltrHelper";
-import WarrantyVault from "@/components/WarrantyVault";
+import DocumentVault from "@/components/DocumentVault";
 import MoveInOut from "@/components/MoveInOut";
 import Navigation from "@/components/Navigation";
 import EnergyTracker from "@/components/EnergyTracker";
@@ -135,7 +135,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="vault">
-            {featureFlags.warrantyVault && <WarrantyVault />}
+            {featureFlags.warrantyVault && <DocumentVault />}
           </TabsContent>
 
           <TabsContent value="move">

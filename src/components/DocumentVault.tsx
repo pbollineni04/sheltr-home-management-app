@@ -1,0 +1,252 @@
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Vault, 
+  Upload, 
+  Search,
+  Filter,
+  Grid,
+  List,
+  Plus,
+  Star,
+  Archive,
+  FolderOpen,
+  BarChart3
+} from "lucide-react";
+import { useDocuments } from "@/hooks/useDocuments";
+import { DocumentFilter, DocumentCategory } from "@/types/document";
+import DocumentUploadDialog from "./document/DocumentUploadDialog";
+import DocumentCard from "./document/DocumentCard";
+import DocumentList from "./document/DocumentList";
+import DocumentFilters from "./document/DocumentFilters";
+import DocumentStats from "./document/DocumentStats";
+import FolderView from "./document/FolderView";
+
+const CATEGORIES: { value: DocumentCategory; label: string; color: string }[] = [
+  { value: 'personal', label: 'Personal', color: 'bg-blue-100 text-blue-800' },
+  { value: 'financial', label: 'Financial', color: 'bg-green-100 text-green-800' },
+  { value: 'legal', label: 'Legal', color: 'bg-purple-100 text-purple-800' },
+  { value: 'medical', label: 'Medical', color: 'bg-red-100 text-red-800' },
+  { value: 'insurance', label: 'Insurance', color: 'bg-cyan-100 text-cyan-800' },
+  { value: 'warranty', label: 'Warranty', color: 'bg-orange-100 text-orange-800' },
+  { value: 'tax', label: 'Tax', color: 'bg-yellow-100 text-yellow-800' },
+  { value: 'property', label: 'Property', color: 'bg-emerald-100 text-emerald-800' },
+  { value: 'education', label: 'Education', color: 'bg-indigo-100 text-indigo-800' },
+  { value: 'employment', label: 'Employment', color: 'bg-pink-100 text-pink-800' },
+  { value: 'travel', label: 'Travel', color: 'bg-teal-100 text-teal-800' },
+  { value: 'automotive', label: 'Automotive', color: 'bg-slate-100 text-slate-800' },
+  { value: 'other', label: 'Other', color: 'bg-gray-100 text-gray-800' }
+];
+
+const DocumentVault = () => {
+  const { documents, loading, fetchDocuments, getDocumentStats } = useDocuments();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeFilter, setActiveFilter] = useState<DocumentFilter>({});
+  const [viewMode, setViewMode] = useState<'grid' | 'list' | 'folders'>('grid');
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<DocumentCategory | 'all'>('all');
+  const [showFavorites, setShowFavorites] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
+
+  const stats = getDocumentStats();
+
+  const filteredDocuments = documents.filter(doc => {
+    const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         doc.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         doc.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesCategory = selectedCategory === 'all' || doc.category_enum === selectedCategory;
+    const matchesFavorites = !showFavorites || doc.is_favorite;
+    const matchesArchived = showArchived ? doc.archived : !doc.archived;
+    
+    return matchesSearch && matchesCategory && matchesFavorites && matchesArchived;
+  });
+
+  const handleFilterChange = (filter: DocumentFilter) => {
+    setActiveFilter(filter);
+    fetchDocuments(filter);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="text-center">
+        <div className="w-16 h-16 bg-gradient-to-r from-primary to-primary/80 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Vault className="w-8 h-8 text-primary-foreground" />
+        </div>
+        <h2 className="text-3xl font-bold">Document Vault</h2>
+        <p className="text-muted-foreground">Secure storage and management for all your important documents</p>
+      </div>
+
+      {/* Quick Stats */}
+      <DocumentStats stats={stats} />
+
+      {/* Action Bar */}
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <div className="flex items-center gap-2 flex-1 max-w-2xl">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 absolute left-3 top-3 text-muted-foreground" />
+            <Input
+              placeholder="Search documents, tags, or descriptions..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+          >
+            <Filter className="w-4 h-4" />
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {/* View Mode Toggle */}
+          <div className="flex items-center border rounded-lg p-1">
+            <Button
+              variant={viewMode === 'grid' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('grid')}
+            >
+              <Grid className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+            >
+              <List className="w-4 h-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'folders' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('folders')}
+            >
+              <FolderOpen className="w-4 h-4" />
+            </Button>
+          </div>
+
+          <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-gradient-to-r from-primary to-primary/80">
+                <Upload className="w-4 h-4 mr-2" />
+                Upload Document
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Upload New Document</DialogTitle>
+              </DialogHeader>
+              <DocumentUploadDialog onClose={() => setIsUploadDialogOpen(false)} />
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+
+      {/* Filters */}
+      {isFilterOpen && (
+        <DocumentFilters
+          onFilterChange={handleFilterChange}
+          onClose={() => setIsFilterOpen(false)}
+        />
+      )}
+
+      {/* Category Filter Tabs */}
+      <div className="flex flex-wrap gap-2">
+        <Button
+          variant={selectedCategory === 'all' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setSelectedCategory('all')}
+        >
+          All Documents
+        </Button>
+        {CATEGORIES.map(category => (
+          <Button
+            key={category.value}
+            variant={selectedCategory === category.value ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setSelectedCategory(category.value)}
+          >
+            {category.label}
+          </Button>
+        ))}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="flex gap-2">
+        <Button
+          variant={showFavorites ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setShowFavorites(!showFavorites)}
+        >
+          <Star className="w-4 h-4 mr-2" />
+          Favorites
+        </Button>
+        <Button
+          variant={showArchived ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setShowArchived(!showArchived)}
+        >
+          <Archive className="w-4 h-4 mr-2" />
+          {showArchived ? 'Hide Archived' : 'Show Archived'}
+        </Button>
+      </div>
+
+      {/* Document Display */}
+      {loading ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-6">
+                <div className="h-4 bg-muted rounded mb-2"></div>
+                <div className="h-3 bg-muted rounded mb-4 w-2/3"></div>
+                <div className="h-2 bg-muted rounded"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : filteredDocuments.length === 0 ? (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <Vault className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No documents found</h3>
+            <p className="text-muted-foreground mb-4">
+              {searchTerm || selectedCategory !== 'all' || showFavorites || showArchived
+                ? "No documents match your current filters."
+                : "Get started by uploading your first document to the vault."
+              }
+            </p>
+            <Button onClick={() => setIsUploadDialogOpen(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Upload Document
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          {viewMode === 'folders' ? (
+            <FolderView documents={filteredDocuments} />
+          ) : viewMode === 'list' ? (
+            <DocumentList documents={filteredDocuments} />
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {filteredDocuments.map((doc) => (
+                <DocumentCard key={doc.id} document={doc} />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+};
+
+export default DocumentVault;
