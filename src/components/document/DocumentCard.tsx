@@ -18,6 +18,7 @@ import {
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Document } from "@/types/document";
 import { useDocuments } from "@/hooks/useDocuments";
+import { getCategoryColor, getCategoryIcon } from "@/utils/categoryIcons";
 import { format } from "date-fns";
 
 interface DocumentCardProps {
@@ -35,23 +36,13 @@ const getFileIcon = (mimeType?: string) => {
   return FileText;
 };
 
-const getCategoryColor = (category?: string) => {
-  const colors: Record<string, string> = {
-    personal: 'bg-blue-100 text-blue-800',
-    financial: 'bg-green-100 text-green-800',
-    legal: 'bg-purple-100 text-purple-800',
-    medical: 'bg-red-100 text-red-800',
-    insurance: 'bg-cyan-100 text-cyan-800',
-    warranty: 'bg-orange-100 text-orange-800',
-    tax: 'bg-yellow-100 text-yellow-800',
-    property: 'bg-emerald-100 text-emerald-800',
-    education: 'bg-indigo-100 text-indigo-800',
-    employment: 'bg-pink-100 text-pink-800',
-    travel: 'bg-teal-100 text-teal-800',
-    automotive: 'bg-slate-100 text-slate-800',
-    other: 'bg-gray-100 text-gray-800'
-  };
-  return colors[category || 'other'] || colors.other;
+const getCategoryBadgeContent = (category?: string) => {
+  if (!category) return null;
+  
+  const CategoryIcon = getCategoryIcon(category as any);
+  const colorClass = getCategoryColor(category as any);
+  
+  return { CategoryIcon, colorClass };
 };
 
 const formatFileSize = (bytes?: number) => {
@@ -143,11 +134,17 @@ const DocumentCard = ({ document }: DocumentCardProps) => {
           )}
 
           <div className="flex flex-wrap gap-1">
-            {document.category_enum && (
-              <Badge variant="secondary" className={`text-xs ${getCategoryColor(document.category_enum)}`}>
-                {document.category_enum}
-              </Badge>
-            )}
+            {document.category_enum && (() => {
+              const categoryBadge = getCategoryBadgeContent(document.category_enum);
+              if (!categoryBadge) return null;
+              const { CategoryIcon, colorClass } = categoryBadge;
+              return (
+                <Badge variant="secondary" className={`text-xs gap-1 ${colorClass}`}>
+                  <CategoryIcon className="w-3 h-3" />
+                  {document.category_enum}
+                </Badge>
+              );
+            })()}
             {document.type && (
               <Badge variant="outline" className="text-xs">
                 {document.type}

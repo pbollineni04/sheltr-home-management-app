@@ -17,6 +17,7 @@ import {
 import { useDocuments } from "@/hooks/useDocuments";
 import { DocumentCategory, NewDocumentForm } from "@/types/document";
 import { useToast } from "@/hooks/use-toast";
+import { categoryIcons } from "@/utils/categoryIcons";
 
 interface DocumentUploadDialogProps {
   onClose: () => void;
@@ -222,11 +223,17 @@ const DocumentUploadDialog = ({ onClose }: DocumentUploadDialogProps) => {
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
-                {CATEGORIES.map(category => (
-                  <SelectItem key={category.value} value={category.value}>
-                    {category.label}
-                  </SelectItem>
-                ))}
+                {CATEGORIES.map(category => {
+                  const CategoryIcon = categoryIcons[category.value];
+                  return (
+                    <SelectItem key={category.value} value={category.value}>
+                      <div className="flex items-center gap-2">
+                        <CategoryIcon className="w-4 h-4" />
+                        {category.label}
+                      </div>
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           </div>

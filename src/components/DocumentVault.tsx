@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Vault, 
+  Shield, 
   Upload, 
   Search,
   Filter,
@@ -16,10 +16,13 @@ import {
   Star,
   Archive,
   FolderOpen,
-  BarChart3
+  BarChart3,
+  ShieldCheck,
+  Lock
 } from "lucide-react";
 import { useDocuments } from "@/hooks/useDocuments";
 import { DocumentFilter, DocumentCategory } from "@/types/document";
+import { categoryIcons, getCategoryColor } from "@/utils/categoryIcons";
 import DocumentUploadDialog from "./document/DocumentUploadDialog";
 import DocumentCard from "./document/DocumentCard";
 import DocumentList from "./document/DocumentList";
@@ -28,19 +31,19 @@ import DocumentStats from "./document/DocumentStats";
 import FolderView from "./document/FolderView";
 
 const CATEGORIES: { value: DocumentCategory; label: string; color: string }[] = [
-  { value: 'personal', label: 'Personal', color: 'bg-blue-100 text-blue-800' },
-  { value: 'financial', label: 'Financial', color: 'bg-green-100 text-green-800' },
-  { value: 'legal', label: 'Legal', color: 'bg-purple-100 text-purple-800' },
-  { value: 'medical', label: 'Medical', color: 'bg-red-100 text-red-800' },
-  { value: 'insurance', label: 'Insurance', color: 'bg-cyan-100 text-cyan-800' },
-  { value: 'warranty', label: 'Warranty', color: 'bg-orange-100 text-orange-800' },
-  { value: 'tax', label: 'Tax', color: 'bg-yellow-100 text-yellow-800' },
-  { value: 'property', label: 'Property', color: 'bg-emerald-100 text-emerald-800' },
-  { value: 'education', label: 'Education', color: 'bg-indigo-100 text-indigo-800' },
-  { value: 'employment', label: 'Employment', color: 'bg-pink-100 text-pink-800' },
-  { value: 'travel', label: 'Travel', color: 'bg-teal-100 text-teal-800' },
-  { value: 'automotive', label: 'Automotive', color: 'bg-slate-100 text-slate-800' },
-  { value: 'other', label: 'Other', color: 'bg-gray-100 text-gray-800' }
+  { value: 'personal', label: 'Personal', color: getCategoryColor('personal') },
+  { value: 'financial', label: 'Financial', color: getCategoryColor('financial') },
+  { value: 'legal', label: 'Legal', color: getCategoryColor('legal') },
+  { value: 'medical', label: 'Medical', color: getCategoryColor('medical') },
+  { value: 'insurance', label: 'Insurance', color: getCategoryColor('insurance') },
+  { value: 'warranty', label: 'Warranty', color: getCategoryColor('warranty') },
+  { value: 'tax', label: 'Tax', color: getCategoryColor('tax') },
+  { value: 'property', label: 'Property', color: getCategoryColor('property') },
+  { value: 'education', label: 'Education', color: getCategoryColor('education') },
+  { value: 'employment', label: 'Employment', color: getCategoryColor('employment') },
+  { value: 'travel', label: 'Travel', color: getCategoryColor('travel') },
+  { value: 'automotive', label: 'Automotive', color: getCategoryColor('automotive') },
+  { value: 'other', label: 'Other', color: getCategoryColor('other') }
 ];
 
 const DocumentVault = () => {
@@ -77,8 +80,11 @@ const DocumentVault = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center">
-        <div className="w-16 h-16 bg-gradient-to-r from-primary to-primary/80 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Vault className="w-8 h-8 text-primary-foreground" />
+        <div className="w-16 h-16 bg-gradient-to-r from-primary to-primary/80 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+          <div className="relative">
+            <ShieldCheck className="w-6 h-6 text-primary-foreground" />
+            <Lock className="w-3 h-3 text-primary-foreground absolute -bottom-1 -right-1" />
+          </div>
         </div>
         <h2 className="text-3xl font-bold">Document Vault</h2>
         <p className="text-muted-foreground">Secure storage and management for all your important documents</p>
@@ -165,19 +171,26 @@ const DocumentVault = () => {
           variant={selectedCategory === 'all' ? 'default' : 'outline'}
           size="sm"
           onClick={() => setSelectedCategory('all')}
+          className="gap-2"
         >
+          <BarChart3 className="w-4 h-4" />
           All Documents
         </Button>
-        {CATEGORIES.map(category => (
-          <Button
-            key={category.value}
-            variant={selectedCategory === category.value ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setSelectedCategory(category.value)}
-          >
-            {category.label}
-          </Button>
-        ))}
+        {CATEGORIES.map(category => {
+          const CategoryIcon = categoryIcons[category.value];
+          return (
+            <Button
+              key={category.value}
+              variant={selectedCategory === category.value ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedCategory(category.value)}
+              className="gap-2"
+            >
+              <CategoryIcon className="w-4 h-4" />
+              {category.label}
+            </Button>
+          );
+        })}
       </div>
 
       {/* Quick Actions */}
@@ -216,7 +229,10 @@ const DocumentVault = () => {
       ) : filteredDocuments.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
-            <Vault className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+            <div className="relative w-12 h-12 mx-auto mb-4">
+              <ShieldCheck className="w-10 h-10 text-muted-foreground" />
+              <Lock className="w-4 h-4 text-muted-foreground absolute -bottom-1 -right-1" />
+            </div>
             <h3 className="text-lg font-semibold mb-2">No documents found</h3>
             <p className="text-muted-foreground mb-4">
               {searchTerm || selectedCategory !== 'all' || showFavorites || showArchived

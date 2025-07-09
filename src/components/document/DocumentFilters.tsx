@@ -12,8 +12,9 @@ import {
   Calendar,
   FileType,
   FolderOpen
-} from "lucide-react";
+ } from "lucide-react";
 import { DocumentFilter, DocumentCategory } from "@/types/document";
+import { categoryIcons } from "@/utils/categoryIcons";
 
 interface DocumentFiltersProps {
   onFilterChange: (filter: DocumentFilter) => void;
@@ -107,11 +108,17 @@ const DocumentFilters = ({ onFilterChange, onClose }: DocumentFiltersProps) => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">All categories</SelectItem>
-                {CATEGORIES.map(category => (
-                  <SelectItem key={category.value} value={category.value}>
-                    {category.label}
-                  </SelectItem>
-                ))}
+                {CATEGORIES.map(category => {
+                  const CategoryIcon = categoryIcons[category.value];
+                  return (
+                    <SelectItem key={category.value} value={category.value}>
+                      <div className="flex items-center gap-2">
+                        <CategoryIcon className="w-4 h-4" />
+                        {category.label}
+                      </div>
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           </div>
