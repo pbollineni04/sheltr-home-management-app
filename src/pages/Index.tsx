@@ -19,16 +19,16 @@ import {
   Bell
 } from "lucide-react";
 import { featureFlags } from "@/lib/featureFlags";
-import DashboardOverview from "@/components/DashboardOverview";
-import HomeTimeline from "@/components/HomeTimeline";
-import TasksLists from "@/components/TasksLists";
-import ExpenseTracker from "@/components/ExpenseTracker";
-import SheltrHelper from "@/components/SheltrHelper";
-import DocumentVault from "@/components/DocumentVault";
-import MoveInOut from "@/components/MoveInOut";
+import { DashboardOverview } from "@/features/dashboard";
+import { HomeTimeline } from "@/features/timeline";
+import { TasksLists } from "@/features/tasks";
+import { ExpenseTracker } from "@/features/expenses";
+import { SheltrHelper } from "@/features/helper";
+import { DocumentVault } from "@/features/documents";
+import { MoveInOut } from "@/features/move";
 import Navigation from "@/components/Navigation";
-import EnergyTracker from "@/components/EnergyTracker";
-import SmartAlerts from "@/components/SmartAlerts";
+import { EnergyTracker } from "@/features/energy";
+import { SmartAlerts } from "@/features/alerts";
 
 const tabFlags = [
   featureFlags.dashboardOverview,
