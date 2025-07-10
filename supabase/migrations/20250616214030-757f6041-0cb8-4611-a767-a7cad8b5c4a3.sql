@@ -1,4 +1,3 @@
-
 -- Create enum types for better data consistency
 CREATE TYPE public.task_priority AS ENUM ('low', 'medium', 'high');
 CREATE TYPE public.task_list_type AS ENUM ('maintenance', 'projects', 'shopping');

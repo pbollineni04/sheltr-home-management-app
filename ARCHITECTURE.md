@@ -6,7 +6,7 @@ This project follows a feature-based architecture where related components, hook
 
 ### Directory Structure
 
-```
+\`\`\`
 src/
 ├── components/           # Shared/common components
 │   ├── ui/              # UI component library (shadcn/ui)
@@ -29,13 +29,13 @@ src/
 ├── lib/                 # Utility libraries
 ├── pages/               # Page components
 └── integrations/        # External service integrations
-```
+\`\`\`
 
 ### Feature Module Structure
 
 Each feature module follows this structure:
 
-```
+\`\`\`
 feature/
 ├── components/          # Feature-specific components
 │   ├── FeatureMain.tsx  # Main feature component
@@ -46,7 +46,7 @@ feature/
 ├── utils/               # Feature-specific utilities
 ├── data/                # Static data and constants
 └── index.ts             # Feature exports
-```
+\`\`\`
 
 ### Benefits of This Structure
 

@@ -1,75 +1,76 @@
+"use client"
 
-import { useState } from "react";
-import { CheckSquare, Clock, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useTasks } from "../hooks/useTasks";
-import AddTaskDialog from "./AddTaskDialog";
-import TaskListSelector from "./tasks/TaskListSelector";
-import QuickAddTask from "./tasks/QuickAddTask";
-import TaskSection from "./tasks/TaskSection";
-import EmptyTasksState from "./tasks/EmptyTasksState";
-import { getTaskBundle, TaskTemplate } from "../data/taskTemplates";
+import { useState } from "react"
+import { CheckSquare, Clock, Sparkles } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { useTasks } from "@/features/tasks/hooks/useTasks"
+import AddTaskDialog from "@/features/tasks/components/AddTaskDialog"
+import TaskListSelector from "@/features/tasks/components/tasks/TaskListSelector"
+import QuickAddTask from "@/features/tasks/components/tasks/QuickAddTask"
+import TaskSection from "@/features/tasks/components/tasks/TaskSection"
+import EmptyTasksState from "@/features/tasks/components/tasks/EmptyTasksState"
+import { getTaskBundle } from "@/features/tasks/data/taskTemplates"
 
 const TasksLists = () => {
-  const [selectedList, setSelectedList] = useState("maintenance");
-  const { tasks, loading, addTask, toggleTaskComplete, deleteTask } = useTasks();
+  const [selectedList, setSelectedList] = useState("maintenance")
+  const { tasks, loading, addTask, toggleTaskComplete, deleteTask } = useTasks()
 
-  const filteredTasks = tasks.filter(task => task.list_type === selectedList);
-  const pendingTasks = filteredTasks.filter(task => !task.completed);
-  const completedTasks = filteredTasks.filter(task => task.completed);
+  const filteredTasks = tasks.filter((task) => task.list_type === selectedList)
+  const pendingTasks = filteredTasks.filter((task) => !task.completed)
+  const completedTasks = filteredTasks.filter((task) => task.completed)
 
   const handleToggleComplete = async (taskId: string, completed: boolean) => {
-    await toggleTaskComplete(taskId, !completed);
-  };
+    await toggleTaskComplete(taskId, !completed)
+  }
 
   const handleDeleteTask = async (taskId: string) => {
-    await deleteTask(taskId);
-  };
+    await deleteTask(taskId)
+  }
 
   const handleQuickBundle = async (bundleId: string) => {
-    const bundle = getTaskBundle(bundleId);
+    const bundle = getTaskBundle(bundleId)
     if (bundle && bundle.taskTemplates) {
       for (const template of bundle.taskTemplates) {
-        const dueDate = template.due_date_offset_days 
-          ? new Date(Date.now() + template.due_date_offset_days * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-          : undefined;
+        const dueDate = template.due_date_offset_days
+          ? new Date(Date.now() + template.due_date_offset_days * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+          : undefined
 
         await addTask({
           title: template.title,
           description: template.description,
-          list_type: selectedList as 'maintenance' | 'projects' | 'shopping',
+          list_type: selectedList as "maintenance" | "projects" | "shopping",
           priority: template.priority,
           due_date: dueDate,
           room: template.suggested_room,
-          completed: false
-        });
+          completed: false,
+        })
       }
     }
-  };
+  }
 
   // Get relevant quick bundles based on selected list and season
   const getCurrentSeason = () => {
-    const month = new Date().getMonth();
-    if (month >= 2 && month <= 4) return 'spring';
-    if (month >= 5 && month <= 7) return 'summer';
-    if (month >= 8 && month <= 10) return 'fall';
-    return 'winter';
-  };
+    const month = new Date().getMonth()
+    if (month >= 2 && month <= 4) return "spring"
+    if (month >= 5 && month <= 7) return "summer"
+    if (month >= 8 && month <= 10) return "fall"
+    return "winter"
+  }
 
   const getQuickBundles = () => {
-    const season = getCurrentSeason();
-    const relevantBundles = [];
-    
-    if (selectedList === 'maintenance') {
-      relevantBundles.push('monthly-maintenance', 'safety-check');
-      if (season === 'spring') relevantBundles.push('spring-cleaning');
-      if (season === 'fall') relevantBundles.push('winter-prep');
-    } else if (selectedList === 'shopping') {
-      relevantBundles.push('basic-toolkit');
+    const season = getCurrentSeason()
+    const relevantBundles = []
+
+    if (selectedList === "maintenance") {
+      relevantBundles.push("monthly-maintenance", "safety-check")
+      if (season === "spring") relevantBundles.push("spring-cleaning")
+      if (season === "fall") relevantBundles.push("winter-prep")
+    } else if (selectedList === "shopping") {
+      relevantBundles.push("basic-toolkit")
     }
-    
-    return relevantBundles;
-  };
+
+    return relevantBundles
+  }
 
   if (loading) {
     return (
@@ -78,7 +79,7 @@ const TasksLists = () => {
           <div className="text-lg text-muted-foreground">Loading tasks...</div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -93,11 +94,7 @@ const TasksLists = () => {
       </div>
 
       {/* List Selector */}
-      <TaskListSelector 
-        selectedList={selectedList}
-        onSelectList={setSelectedList}
-        tasks={tasks}
-      />
+      <TaskListSelector selectedList={selectedList} onSelectList={setSelectedList} tasks={tasks} />
 
       {/* Quick Bundle Buttons */}
       {getQuickBundles().length > 0 && (
@@ -108,9 +105,9 @@ const TasksLists = () => {
           </div>
           <div className="flex flex-wrap gap-2">
             {getQuickBundles().map((bundleId) => {
-              const bundle = getTaskBundle(bundleId);
-              if (!bundle) return null;
-              
+              const bundle = getTaskBundle(bundleId)
+              if (!bundle) return null
+
               return (
                 <Button
                   key={bundleId}
@@ -121,21 +118,16 @@ const TasksLists = () => {
                 >
                   <span>{bundle.icon}</span>
                   {bundle.name}
-                  <span className="text-xs text-muted-foreground">
-                    ({bundle.tasks.length})
-                  </span>
+                  <span className="text-xs text-muted-foreground">({bundle.tasks.length})</span>
                 </Button>
-              );
+              )
             })}
           </div>
         </div>
       )}
 
       {/* Quick Add Task */}
-      <QuickAddTask 
-        selectedList={selectedList}
-        onAddTask={addTask}
-      />
+      <QuickAddTask selectedList={selectedList} onAddTask={addTask} />
 
       {/* Pending Tasks */}
       {pendingTasks.length > 0 && (
@@ -162,7 +154,7 @@ const TasksLists = () => {
       {/* Empty State */}
       {filteredTasks.length === 0 && <EmptyTasksState />}
     </div>
-  );
-};
+  )
+}
 
-export default TasksLists;
+export default TasksLists

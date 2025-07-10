@@ -1,1 +1,1 @@
-export { default as MoveInOut } from './components/MoveInOut';
+export { default as MoveInOut } from "./components/MoveInOut"

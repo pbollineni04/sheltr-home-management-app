@@ -1,26 +1,22 @@
+"use client"
 
-import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { 
-  Shield, 
-  FileText, 
-  Plus,
-  Search
-} from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { Document, NewDocumentForm } from "@/types/warranty";
-import { getExpirationStatus } from "@/utils/documentProcessor";
-import DocumentUpload from "./warranty/DocumentUpload";
-import DocumentForm from "./warranty/DocumentForm";
-import DocumentList from "./warranty/DocumentList";
-import AlertsSection from "./warranty/AlertsSection";
+import { useState } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Shield, FileText, Plus, Search } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import type { Document, NewDocumentForm } from "@/types/warranty"
+import { getExpirationStatus } from "@/utils/documentProcessor"
+import DocumentUpload from "./warranty/DocumentUpload"
+import DocumentForm from "./warranty/DocumentForm"
+import DocumentList from "./warranty/DocumentList"
+import AlertsSection from "./warranty/AlertsSection"
 
 const WarrantyVault = () => {
-  const { toast } = useToast();
+  const { toast } = useToast()
   const [documents, setDocuments] = useState<Document[]>([
     {
       id: 1,
@@ -30,7 +26,7 @@ const WarrantyVault = () => {
       expirationDate: "2025-08-15",
       uploadDate: "2024-01-15",
       reminderDays: 30,
-      notes: "Model RF28R7351SG - Kitchen"
+      notes: "Model RF28R7351SG - Kitchen",
     },
     {
       id: 2,
@@ -40,7 +36,7 @@ const WarrantyVault = () => {
       expirationDate: "2024-12-31",
       uploadDate: "2024-01-01",
       reminderDays: 60,
-      notes: "Policy #: HI-2024-001"
+      notes: "Policy #: HI-2024-001",
     },
     {
       id: 3,
@@ -50,54 +46,55 @@ const WarrantyVault = () => {
       expirationDate: "2024-09-30",
       uploadDate: "2024-03-30",
       reminderDays: 15,
-      notes: "Annual maintenance - ABC HVAC Co."
-    }
-  ]);
+      notes: "Annual maintenance - ABC HVAC Co.",
+    },
+  ])
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState("all");
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [searchTerm, setSearchTerm] = useState("")
+  const [activeTab, setActiveTab] = useState("all")
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
   const [newDocument, setNewDocument] = useState<NewDocumentForm>({
     name: "",
     type: "warranty",
     category: "",
     expirationDate: "",
     reminderDays: 30,
-    notes: ""
-  });
+    notes: "",
+  })
 
-  const filteredDocuments = documents.filter(doc => {
-    const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         doc.category.toLowerCase().includes(searchTerm.toLowerCase());
-    
+  const filteredDocuments = documents.filter((doc) => {
+    const matchesSearch =
+      doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doc.category.toLowerCase().includes(searchTerm.toLowerCase())
+
     // Handle archive tab - only show archived documents
     if (activeTab === "archive") {
-      return matchesSearch && doc.archived;
+      return matchesSearch && doc.archived
     }
-    
+
     // For all other tabs, exclude archived documents
-    const notArchived = !doc.archived;
-    const matchesTab = activeTab === "all" || doc.type === activeTab;
-    return matchesSearch && matchesTab && notArchived;
-  });
+    const notArchived = !doc.archived
+    const matchesTab = activeTab === "all" || doc.type === activeTab
+    return matchesSearch && matchesTab && notArchived
+  })
 
-  const activeDocuments = documents.filter(doc => !doc.archived);
-  
-  const expiringDocuments = activeDocuments.filter(doc => 
-    getExpirationStatus(doc.expirationDate, doc.reminderDays) === 'warning'
-  );
+  const activeDocuments = documents.filter((doc) => !doc.archived)
 
-  const expiredDocuments = activeDocuments.filter(doc => 
-    getExpirationStatus(doc.expirationDate, doc.reminderDays) === 'expired'
-  );
+  const expiringDocuments = activeDocuments.filter(
+    (doc) => getExpirationStatus(doc.expirationDate, doc.reminderDays) === "warning",
+  )
+
+  const expiredDocuments = activeDocuments.filter(
+    (doc) => getExpirationStatus(doc.expirationDate, doc.reminderDays) === "expired",
+  )
 
   const handleExtractedData = (data: Partial<NewDocumentForm>) => {
-    setNewDocument(prev => ({
+    setNewDocument((prev) => ({
       ...prev,
-      ...data
-    }));
-  };
+      ...data,
+    }))
+  }
 
   const resetForm = () => {
     setNewDocument({
@@ -106,46 +103,42 @@ const WarrantyVault = () => {
       category: "",
       expirationDate: "",
       reminderDays: 30,
-      notes: ""
-    });
-    setUploadedFile(null);
-  };
+      notes: "",
+    })
+    setUploadedFile(null)
+  }
 
   const handleAddDocument = () => {
     const newDoc: Document = {
       id: documents.length + 1,
       ...newDocument,
-      uploadDate: new Date().toISOString().split('T')[0],
-      fileUrl: uploadedFile ? URL.createObjectURL(uploadedFile) : undefined
-    };
-    setDocuments([...documents, newDoc]);
-    resetForm();
-    setIsAddDialogOpen(false);
+      uploadDate: new Date().toISOString().split("T")[0],
+      fileUrl: uploadedFile ? URL.createObjectURL(uploadedFile) : undefined,
+    }
+    setDocuments([...documents, newDoc])
+    resetForm()
+    setIsAddDialogOpen(false)
     toast({
       title: "Document Added",
-      description: "Your document has been securely stored in the vault."
-    });
-  };
+      description: "Your document has been securely stored in the vault.",
+    })
+  }
 
   const handleArchiveDocument = (id: number) => {
-    setDocuments(docs => 
-      docs.map(doc => 
-        doc.id === id ? { ...doc, archived: true } : doc
-      )
-    );
+    setDocuments((docs) => docs.map((doc) => (doc.id === id ? { ...doc, archived: true } : doc)))
     toast({
       title: "Document Archived",
-      description: "The document has been moved to the archive."
-    });
-  };
+      description: "The document has been moved to the archive.",
+    })
+  }
 
   const handleDeleteDocument = (id: number) => {
-    setDocuments(docs => docs.filter(doc => doc.id !== id));
+    setDocuments((docs) => docs.filter((doc) => doc.id !== id))
     toast({
       title: "Document Deleted",
-      description: "The document has been permanently deleted."
-    });
-  };
+      description: "The document has been permanently deleted.",
+    })
+  }
 
   return (
     <div className="space-y-6">
@@ -159,10 +152,7 @@ const WarrantyVault = () => {
       </div>
 
       {/* Alerts */}
-      <AlertsSection 
-        expiringCount={expiringDocuments.length}
-        expiredCount={expiredDocuments.length}
-      />
+      <AlertsSection expiringCount={expiringDocuments.length} expiredCount={expiredDocuments.length} />
 
       {/* Search and Actions */}
       <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
@@ -175,10 +165,13 @@ const WarrantyVault = () => {
             className="pl-10"
           />
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
-          setIsAddDialogOpen(open);
-          if (!open) resetForm();
-        }}>
+        <Dialog
+          open={isAddDialogOpen}
+          onOpenChange={(open) => {
+            setIsAddDialogOpen(open)
+            if (!open) resetForm()
+          }}
+        >
           <DialogTrigger asChild>
             <Button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700">
               <Plus className="w-4 h-4 mr-2" />
@@ -216,8 +209,8 @@ const WarrantyVault = () => {
           <TabsTrigger value="archive">Archive</TabsTrigger>
         </TabsList>
 
-        <DocumentList 
-          documents={filteredDocuments} 
+        <DocumentList
+          documents={filteredDocuments}
           activeTab={activeTab}
           onArchive={activeTab !== "archive" ? handleArchiveDocument : undefined}
           onDelete={handleDeleteDocument}
@@ -230,10 +223,9 @@ const WarrantyVault = () => {
             <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No documents found</h3>
             <p className="text-gray-600 mb-4">
-              {activeTab === "archive" 
-                ? "No archived documents yet." 
-                : "Get started by adding your first warranty or insurance document."
-              }
+              {activeTab === "archive"
+                ? "No archived documents yet."
+                : "Get started by adding your first warranty or insurance document."}
             </p>
             {activeTab !== "archive" && (
               <Button onClick={() => setIsAddDialogOpen(true)}>
@@ -245,7 +237,7 @@ const WarrantyVault = () => {
         </Card>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default WarrantyVault;
+export default WarrantyVault

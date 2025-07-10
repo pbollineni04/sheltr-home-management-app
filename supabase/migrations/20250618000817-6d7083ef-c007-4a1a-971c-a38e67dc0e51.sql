@@ -1,4 +1,3 @@
-
 -- Fix the database trigger to properly cast all tag values as text
 CREATE OR REPLACE FUNCTION create_timeline_event_for_completed_task()
 RETURNS TRIGGER AS $$

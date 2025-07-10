@@ -1,5 +1,4 @@
-export { default as DocumentVault } from './components/DocumentVault';
-export * from './types';
-export * from './hooks/useDocuments';
-export * from './utils/categoryIcons';
-export * from './utils/documentProcessor';
+export { default as DocumentVault } from "./components/DocumentVault"
+export { useDocuments } from "./hooks/useDocuments"
+export * from "./types/document"
+export * from "./utils/categoryIcons"

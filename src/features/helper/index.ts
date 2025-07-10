@@ -1,1 +1,1 @@
-export { default as SheltrHelper } from './components/SheltrHelper';
+export { default as SheltrHelper } from "./components/SheltrHelper"

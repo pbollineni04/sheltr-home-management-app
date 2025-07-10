@@ -1,1 +1,1 @@
-export { default as EnergyTracker } from './components/EnergyTracker';
+export { default as EnergyTracker } from "./components/EnergyTracker"

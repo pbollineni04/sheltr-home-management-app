@@ -1,91 +1,95 @@
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Sparkles, Edit } from 'lucide-react';
-import { useTasks } from "../hooks/useTasks";
-import TaskTemplateSelector from "./tasks/TaskTemplateSelector";
-import TaskBundles from "./tasks/TaskBundles";
-import { TaskTemplate } from "../data/taskTemplates";
+"use client"
+
+import type React from "react"
+
+import { useState } from "react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Plus, Sparkles, Edit } from "lucide-react"
+import { useTasks } from "@/features/tasks/hooks/useTasks"
+import TaskTemplateSelector from "@/features/tasks/components/tasks/TaskTemplateSelector"
+import TaskBundles from "@/features/tasks/components/tasks/TaskBundles"
+import type { TaskTemplate } from "@/features/tasks/data/taskTemplates"
 
 interface AddTaskDialogProps {
-  selectedList: string;
+  selectedList: string
 }
 
 const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
-  const [open, setOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("templates");
+  const [open, setOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState("templates")
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    priority: 'medium' as 'low' | 'medium' | 'high',
-    due_date: '',
-    room: ''
-  });
-  const [loading, setLoading] = useState(false);
-  
-  const { addTask } = useTasks();
+    title: "",
+    description: "",
+    priority: "medium" as "low" | "medium" | "high",
+    due_date: "",
+    room: "",
+  })
+  const [loading, setLoading] = useState(false)
+
+  const { addTask } = useTasks()
 
   const handleCustomSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.title.trim()) return;
+    e.preventDefault()
+    if (!formData.title.trim()) return
 
-    setLoading(true);
-    
+    setLoading(true)
+
     const success = await addTask({
       title: formData.title,
       description: formData.description || undefined,
-      list_type: selectedList as 'maintenance' | 'projects' | 'shopping',
+      list_type: selectedList as "maintenance" | "projects" | "shopping",
       priority: formData.priority,
       due_date: formData.due_date || undefined,
       room: formData.room || undefined,
-      completed: false
-    });
+      completed: false,
+    })
 
     if (success) {
       setFormData({
-        title: '',
-        description: '',
-        priority: 'medium',
-        due_date: '',
-        room: ''
-      });
-      setOpen(false);
+        title: "",
+        description: "",
+        priority: "medium",
+        due_date: "",
+        room: "",
+      })
+      setOpen(false)
     }
-    
-    setLoading(false);
-  };
+
+    setLoading(false)
+  }
 
   const handleTemplateSelect = async (templates: TaskTemplate[]) => {
-    setLoading(true);
-    
+    setLoading(true)
+
     for (const template of templates) {
-      const dueDate = template.due_date_offset_days 
-        ? new Date(Date.now() + template.due_date_offset_days * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-        : undefined;
+      const dueDate = template.due_date_offset_days
+        ? new Date(Date.now() + template.due_date_offset_days * 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+        : undefined
 
       await addTask({
         title: template.title,
         description: template.description,
-        list_type: selectedList as 'maintenance' | 'projects' | 'shopping',
+        list_type: selectedList as "maintenance" | "projects" | "shopping",
         priority: template.priority,
         due_date: dueDate,
         room: template.suggested_room,
-        completed: false
-      });
+        completed: false,
+      })
     }
-    
-    setLoading(false);
-    setOpen(false);
-  };
+
+    setLoading(false)
+    setOpen(false)
+  }
 
   const handleBundleAdd = (bundleTasks: TaskTemplate[]) => {
-    handleTemplateSelect(bundleTasks);
-  };
+    handleTemplateSelect(bundleTasks)
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -99,7 +103,7 @@ const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
         <DialogHeader>
           <DialogTitle>Add New Task</DialogTitle>
         </DialogHeader>
-        
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="templates" className="flex items-center gap-2">
@@ -117,7 +121,7 @@ const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
 
           <TabsContent value="templates" className="mt-4">
             <TaskTemplateSelector
-              selectedListType={selectedList as 'maintenance' | 'projects' | 'shopping'}
+              selectedListType={selectedList as "maintenance" | "projects" | "shopping"}
               onSelectTasks={handleTemplateSelect}
               onClose={() => setOpen(false)}
             />
@@ -134,7 +138,7 @@ const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
                 <Input
                   id="title"
                   value={formData.title}
-                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
                   placeholder="Enter task title"
                   required
                 />
@@ -145,7 +149,7 @@ const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
                 <Textarea
                   id="description"
                   value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                   placeholder="Enter task description"
                   rows={3}
                 />
@@ -153,7 +157,12 @@ const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
 
               <div className="space-y-2">
                 <Label htmlFor="priority">Priority</Label>
-                <Select value={formData.priority} onValueChange={(value: 'low' | 'medium' | 'high') => setFormData(prev => ({ ...prev, priority: value }))}>
+                <Select
+                  value={formData.priority}
+                  onValueChange={(value: "low" | "medium" | "high") =>
+                    setFormData((prev) => ({ ...prev, priority: value }))
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -171,7 +180,7 @@ const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
                   id="due_date"
                   type="date"
                   value={formData.due_date}
-                  onChange={(e) => setFormData(prev => ({ ...prev, due_date: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, due_date: e.target.value }))}
                 />
               </div>
 
@@ -180,22 +189,17 @@ const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
                 <Input
                   id="room"
                   value={formData.room}
-                  onChange={(e) => setFormData(prev => ({ ...prev, room: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, room: e.target.value }))}
                   placeholder="e.g., Kitchen, Living Room"
                 />
               </div>
 
               <div className="flex justify-end space-x-2 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setOpen(false)}
-                  disabled={loading}
-                >
+                <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={loading}>
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading || !formData.title.trim()}>
-                  {loading ? 'Adding...' : 'Add Task'}
+                  {loading ? "Adding..." : "Add Task"}
                 </Button>
               </div>
             </form>
@@ -203,7 +207,7 @@ const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
         </Tabs>
       </DialogContent>
     </Dialog>
-  );
-};
+  )
+}
 
-export default AddTaskDialog;
+export default AddTaskDialog

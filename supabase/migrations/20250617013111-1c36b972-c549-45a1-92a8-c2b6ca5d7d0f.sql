@@ -1,4 +1,3 @@
-
 -- Add a task_id column to timeline_events to link tasks to timeline events
 ALTER TABLE public.timeline_events 
 ADD COLUMN task_id UUID REFERENCES public.tasks(id);

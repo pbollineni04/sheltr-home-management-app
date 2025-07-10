@@ -1,12 +1,12 @@
+"use client"
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Plus, 
+import { useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  Plus,
   Calendar,
   CheckCircle,
   Circle,
@@ -16,13 +16,13 @@ import {
   Home,
   FileText,
   MapPin,
-  Star
-} from "lucide-react";
+  Star,
+} from "lucide-react"
 
 const MoveInOut = () => {
-  const [activeChecklist, setActiveChecklist] = useState<string | null>(null);
-  const [homeValue, setHomeValue] = useState(485000);
-  const [purchasePrice, setPurchasePrice] = useState(420000);
+  const [activeChecklist, setActiveChecklist] = useState<string | null>(null)
+  const [homeValue, setHomeValue] = useState(485000)
+  const [purchasePrice, setPurchasePrice] = useState(420000)
 
   const checklists = [
     {
@@ -32,7 +32,7 @@ const MoveInOut = () => {
       progress: 8,
       total: 15,
       dueDate: "2024-06-20",
-      category: "move-in"
+      category: "move-in",
     },
     {
       id: "deep-clean",
@@ -41,7 +41,7 @@ const MoveInOut = () => {
       progress: 0,
       total: 12,
       dueDate: "2024-07-15",
-      category: "move-out"
+      category: "move-out",
     },
     {
       id: "staging",
@@ -50,9 +50,9 @@ const MoveInOut = () => {
       progress: 3,
       total: 8,
       dueDate: "2024-06-30",
-      category: "staging"
-    }
-  ];
+      category: "staging",
+    },
+  ]
 
   const renovationProjects = [
     {
@@ -61,7 +61,7 @@ const MoveInOut = () => {
       cost: 35000,
       roiPercentage: 75,
       valueAdd: 26250,
-      status: "planned"
+      status: "planned",
     },
     {
       id: 2,
@@ -69,7 +69,7 @@ const MoveInOut = () => {
       cost: 18000,
       roiPercentage: 85,
       valueAdd: 15300,
-      status: "in-progress"
+      status: "in-progress",
     },
     {
       id: 3,
@@ -77,9 +77,9 @@ const MoveInOut = () => {
       cost: 8000,
       roiPercentage: 60,
       valueAdd: 4800,
-      status: "completed"
-    }
-  ];
+      status: "completed",
+    },
+  ]
 
   const moveInTasks = [
     { id: 1, task: "Change all locks and garage codes", completed: true },
@@ -96,8 +96,8 @@ const MoveInOut = () => {
     { id: 12, task: "Test garage door openers", completed: false },
     { id: 13, task: "Update home insurance policy", completed: false },
     { id: 14, task: "Create home inventory for insurance", completed: false },
-    { id: 15, task: "Schedule landscaping assessment", completed: false }
-  ];
+    { id: 15, task: "Schedule landscaping assessment", completed: false },
+  ]
 
   const conditionReports = [
     {
@@ -106,7 +106,7 @@ const MoveInOut = () => {
       date: "2024-05-15",
       photos: 8,
       issues: ["Minor scuff on cabinet door", "Faucet drips slightly"],
-      rating: 4
+      rating: 4,
     },
     {
       id: 2,
@@ -114,7 +114,7 @@ const MoveInOut = () => {
       date: "2024-05-15",
       photos: 6,
       issues: ["Small nail holes in wall"],
-      rating: 5
+      rating: 5,
     },
     {
       id: 3,
@@ -122,27 +122,27 @@ const MoveInOut = () => {
       date: "2024-05-15",
       photos: 4,
       issues: [],
-      rating: 5
-    }
-  ];
+      rating: 5,
+    },
+  ]
 
   const getCategoryColor = (category: string) => {
     const colors = {
       "move-in": "bg-blue-100 text-blue-800",
       "move-out": "bg-orange-100 text-orange-800",
-      "staging": "bg-purple-100 text-purple-800"
-    };
-    return colors[category as keyof typeof colors] || "bg-gray-100 text-gray-800";
-  };
+      staging: "bg-purple-100 text-purple-800",
+    }
+    return colors[category as keyof typeof colors] || "bg-gray-100 text-gray-800"
+  }
 
   const getStatusColor = (status: string) => {
     const colors = {
-      "planned": "bg-gray-100 text-gray-800",
+      planned: "bg-gray-100 text-gray-800",
       "in-progress": "bg-blue-100 text-blue-800",
-      "completed": "bg-green-100 text-green-800"
-    };
-    return colors[status as keyof typeof colors] || "bg-gray-100 text-gray-800";
-  };
+      completed: "bg-green-100 text-green-800",
+    }
+    return colors[status as keyof typeof colors] || "bg-gray-100 text-gray-800"
+  }
 
   return (
     <div className="space-y-6">
@@ -175,9 +175,7 @@ const MoveInOut = () => {
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-xl font-semibold text-gray-900">{checklist.title}</h3>
-                        <Badge className={getCategoryColor(checklist.category)}>
-                          {checklist.category}
-                        </Badge>
+                        <Badge className={getCategoryColor(checklist.category)}>{checklist.category}</Badge>
                       </div>
                       <p className="text-gray-600 mb-3">{checklist.description}</p>
                       <div className="flex items-center gap-4 text-sm text-gray-500">
@@ -195,7 +193,7 @@ const MoveInOut = () => {
                         {Math.round((checklist.progress / checklist.total) * 100)}%
                       </div>
                       <div className="w-32 bg-gray-200 rounded-full h-2">
-                        <div 
+                        <div
                           className="bg-gradient-to-r from-blue-600 to-green-600 h-2 rounded-full"
                           style={{ width: `${(checklist.progress / checklist.total) * 100}%` }}
                         />
@@ -219,8 +217,8 @@ const MoveInOut = () => {
                     </div>
                   )}
                   <div className="flex gap-2 mt-4">
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       size="sm"
                       onClick={() => setActiveChecklist(activeChecklist === checklist.id ? null : checklist.id)}
                     >
@@ -250,9 +248,9 @@ const MoveInOut = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       {[...Array(5)].map((_, i) => (
-                        <Star 
-                          key={i} 
-                          className={`w-5 h-5 ${i < report.rating ? "text-yellow-400 fill-current" : "text-gray-300"}`} 
+                        <Star
+                          key={i}
+                          className={`w-5 h-5 ${i < report.rating ? "text-yellow-400 fill-current" : "text-gray-300"}`}
                         />
                       ))}
                     </div>
@@ -272,9 +270,7 @@ const MoveInOut = () => {
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-700 mb-2">
-                        Issues Found: {report.issues.length}
-                      </p>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Issues Found: {report.issues.length}</p>
                       {report.issues.length > 0 ? (
                         <ul className="text-sm text-gray-600 space-y-1">
                           {report.issues.map((issue, idx) => (
@@ -306,11 +302,10 @@ const MoveInOut = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-gray-900 mb-2">
-                  ${homeValue.toLocaleString()}
-                </div>
+                <div className="text-3xl font-bold text-gray-900 mb-2">${homeValue.toLocaleString()}</div>
                 <div className="text-sm text-green-600 mb-4">
-                  +${(homeValue - purchasePrice).toLocaleString()} ({Math.round(((homeValue - purchasePrice) / purchasePrice) * 100)}%) since purchase
+                  +${(homeValue - purchasePrice).toLocaleString()} (
+                  {Math.round(((homeValue - purchasePrice) / purchasePrice) * 100)}%) since purchase
                 </div>
                 <div className="space-y-2 text-sm text-gray-600">
                   <div className="flex justify-between">
@@ -351,7 +346,7 @@ const MoveInOut = () => {
                     <span className="font-semibold">28 days</span>
                   </div>
                 </div>
-                <Button variant="outline" className="w-full mt-4">
+                <Button variant="outline" className="w-full mt-4 bg-transparent">
                   <MapPin className="w-4 h-4 mr-2" />
                   View Comparable Sales
                 </Button>
@@ -375,14 +370,10 @@ const MoveInOut = () => {
                     <div className="flex items-center justify-between mb-3">
                       <div>
                         <h4 className="font-semibold text-gray-900">{project.name}</h4>
-                        <Badge className={getStatusColor(project.status)}>
-                          {project.status}
-                        </Badge>
+                        <Badge className={getStatusColor(project.status)}>{project.status}</Badge>
                       </div>
                       <div className="text-right">
-                        <div className="text-lg font-bold text-gray-900">
-                          {project.roiPercentage}% ROI
-                        </div>
+                        <div className="text-lg font-bold text-gray-900">{project.roiPercentage}% ROI</div>
                       </div>
                     </div>
                     <div className="grid grid-cols-3 gap-4 text-sm">
@@ -396,7 +387,9 @@ const MoveInOut = () => {
                       </div>
                       <div>
                         <span className="text-gray-600">Net Impact:</span>
-                        <div className={`font-semibold ${project.valueAdd - project.cost >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <div
+                          className={`font-semibold ${project.valueAdd - project.cost >= 0 ? "text-green-600" : "text-red-600"}`}
+                        >
                           ${(project.valueAdd - project.cost).toLocaleString()}
                         </div>
                       </div>
@@ -413,7 +406,7 @@ const MoveInOut = () => {
         </TabsContent>
       </Tabs>
     </div>
-  );
-};
+  )
+}
 
-export default MoveInOut;
+export default MoveInOut

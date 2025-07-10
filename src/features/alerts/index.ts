@@ -1,1 +1,1 @@
-export { default as SmartAlerts } from './components/SmartAlerts';
+export { default as SmartAlerts } from "./components/SmartAlerts"

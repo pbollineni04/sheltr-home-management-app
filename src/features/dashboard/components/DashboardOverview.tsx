@@ -1,20 +1,11 @@
+"use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { 
-  Calendar, 
-  CheckSquare, 
-  DollarSign, 
-  MapPin, 
-  Package, 
-  Brain,
-  TrendingUp,
-  Clock,
-  AlertTriangle
-} from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Calendar, CheckSquare, DollarSign, Brain, TrendingUp, Clock, AlertTriangle } from "lucide-react"
 
 interface DashboardOverviewProps {
-  onNavigate: (tab: string) => void;
+  onNavigate: (tab: string) => void
 }
 
 const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
@@ -26,7 +17,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
       icon: Calendar,
       color: "from-blue-500 to-blue-600",
       stats: "12 events this year",
-      action: "View Timeline"
+      action: "View Timeline",
     },
     {
       id: "tasks",
@@ -35,7 +26,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
       icon: CheckSquare,
       color: "from-green-500 to-green-600",
       stats: "5 pending tasks",
-      action: "Manage Tasks"
+      action: "Manage Tasks",
     },
     {
       id: "expenses",
@@ -44,7 +35,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
       icon: DollarSign,
       color: "from-purple-500 to-purple-600",
       stats: "$2,340 this month",
-      action: "View Expenses"
+      action: "View Expenses",
     },
     {
       id: "helper",
@@ -53,16 +44,16 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
       icon: Brain,
       color: "from-orange-500 to-orange-600",
       stats: "24/7 available",
-      action: "Ask Helper"
-    }
-  ];
+      action: "Ask Helper",
+    },
+  ]
 
   const recentActivity = [
     { type: "maintenance", desc: "HVAC filter replacement", date: "2 days ago" },
     { type: "expense", desc: "$234 spent at Home Depot", date: "3 days ago" },
     { type: "task", desc: "Completed: Clean gutters", date: "1 week ago" },
-    { type: "timeline", desc: "Added: New water heater installation", date: "2 weeks ago" }
-  ];
+    { type: "timeline", desc: "Added: New water heater installation", date: "2 weeks ago" },
+  ]
 
   return (
     <div className="space-y-8">
@@ -79,7 +70,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -91,7 +82,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -103,7 +94,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -120,12 +111,14 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
       {/* Module Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {moduleCards.map((module) => {
-          const IconComponent = module.icon;
+          const IconComponent = module.icon
           return (
             <Card key={module.id} className="hover:shadow-lg transition-shadow cursor-pointer">
               <CardHeader>
                 <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 bg-gradient-to-r ${module.color} rounded-lg flex items-center justify-center`}>
+                  <div
+                    className={`w-12 h-12 bg-gradient-to-r ${module.color} rounded-lg flex items-center justify-center`}
+                  >
                     <IconComponent className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -137,7 +130,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
               <CardContent>
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-gray-600">{module.stats}</p>
-                  <Button 
+                  <Button
                     onClick={() => onNavigate(module.id)}
                     className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
                   >
@@ -146,7 +139,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
                 </div>
               </CardContent>
             </Card>
-          );
+          )
         })}
       </div>
 
@@ -173,7 +166,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
         </CardContent>
       </Card>
     </div>
-  );
-};
+  )
+}
 
-export default DashboardOverview;
+export default DashboardOverview

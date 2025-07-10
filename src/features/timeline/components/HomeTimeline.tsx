@@ -1,71 +1,63 @@
+"use client"
 
-import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Calendar, 
-  Wrench, 
-  ShoppingBag, 
-  Home, 
-  Search,
-  CheckSquare,
-  Filter,
-  Trash2
-} from "lucide-react";
-import { useTimeline } from "../hooks/useTimeline";
-import AddTimelineEventDialog from "./AddTimelineEventDialog";
+import { useState } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Calendar, Wrench, ShoppingBag, Home, Search, CheckSquare, Filter, Trash2 } from "lucide-react"
+import { useTimeline } from "@/features/timeline/hooks/useTimeline"
+import AddTimelineEventDialog from "@/features/timeline/components/AddTimelineEventDialog"
 
 const HomeTimeline = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const { events, loading, deleteEvent, refetch } = useTimeline();
+  const [searchTerm, setSearchTerm] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState("all")
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
+  const { events, loading, deleteEvent, refetch } = useTimeline()
 
   const categories = [
     { id: "all", label: "All Events", icon: Calendar, color: "gray" },
     { id: "renovation", label: "Renovation", icon: Home, color: "blue" },
     { id: "maintenance", label: "Maintenance", icon: Wrench, color: "green" },
     { id: "purchase", label: "Purchase", icon: ShoppingBag, color: "purple" },
-    { id: "inspection", label: "Inspection", icon: Search, color: "orange" }
-  ];
+    { id: "inspection", label: "Inspection", icon: Search, color: "orange" },
+  ]
 
   const getCategoryColor = (category: string) => {
     const colors = {
       renovation: "bg-blue-100 text-blue-800",
       maintenance: "bg-green-100 text-green-800",
       purchase: "bg-purple-100 text-purple-800",
-      inspection: "bg-orange-100 text-orange-800"
-    };
-    return colors[category as keyof typeof colors] || "bg-gray-100 text-gray-800";
-  };
+      inspection: "bg-orange-100 text-orange-800",
+    }
+    return colors[category as keyof typeof colors] || "bg-gray-100 text-gray-800"
+  }
 
   const applyFilters = () => {
     refetch({
       startDate: startDate || undefined,
       endDate: endDate || undefined,
       category: selectedCategory,
-      searchTerm: searchTerm || undefined
-    });
-  };
+      searchTerm: searchTerm || undefined,
+    })
+  }
 
   const clearFilters = () => {
-    setSearchTerm("");
-    setSelectedCategory("all");
-    setStartDate("");
-    setEndDate("");
-    refetch();
-  };
+    setSearchTerm("")
+    setSelectedCategory("all")
+    setStartDate("")
+    setEndDate("")
+    refetch()
+  }
 
   const handleDeleteEvent = async (eventId: string) => {
-    await deleteEvent(eventId);
-  };
+    await deleteEvent(eventId)
+  }
 
   const isTaskEvent = (event: any) => {
-    return event.task_id || event.tags?.includes('task');
-  };
+    return event.task_id || event.tags?.includes("task")
+  }
 
   if (loading) {
     return (
@@ -74,7 +66,7 @@ const HomeTimeline = () => {
           <div className="text-lg text-gray-600">Loading timeline...</div>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -122,19 +114,14 @@ const HomeTimeline = () => {
             />
           </div>
           <div className="flex-1">
-            <Input
-              type="date"
-              placeholder="End Date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
+            <Input type="date" placeholder="End Date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
           </div>
         </div>
 
         {/* Category Filters */}
         <div className="flex gap-2 flex-wrap">
           {categories.map((category) => {
-            const IconComponent = category.icon;
+            const IconComponent = category.icon
             return (
               <Button
                 key={category.id}
@@ -146,7 +133,7 @@ const HomeTimeline = () => {
                 <IconComponent className="w-4 h-4" />
                 {category.label}
               </Button>
-            );
+            )
           })}
         </div>
       </div>
@@ -169,9 +156,7 @@ const HomeTimeline = () => {
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge className={getCategoryColor(event.category)}>
-                        {event.category}
-                      </Badge>
+                      <Badge className={getCategoryColor(event.category)}>{event.category}</Badge>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -182,9 +167,7 @@ const HomeTimeline = () => {
                       </Button>
                     </div>
                   </div>
-                  {event.description && (
-                    <p className="text-gray-600 mb-3">{event.description}</p>
-                  )}
+                  {event.description && <p className="text-gray-600 mb-3">{event.description}</p>}
                   <div className="flex flex-wrap gap-2 mb-3">
                     {event.tags?.map((tag) => (
                       <Badge key={tag} variant="outline" className="text-xs">
@@ -207,9 +190,7 @@ const HomeTimeline = () => {
                 </div>
                 {event.cost && (
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-gray-900">
-                      ${event.cost.toLocaleString()}
-                    </p>
+                    <p className="text-2xl font-bold text-gray-900">${event.cost.toLocaleString()}</p>
                     <p className="text-sm text-gray-500">Total Cost</p>
                   </div>
                 )}
@@ -229,7 +210,7 @@ const HomeTimeline = () => {
         </Card>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default HomeTimeline;
+export default HomeTimeline
