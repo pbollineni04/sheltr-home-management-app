@@ -12,8 +12,8 @@ import {
   Search
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Document, NewDocumentForm } from "@/types/warranty";
-import { getExpirationStatus } from "@/utils/documentProcessor";
+import { Document, NewDocumentForm } from "../types";
+import { getExpirationStatus } from "../utils/documentProcessor";
 import DocumentUpload from "./warranty/DocumentUpload";
 import DocumentForm from "./warranty/DocumentForm";
 import DocumentList from "./warranty/DocumentList";

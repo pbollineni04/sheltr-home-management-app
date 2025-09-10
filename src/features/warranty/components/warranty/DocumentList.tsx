@@ -1,6 +1,6 @@
 
 import { TabsContent } from "@/components/ui/tabs";
-import { Document } from "@/types/warranty";
+import { Document } from "../../types";
 import DocumentCard from "./DocumentCard";
 
 interface DocumentListProps {

@@ -1,8 +1,8 @@
 
 import { useState } from "react";
 import { FileText, Upload, Scan, Loader2, Eye } from "lucide-react";
-import { processDocument } from "@/utils/documentProcessor";
-import { NewDocumentForm } from "@/types/warranty";
+import { processDocument } from "../../utils/documentProcessor";
+import { NewDocumentForm } from "../../types";
 import { useToast } from "@/hooks/use-toast";
 
 interface DocumentUploadProps {

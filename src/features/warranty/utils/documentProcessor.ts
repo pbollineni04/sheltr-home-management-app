@@ -1,17 +1,7 @@
-
 import { createWorker } from 'tesseract.js';
+import { NewDocumentForm } from "../types";
 
-// Define a local interface for document processing
-interface DocumentForm {
-  name: string;
-  type: string;
-  category: string;
-  expirationDate: string;
-  reminderDays: number;
-  notes: string;
-}
-
-export const processDocument = async (file: File): Promise<Partial<DocumentForm>> => {
+export const processDocument = async (file: File): Promise<Partial<NewDocumentForm>> => {
   try {
     // Create Tesseract worker
     const worker = await createWorker('eng');
@@ -37,7 +27,7 @@ export const processDocument = async (file: File): Promise<Partial<DocumentForm>
   }
 };
 
-const extractDocumentInfo = (ocrText: string, fileName: string): Partial<DocumentForm> => {
+const extractDocumentInfo = (ocrText: string, fileName: string): Partial<NewDocumentForm> => {
   const text = ocrText.toLowerCase();
   
   // Extract document name - look for common patterns
@@ -116,7 +106,7 @@ const parseDate = (dateStr: string): string | null => {
   }
 };
 
-const extractFromFilename = (fileName: string): Partial<DocumentForm> => {
+const extractFromFilename = (fileName: string): Partial<NewDocumentForm> => {
   const name = fileName.toLowerCase();
   
   if (name.includes('warranty')) {

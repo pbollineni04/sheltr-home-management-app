@@ -2,8 +2,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Shield, FileText, Eye, Download, Archive, Trash2 } from "lucide-react";
-import { Document } from "@/types/warranty";
-import { getExpirationStatus } from "@/utils/documentProcessor";
+import { Document } from "../../types";
+import { getExpirationStatus } from "../../utils/documentProcessor";
 
 interface DocumentCardProps {
   document: Document;
