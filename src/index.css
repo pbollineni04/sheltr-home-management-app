@@ -144,6 +144,8 @@
   html, body, #root {
     min-height: 100%;
     background-color: hsl(var(--background));
+    /* Prevent accidental horizontal scrolling due to wide children/pseudo-elements */
+    overflow-x: hidden;
   }
 }
 
@@ -256,8 +258,33 @@
 
 @layer components {
   .section-luxury { padding: var(--space-16) 0; position: relative; }
-  .section-luxury::before { content: ""; position: absolute; top: 0; left: 50%; width: 100vw; height: 100%; background: linear-gradient(180deg, transparent 0%, hsl(var(--muted)) 50%, transparent 100%); transform: translateX(-50%); z-index: -1; }
+  /* Use width:100% instead of 100vw to avoid horizontal overflow on mobile; also clip overflow */
+  .section-luxury { overflow: hidden; }
+  .section-luxury::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, transparent 0%, hsl(var(--muted)) 50%, transparent 100%); transform: none; z-index: -1; }
   .dark .section-luxury::before { background: linear-gradient(180deg, transparent 0%, hsl(var(--muted)) 40%, transparent 100%); }
+}
+
+/* Responsive typography tweaks for small screens */
+@media (max-width: 640px) {
+  .text-display-lg { font-size: 2rem; line-height: 1.2; }
+  .text-display-xl { font-size: 2.5rem; line-height: 1.2; }
+  .text-heading-xl { font-size: 1.5rem; line-height: 1.3; }
+}
+
+/* Compact grid padding on small screens to avoid side overflow from nested padding */
+@media (max-width: 640px) {
+  .dashboard-grid { grid-template-columns: 1fr; padding: var(--space-3); gap: var(--space-4); }
+}
+
+/* Compact container on small screens to avoid horizontal crowding */
+@media (max-width: 640px) {
+  .container-luxury { padding-left: var(--space-4); padding-right: var(--space-4); }
+}
+
+/* Utilities to avoid overflow of long text on mobile */
+@layer utilities {
+  .no-overflow { overflow: hidden; }
+  .safe-wrap { word-break: break-word; overflow-wrap: anywhere; }
 }
 
 /* Icons */

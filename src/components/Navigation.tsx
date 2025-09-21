@@ -17,21 +17,21 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="border-b" style={{ background: 'linear-gradient(180deg, var(--neutral-50) 0%, var(--neutral-100) 100%)' }}>
+    <nav className="border-b" style={{ background: 'linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%)' }}>
       <div className="container-luxury py-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 min-w-0">
             <Home className="w-6 h-6 icon-luxury" />
-            <h1 className="text-heading-xl text-neutral-900">Sheltr</h1>
+            <h1 className="text-heading-xl text-foreground">Sheltr</h1>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4 flex-wrap justify-end max-w-full">
             <ThemeToggle />
             {user && (
               <>
-                <div className="flex items-center gap-2 text-sm text-neutral-600">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground min-w-0">
                   <User className="w-4 h-4 icon-luxury" />
-                  <span>{user.email}</span>
+                  <span className="truncate max-w-[140px] sm:max-w-none">{user.email}</span>
                 </div>
                 <Button 
                   size="sm" 

@@ -285,14 +285,14 @@ const ExpenseTracker = () => {
       <ExpensePlaidControls />
       {/* Freshness + Dev Refresh */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-muted-foreground">
           {loading
             ? 'Loading…'
             : lastRefreshedAt
               ? (() => { const s = Math.max(0, Math.round((Date.now() - lastRefreshedAt.getTime()) / 1000)); return `Updated ${Math.floor(s/60)}m ${s%60}s ago`; })()
               : ''}
         </p>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {import.meta.env.DEV && (
             <Button
               className="w-full sm:w-auto"
