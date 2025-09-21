@@ -29,23 +29,23 @@ const DocumentStats = ({ stats }: DocumentStatsProps) => {
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
       <Card className="card-luxury">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-caption-refined text-neutral-600">Total Documents</CardTitle>
+          <CardTitle className="text-caption-refined text-muted-foreground">Total Documents</CardTitle>
           <Files className="h-4 w-4 icon-luxury" />
         </CardHeader>
         <CardContent>
-          <div className="text-heading-xl text-neutral-900">{total}</div>
-          <p className="text-xs text-neutral-600">Across all categories</p>
+          <div className="text-heading-xl text-foreground">{total}</div>
+          <p className="text-xs text-muted-foreground">Across all categories</p>
         </CardContent>
       </Card>
 
       <Card className="card-luxury">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-caption-refined text-neutral-600">Storage Used</CardTitle>
+          <CardTitle className="text-caption-refined text-muted-foreground">Storage Used</CardTitle>
           <HardDrive className="h-4 w-4 icon-luxury" />
         </CardHeader>
         <CardContent>
-          <div className="text-heading-xl text-neutral-900">{formatFileSize(totalSize)}</div>
-          <p className="text-xs text-neutral-600">
+          <div className="text-heading-xl text-foreground">{formatFileSize(totalSize)}</div>
+          <p className="text-xs text-muted-foreground">
             Total file size
           </p>
         </CardContent>
@@ -53,12 +53,12 @@ const DocumentStats = ({ stats }: DocumentStatsProps) => {
 
       <Card className="card-luxury">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-caption-refined text-neutral-600">Recent Uploads</CardTitle>
+          <CardTitle className="text-caption-refined text-muted-foreground">Recent Uploads</CardTitle>
           <Upload className="h-4 w-4 icon-luxury" />
         </CardHeader>
         <CardContent>
-          <div className="text-heading-xl text-neutral-900">{recentUploads}</div>
-          <p className="text-xs text-neutral-600">
+          <div className="text-heading-xl text-foreground">{recentUploads}</div>
+          <p className="text-xs text-muted-foreground">
             Last 7 days
           </p>
         </CardContent>
@@ -66,12 +66,12 @@ const DocumentStats = ({ stats }: DocumentStatsProps) => {
 
       <Card className="card-luxury">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-caption-refined text-neutral-600">Expiring Soon</CardTitle>
+          <CardTitle className="text-caption-refined text-muted-foreground">Expiring Soon</CardTitle>
           <Calendar className="h-4 w-4 icon-luxury" />
         </CardHeader>
         <CardContent>
           <div className="text-heading-xl text-orange-600">{expiringCount}</div>
-          <p className="text-xs text-neutral-600">
+          <p className="text-xs text-muted-foreground">
             Within reminder period
           </p>
         </CardContent>
@@ -79,12 +79,12 @@ const DocumentStats = ({ stats }: DocumentStatsProps) => {
 
       <Card className="card-luxury">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-caption-refined text-neutral-600">Expired</CardTitle>
+          <CardTitle className="text-caption-refined text-muted-foreground">Expired</CardTitle>
           <AlertTriangle className="h-4 w-4 icon-luxury" />
         </CardHeader>
         <CardContent>
           <div className="text-heading-xl text-red-600">{expiredCount}</div>
-          <p className="text-xs text-neutral-600">
+          <p className="text-xs text-muted-foreground">
             Need attention
           </p>
         </CardContent>

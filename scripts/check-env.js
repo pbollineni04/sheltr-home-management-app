@@ -39,12 +39,20 @@ function loadLocalEnv() {
 const env = loadLocalEnv();
 const missing = REQUIRED.filter((k) => !env[k] || String(env[k]).trim().length === 0);
 
+const isCI = process.env.CI === 'true' || process.env.VERCEL === '1';
+
 if (missing.length) {
-  console.error(`\n[Env Check] Missing required env var(s): ${missing.join(', ')}\n`);
-  console.error('Create a .env.local file in the project root with values like:');
-  console.error('  VITE_SUPABASE_URL=https://<project-ref>.supabase.co');
-  console.error('  VITE_SUPABASE_ANON_KEY=<your anon key>');
-  process.exit(1);
+  const msg = `\n[Env Check] Missing required env var(s): ${missing.join(', ')}\n`;
+  if (isCI) {
+    // On CI/Vercel we warn but do not fail the build to allow preview deployments.
+    console.warn(msg + '[Env Check] Warning only on CI — set Project Environment Variables in Vercel for production.');
+  } else {
+    console.error(msg);
+    console.error('Create a .env.local file in the project root with values like:');
+    console.error('  VITE_SUPABASE_URL=https://<project-ref>.supabase.co');
+    console.error('  VITE_SUPABASE_ANON_KEY=<your anon key>');
+    process.exit(1);
+  }
 } else {
   console.log('[Env Check] OK');
 }

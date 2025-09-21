@@ -86,8 +86,8 @@ const DocumentVault = () => {
             <Lock className="w-3 h-3 text-primary-foreground absolute -bottom-1 -right-1" />
           </div>
         </div>
-        <h2 className="text-heading-xl text-neutral-900">Document Vault</h2>
-        <p className="text-body-luxury text-neutral-600">Secure storage and management for all your important documents</p>
+        <h2 className="text-heading-xl text-foreground">Document Vault</h2>
+        <p className="text-body-luxury text-muted-foreground">Secure storage and management for all your important documents</p>
       </div>
 
       {/* Quick Stats */}

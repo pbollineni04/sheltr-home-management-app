@@ -82,8 +82,8 @@ const HomeTimeline = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
-          <h2 className="text-heading-xl text-neutral-900">Home Timeline</h2>
-          <p className="text-body-luxury text-neutral-600">Chronicle every major event in your home</p>
+          <h2 className="text-heading-xl text-foreground">Home Timeline</h2>
+          <p className="text-body-luxury text-muted-foreground">Chronicle every major event in your home</p>
         </div>
         <AddTimelineEventDialog />
       </div>
@@ -92,7 +92,7 @@ const HomeTimeline = () => {
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search events..."
               value={searchTerm}
@@ -162,7 +162,7 @@ const HomeTimeline = () => {
                 <div className="flex-1">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-heading-xl text-neutral-900">{event.title}</h3>
+                      <h3 className="text-heading-xl text-foreground">{event.title}</h3>
                       {isTaskEvent(event) && (
                         <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                           <CheckSquare className="w-3 h-3 mr-1" />
@@ -185,7 +185,7 @@ const HomeTimeline = () => {
                     </div>
                   </div>
                   {event.description && (
-                    <p className="text-body-luxury text-neutral-700 mb-3">{event.description}</p>
+                    <p className="text-body-luxury text-muted-foreground mb-3">{event.description}</p>
                   )}
                   <div className="flex flex-wrap gap-2 mb-3">
                     {event.tags?.map((tag) => (
@@ -194,7 +194,7 @@ const HomeTimeline = () => {
                       </Badge>
                     ))}
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-neutral-600">
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
                       {new Date(event.date).toLocaleDateString()}
@@ -209,10 +209,10 @@ const HomeTimeline = () => {
                 </div>
                 {event.cost && (
                   <div className="text-right">
-                    <p className="text-heading-xl text-neutral-900">
+                    <p className="text-heading-xl text-foreground">
                       ${event.cost.toLocaleString()}
                     </p>
-                    <p className="text-body-luxury text-neutral-600">Total Cost</p>
+                    <p className="text-body-luxury text-muted-foreground">Total Cost</p>
                   </div>
                 )}
               </div>
@@ -224,9 +224,9 @@ const HomeTimeline = () => {
       {events.length === 0 && (
         <Card className="card-luxury">
           <CardContent className="p-12 text-center">
-            <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-heading-xl text-neutral-900">No events found</h3>
-            <p className="text-body-luxury text-neutral-600">Try adjusting your filters or add your first event.</p>
+            <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-heading-xl text-foreground">No events found</h3>
+            <p className="text-body-luxury text-muted-foreground">Try adjusting your filters or add your first event.</p>
           </CardContent>
         </Card>
       )}

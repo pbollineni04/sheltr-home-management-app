@@ -47,13 +47,16 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(180deg, var(--neutral-50) 0%, var(--neutral-100) 100%)' }}>
+    <div
+      className="min-h-screen"
+      style={{ background: 'linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%)' }}
+    >
       <Navigation />
       
       <main className="container-luxury py-8">
         <div className="mb-8 micro-fade-in">
-          <h1 className="text-display-lg text-neutral-900 mb-2">Welcome to Sheltr</h1>
-          <p className="text-body-luxury text-neutral-600">Your all-in-one home management assistant</p>
+          <h1 className="text-display-lg text-foreground mb-2">Welcome to Sheltr</h1>
+          <p className="text-body-luxury text-muted-foreground">Your all-in-one home management assistant</p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

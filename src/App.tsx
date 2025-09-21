@@ -17,8 +17,9 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider
       attribute="class"
-      defaultTheme="system"
+      defaultTheme="dark"
       enableSystem
+      storageKey="sheltr-theme"
       disableTransitionOnChange
     >
       <TooltipProvider>

@@ -70,7 +70,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
     <div className="space-y-8 px-3 sm:px-4">
       {/* Freshness + Dev Refresh */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-muted-foreground">
           {loading
             ? 'Loading…'
             : metrics && typeof freshnessSeconds !== 'undefined' && freshnessSeconds !== null
@@ -96,8 +96,8 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 whitespace-nowrap">Active Tasks</p>
-                <p className="text-3xl font-bold text-gray-900">{loading ? "—" : (metrics?.pending_tasks ?? 0)}</p>
+                <p className="text-sm font-medium text-muted-foreground whitespace-nowrap">Active Tasks</p>
+                <p className="text-3xl font-bold text-foreground">{loading ? "—" : (metrics?.pending_tasks ?? 0)}</p>
               </div>
               <CheckSquare className="w-8 h-8 text-green-600" />
             </div>
@@ -108,8 +108,8 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 whitespace-nowrap">This Month</p>
-                <p className="text-3xl font-bold text-gray-900">{loading ? "—" : `$${(metrics?.monthly_expenses ?? 0).toFixed(2)}`}</p>
+                <p className="text-sm font-medium text-muted-foreground whitespace-nowrap">This Month</p>
+                <p className="text-3xl font-bold text-foreground">{loading ? "—" : `$${(metrics?.monthly_expenses ?? 0).toFixed(2)}`}</p>
               </div>
               <TrendingUp className="w-8 h-8 text-purple-600" />
             </div>
@@ -120,8 +120,8 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 whitespace-nowrap">Recent Events</p>
-                <p className="text-3xl font-bold text-gray-900">{loading ? "—" : (metrics?.total_documents ?? 0)}</p>
+                <p className="text-sm font-medium text-muted-foreground whitespace-nowrap">Recent Events</p>
+                <p className="text-3xl font-bold text-foreground">{loading ? "—" : (metrics?.total_documents ?? 0)}</p>
               </div>
               <Calendar className="w-8 h-8 text-blue-600" />
             </div>
@@ -154,13 +154,13 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
                   </div>
                   <div>
                     <CardTitle className="text-heading-xl">{module.title}</CardTitle>
-                    <CardDescription className="text-body-luxury text-neutral-600">{module.description}</CardDescription>
+                    <CardDescription className="text-body-luxury text-muted-foreground">{module.description}</CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-sm text-gray-600">{module.stats}</p>
+                  <p className="text-sm text-muted-foreground">{module.stats}</p>
                   <Button 
                     onClick={() => onNavigate(module.id)}
                     className="w-full sm:w-auto btn-primary-luxury"
@@ -183,13 +183,13 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="divide-y divide-neutral-200">
+          <div className="divide-y divide-border">
             {recentActivity.map((activity, index) => (
               <div key={index} className="flex items-start sm:items-center gap-3 py-3 micro-fade-in">
                 <span className="mt-1 sm:mt-0 inline-block w-2 h-2 rounded-full bg-sky-500" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-body-luxury text-neutral-800">{activity.desc}</p>
-                  <p className="text-sm text-neutral-500">{activity.date}</p>
+                  <p className="text-body-luxury text-foreground">{activity.desc}</p>
+                  <p className="text-sm text-muted-foreground">{activity.date}</p>
                 </div>
               </div>
             ))}

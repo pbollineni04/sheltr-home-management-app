@@ -87,8 +87,8 @@ const TasksLists = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
-          <h2 className="text-heading-xl text-neutral-800">Tasks & Lists</h2>
-          <p className="text-body-luxury text-neutral-600">Organize maintenance and projects</p>
+          <h2 className="text-heading-xl text-foreground">Tasks & Lists</h2>
+          <p className="text-body-luxury text-muted-foreground">Organize maintenance and projects</p>
         </div>
         <AddTaskDialog selectedList={selectedList} />
       </div>
@@ -105,7 +105,7 @@ const TasksLists = () => {
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 icon-accent" />
-            <span className="text-caption-refined text-neutral-600">Quick Setup</span>
+            <span className="text-caption-refined text-muted-foreground">Quick Setup</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {getQuickBundles().map((bundleId) => {
@@ -122,7 +122,7 @@ const TasksLists = () => {
                 >
                   <span>{bundle.icon}</span>
                   {bundle.name}
-                  <span className="text-xs text-neutral-600">
+                  <span className="text-xs text-muted-foreground">
                     ({bundle.tasks.length})
                   </span>
                 </Button>

@@ -23,7 +23,7 @@ export const ExpenseCategoryBreakdown = ({ categories }: ExpenseCategoryBreakdow
   return (
     <Card className="card-luxury">
       <CardHeader>
-        <CardTitle className="text-heading-xl text-neutral-900">Spending by Category</CardTitle>
+        <CardTitle className="text-heading-xl text-foreground">Spending by Category</CardTitle>
       </CardHeader>
       <CardContent>
         {/* Legends */}
@@ -76,8 +76,8 @@ export const ExpenseCategoryBreakdown = ({ categories }: ExpenseCategoryBreakdow
                   <IconComponent className={`w-5 h-5 ${text}`} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-body-luxury text-neutral-700">{category.label}</p>
-                  <p className="text-heading-xl text-neutral-900">
+                  <p className="text-body-luxury text-muted-foreground">{category.label}</p>
+                  <p className="text-heading-xl text-foreground">
                     ${category.amount.toLocaleString()}
                   </p>
                 </div>

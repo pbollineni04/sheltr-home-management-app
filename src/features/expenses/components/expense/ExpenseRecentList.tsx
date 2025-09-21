@@ -22,7 +22,7 @@ export const ExpenseRecentList = ({ expenses, getCategoryColor }: ExpenseRecentL
   return (
     <Card className="card-luxury">
       <CardHeader>
-        <CardTitle className="text-heading-xl text-neutral-800">Recent Expenses</CardTitle>
+        <CardTitle className="text-heading-xl text-foreground">Recent Expenses</CardTitle>
       </CardHeader>
       <CardContent>
         {expenses.length === 0 ? (

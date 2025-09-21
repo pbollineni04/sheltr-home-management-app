@@ -97,17 +97,20 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center p-4">
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{ background: 'linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%)' }}
+    >
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Home className="w-8 h-8 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Sheltr</h1>
+            <Home className="w-8 h-8 icon-luxury" />
+            <h1 className="text-3xl font-bold" style={{ color: 'hsl(var(--foreground))' }}>Sheltr</h1>
           </div>
-          <p className="text-gray-600">Your home management assistant</p>
+          <p className="text-body-luxury" style={{ color: 'hsl(var(--muted-foreground))' }}>Your home management assistant</p>
         </div>
 
-        <Card>
+        <Card className="card-luxury">
           <CardHeader>
             <CardTitle>Welcome</CardTitle>
             <CardDescription>
@@ -116,7 +119,7 @@ const Auth = () => {
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-2 card-luxury">
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>

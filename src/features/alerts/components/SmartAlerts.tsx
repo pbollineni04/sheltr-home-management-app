@@ -196,8 +196,8 @@ const SmartAlerts = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">Smart Alerts & Predictive Maintenance</h2>
-          <p className="text-gray-600">Monitor your home with intelligent sensors and predictive insights</p>
+          <h2 className="text-3xl font-bold text-foreground">Smart Alerts & Predictive Maintenance</h2>
+          <p className="text-muted-foreground">Monitor your home with intelligent sensors and predictive insights</p>
         </div>
         <Button className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700">
           <Plus className="w-4 h-4 mr-2" />
@@ -207,57 +207,57 @@ const SmartAlerts = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
+        <Card className="card-luxury">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Critical Alerts</p>
+                <p className="text-sm font-medium text-muted-foreground">Critical Alerts</p>
                 <p className="text-3xl font-bold text-red-600">{criticalAlerts}</p>
               </div>
               <AlertTriangle className="w-8 h-8 text-red-600" />
             </div>
-            <p className="text-sm text-gray-500 mt-2">Immediate attention required</p>
+            <p className="text-sm text-muted-foreground mt-2">Immediate attention required</p>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="card-luxury">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Warnings</p>
+                <p className="text-sm font-medium text-muted-foreground">Warnings</p>
                 <p className="text-3xl font-bold text-yellow-600">{warningAlerts}</p>
               </div>
               <Bell className="w-8 h-8 text-yellow-600" />
             </div>
-            <p className="text-sm text-gray-500 mt-2">Action recommended</p>
+            <p className="text-sm text-muted-foreground mt-2">Action recommended</p>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="card-luxury">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Sensors Online</p>
+                <p className="text-sm font-medium text-muted-foreground">Sensors Online</p>
                 <p className="text-3xl font-bold text-green-600">{onlineSensors}/{sensorData.length}</p>
               </div>
               <Wifi className="w-8 h-8 text-green-600" />
             </div>
-            <p className="text-sm text-gray-500 mt-2">All systems operational</p>
+            <p className="text-sm text-muted-foreground mt-2">All systems operational</p>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="card-luxury">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Tasks Created</p>
+                <p className="text-sm font-medium text-muted-foreground">Tasks Created</p>
                 <p className="text-3xl font-bold text-blue-600">
                   {alerts.filter(a => a.autoTask).length}
                 </p>
               </div>
               <CheckCircle className="w-8 h-8 text-blue-600" />
             </div>
-            <p className="text-sm text-gray-500 mt-2">Auto-generated today</p>
+            <p className="text-sm text-muted-foreground mt-2">Auto-generated today</p>
           </CardContent>
         </Card>
       </div>
@@ -272,7 +272,7 @@ const SmartAlerts = () => {
 
         <TabsContent value="dashboard" className="space-y-6">
           {/* Sensor Status Grid */}
-          <Card>
+          <Card className="card-luxury">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Home className="w-5 h-5" />
@@ -285,15 +285,15 @@ const SmartAlerts = () => {
                   const IconComponent = getSensorIcon(sensor.type);
                   const TrendIcon = getTrendIcon(sensor.trend);
                   return (
-                    <div key={sensor.id} className="p-4 rounded-lg border bg-white">
+                    <div key={sensor.id} className="p-4 rounded-lg border" style={{ background: 'hsl(var(--card))' }}>
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getStatusColor(sensor.status)}`}>
                             <IconComponent className="w-5 h-5" />
                           </div>
                           <div>
-                            <h4 className="font-medium text-gray-900">{sensor.name}</h4>
-                            <p className="text-sm text-gray-500">{sensor.location}</p>
+                            <h4 className="font-medium text-foreground">{sensor.name}</h4>
+                            <p className="text-sm text-muted-foreground">{sensor.location}</p>
                           </div>
                         </div>
                         <Badge className={getStatusColor(sensor.status)}>
@@ -303,10 +303,10 @@ const SmartAlerts = () => {
                       
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
-                          <span className="text-2xl font-bold text-gray-900">
+                          <span className="text-2xl font-bold text-foreground">
                             {sensor.value}{sensor.unit}
                           </span>
-                          <TrendIcon className="w-4 h-4 text-gray-500" />
+                          <TrendIcon className="w-4 h-4 text-muted-foreground" />
                         </div>
                         <div className="flex items-center gap-1">
                           <Battery className={`w-4 h-4 ${getBatteryColor(sensor.battery)}`} />
@@ -316,7 +316,7 @@ const SmartAlerts = () => {
                         </div>
                       </div>
                       
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         Last update: {sensor.lastUpdate}
                       </p>
                     </div>
@@ -328,7 +328,7 @@ const SmartAlerts = () => {
         </TabsContent>
 
         <TabsContent value="alerts" className="space-y-6">
-          <Card>
+          <Card className="card-luxury">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5" />
@@ -342,13 +342,13 @@ const SmartAlerts = () => {
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h4 className="font-semibold text-gray-900">{alert.title}</h4>
+                          <h4 className="font-semibold text-foreground">{alert.title}</h4>
                           <Badge variant="outline" className="text-xs">
                             {alert.type}
                           </Badge>
                         </div>
-                        <p className="text-gray-600 mb-2">{alert.description}</p>
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <p className="text-muted-foreground mb-2">{alert.description}</p>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Settings className="w-4 h-4" />
                             {alert.sensor}
@@ -365,10 +365,10 @@ const SmartAlerts = () => {
                     </div>
                     
                     {alert.autoTask && (
-                      <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                      <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: 'hsl(var(--muted))' }}>
                         <div className="flex items-center gap-2">
                           <CheckCircle className="w-4 h-4 text-blue-600" />
-                          <span className="text-sm text-blue-700">
+                          <span className="text-sm text-blue-400">
                             Auto-created task: {alert.taskCreated}
                           </span>
                         </div>
@@ -385,7 +385,7 @@ const SmartAlerts = () => {
         </TabsContent>
 
         <TabsContent value="predictive" className="space-y-6">
-          <Card>
+          <Card className="card-luxury">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="w-5 h-5" />
@@ -395,12 +395,12 @@ const SmartAlerts = () => {
             <CardContent>
               <div className="space-y-4">
                 {predictiveInsights.map((insight) => (
-                  <div key={insight.id} className="p-4 rounded-lg border bg-gradient-to-r from-blue-50 to-green-50">
+                  <div key={insight.id} className="p-4 rounded-lg border" style={{ background: 'hsl(var(--card))' }}>
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
-                        <h4 className="font-semibold text-gray-900 mb-2">{insight.title}</h4>
-                        <p className="text-gray-600 mb-3">{insight.description}</p>
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <h4 className="font-semibold text-foreground mb-2">{insight.title}</h4>
+                        <p className="text-muted-foreground mb-3">{insight.description}</p>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Calendar className="w-4 h-4" />
                             {insight.daysUntil} days
@@ -411,15 +411,15 @@ const SmartAlerts = () => {
                           </span>
                         </div>
                       </div>
-                      <Badge variant="outline" className="bg-white">
+                      <Badge variant="outline" style={{ background: 'hsl(var(--card))' }}>
                         {insight.category}
                       </Badge>
                     </div>
                     
-                    <div className="flex items-center justify-between p-3 bg-white rounded-lg">
+                    <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: 'hsl(var(--muted))' }}>
                       <div className="flex items-center gap-2">
                         <Wrench className="w-4 h-4 text-green-600" />
-                        <span className="text-sm text-gray-700">
+                        <span className="text-sm text-foreground">
                           Recommendation: {insight.recommendation}
                         </span>
                       </div>
@@ -435,7 +435,7 @@ const SmartAlerts = () => {
         </TabsContent>
 
         <TabsContent value="devices" className="space-y-6">
-          <Card>
+          <Card className="card-luxury">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Settings className="w-5 h-5" />
@@ -447,19 +447,19 @@ const SmartAlerts = () => {
                 {sensorData.map((device) => {
                   const IconComponent = getSensorIcon(device.type);
                   return (
-                    <div key={device.id} className="flex items-center justify-between p-4 rounded-lg border">
+                    <div key={device.id} className="flex items-center justify-between p-4 rounded-lg border" style={{ background: 'hsl(var(--card))' }}>
                       <div className="flex items-center gap-4">
                         <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getStatusColor(device.status)}`}>
                           <IconComponent className="w-5 h-5" />
                         </div>
                         <div>
-                          <h4 className="font-medium text-gray-900">{device.name}</h4>
-                          <p className="text-sm text-gray-500">{device.location} • {device.type}</p>
+                          <h4 className="font-medium text-foreground">{device.name}</h4>
+                          <p className="text-sm text-muted-foreground">{device.location} • {device.type}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="text-right">
-                          <p className="text-sm font-medium text-gray-900">
+                          <p className="text-sm font-medium text-foreground">
                             {device.value}{device.unit}
                           </p>
                           <div className="flex items-center gap-1">
