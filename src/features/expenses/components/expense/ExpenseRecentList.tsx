@@ -10,6 +10,7 @@ interface Expense {
   date: string;
   vendor: string;
   room: string;
+  metadata?: { source?: string } | null;
 }
 
 interface ExpenseRecentListProps {
@@ -24,12 +25,18 @@ export const ExpenseRecentList = ({ expenses, getCategoryColor }: ExpenseRecentL
         <CardTitle>Recent Expenses</CardTitle>
       </CardHeader>
       <CardContent>
+        {expenses.length === 0 ? (
+          <div className="text-sm text-muted-foreground p-4">No expenses yet. Add one to get started.</div>
+        ) : (
         <div className="space-y-4">
           {expenses.map((expense) => (
             <div key={expense.id} className="flex items-center justify-between p-4 rounded-lg bg-muted/50">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-1">
                   <h4 className="font-medium text-foreground">{expense.description}</h4>
+                  {expense.metadata?.source === 'plaid' && (
+                    <Badge variant="secondary" className="bg-sky-100 text-sky-800 border border-sky-200">Imported</Badge>
+                  )}
                   <Badge className={getCategoryColor(expense.category)}>
                     {expense.category}
                   </Badge>
@@ -52,6 +59,7 @@ export const ExpenseRecentList = ({ expenses, getCategoryColor }: ExpenseRecentL
             </div>
           ))}
         </div>
+        )}
       </CardContent>
     </Card>
   );

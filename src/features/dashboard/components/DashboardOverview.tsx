@@ -12,12 +12,14 @@ import {
   Clock,
   AlertTriangle
 } from "lucide-react";
+import { useDashboardMetrics } from "@/features/dashboard/hooks/useDashboardMetrics";
 
 interface DashboardOverviewProps {
   onNavigate: (tab: string) => void;
 }
 
 const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
+  const { metrics, loading, freshnessSeconds, refreshLive } = useDashboardMetrics();
   const moduleCards = [
     {
       id: "timeline",
@@ -34,7 +36,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
       description: "Organize maintenance and projects",
       icon: CheckSquare,
       color: "from-green-500 to-green-600",
-      stats: "5 pending tasks",
+      stats: metrics ? `${metrics.pending_tasks} pending tasks` : loading ? "Loading..." : "0 pending tasks",
       action: "Manage Tasks"
     },
     {
@@ -43,7 +45,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
       description: "Monitor home-related spending",
       icon: DollarSign,
       color: "from-purple-500 to-purple-600",
-      stats: "$2,340 this month",
+      stats: metrics ? `$${metrics.monthly_expenses.toFixed(2)} this month` : loading ? "Loading..." : "$0.00 this month",
       action: "View Expenses"
     },
     {
@@ -65,15 +67,37 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 px-3 sm:px-4">
+      {/* Freshness + Dev Refresh */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs text-gray-500">
+          {loading
+            ? 'Loading…'
+            : metrics && typeof freshnessSeconds !== 'undefined' && freshnessSeconds !== null
+              ? `Updated ${Math.floor(freshnessSeconds / 60)}m ${freshnessSeconds % 60}s ago`
+              : ''}
+        </p>
+        {import.meta.env.DEV && (
+          <Button
+            className="w-full sm:w-auto"
+            variant="outline"
+            size="sm"
+            title="Re-fetch dashboard metrics (dev only)"
+            onClick={() => (typeof refreshLive === 'function' ? refreshLive() : null)}
+          >
+            Refresh
+          </Button>
+        )}
+      </div>
+
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Active Tasks</p>
-                <p className="text-3xl font-bold text-gray-900">5</p>
+                <p className="text-3xl font-bold text-gray-900">{loading ? "—" : (metrics?.pending_tasks ?? 0)}</p>
               </div>
               <CheckSquare className="w-8 h-8 text-green-600" />
             </div>
@@ -81,11 +105,11 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
         </Card>
         
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">This Month</p>
-                <p className="text-3xl font-bold text-gray-900">$2,340</p>
+                <p className="text-3xl font-bold text-gray-900">{loading ? "—" : `$${(metrics?.monthly_expenses ?? 0).toFixed(2)}`}</p>
               </div>
               <TrendingUp className="w-8 h-8 text-purple-600" />
             </div>
@@ -93,11 +117,11 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
         </Card>
         
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Recent Events</p>
-                <p className="text-3xl font-bold text-gray-900">12</p>
+                <p className="text-3xl font-bold text-gray-900">{loading ? "—" : (metrics?.total_documents ?? 0)}</p>
               </div>
               <Calendar className="w-8 h-8 text-blue-600" />
             </div>
@@ -105,11 +129,11 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
         </Card>
         
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Overdue</p>
-                <p className="text-3xl font-bold text-red-600">2</p>
+                <p className="text-3xl font-bold text-red-600">{loading ? "—" : (metrics?.overdue_tasks ?? 0)}</p>
               </div>
               <AlertTriangle className="w-8 h-8 text-red-600" />
             </div>
@@ -118,7 +142,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
       </div>
 
       {/* Module Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {moduleCards.map((module) => {
           const IconComponent = module.icon;
           return (
@@ -135,11 +159,11 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-sm text-gray-600">{module.stats}</p>
                   <Button 
                     onClick={() => onNavigate(module.id)}
-                    className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
+                    className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
                   >
                     {module.action}
                   </Button>
@@ -159,11 +183,11 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {recentActivity.map((activity, index) => (
-              <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <div className="flex-1">
+              <div key={index} className="flex items-start sm:items-center gap-3 p-3 rounded-lg bg-gray-50">
+                <div className="mt-1 sm:mt-0 w-2 h-2 bg-blue-500 rounded-full"></div>
+                <div className="flex-1 min-w-0">
                   <p className="font-medium text-gray-900">{activity.desc}</p>
                   <p className="text-sm text-gray-500">{activity.date}</p>
                 </div>

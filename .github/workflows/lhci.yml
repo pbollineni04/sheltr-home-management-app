@@ -1,0 +1,55 @@
+name: Lighthouse CI (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'URL to audit (defaults to local preview)'
+        required: false
+        default: ''
+  # Nightly run (disabled). Uncomment to enable.
+  # schedule:
+  #   - cron: '0 9 * * *' # 9:00 UTC daily
+
+jobs:
+  lhci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Start preview
+        run: |
+          npm run preview -- --port=4173 &
+          echo $! > preview.pid
+          npx wait-on http://localhost:4173
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          urls: |
+            ${{ github.event.inputs.url || 'http://localhost:4173' }}
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+          configPath: ./.lighthouserc.json
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Stop preview
+        if: always()
+        run: |
+          if [ -f preview.pid ]; then kill $(cat preview.pid) || true; fi
+

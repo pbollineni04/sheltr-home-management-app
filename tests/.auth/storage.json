@@ -1,0 +1,14 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:4173",
+      "localStorage": [
+        {
+          "name": "sb-rgdmyuuebueufenfluyn-auth-token",
+          "value": "{\"access_token\":\"eyJhbGciOiJIUzI1NiIsImtpZCI6IllneklEU0JhT2J6M2dtN04iLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3JnZG15dXVlYnVldWZlbmZsdXluLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI1N2E2ZjU4ZS1jMWFmLTQ4N2QtOTBmMi05YmE5YzUwZjRhNTEiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzU4NDIwNzg4LCJpYXQiOjE3NTg0MTcxODgsImVtYWlsIjoicGJvbGxpbmVuaTA0QGdtYWlsLmNvbSIsInBob25lIjoiIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZW1haWwiOiJwYm9sbGluZW5pMDRAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZ1bGxfbmFtZSI6IlByYW5hdiBCb2xsaW5lbmkiLCJwaG9uZV92ZXJpZmllZCI6ZmFsc2UsInN1YiI6IjU3YTZmNThlLWMxYWYtNDg3ZC05MGYyLTliYTljNTBmNGE1MSJ9LCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImFhbCI6ImFhbDEiLCJhbXIiOlt7Im1ldGhvZCI6InBhc3N3b3JkIiwidGltZXN0YW1wIjoxNzU4NDE3MTg4fV0sInNlc3Npb25faWQiOiI0YjE3N2E4ZS1mN2UyLTQ3MDgtODY1MS1lMTNiZTFjY2FjZTgiLCJpc19hbm9ueW1vdXMiOmZhbHNlfQ.-cThGREtgVTAZVkTYwyBc3KX-zDMQf_7dKfa8DRwrXs\",\"token_type\":\"bearer\",\"expires_in\":3600,\"expires_at\":1758420788,\"refresh_token\":\"jfqzplr4c7ti\",\"user\":{\"id\":\"57a6f58e-c1af-487d-90f2-9ba9c50f4a51\",\"aud\":\"authenticated\",\"role\":\"authenticated\",\"email\":\"pbollineni04@gmail.com\",\"email_confirmed_at\":\"2025-06-13T05:22:38.411588Z\",\"phone\":\"\",\"confirmation_sent_at\":\"2025-06-13T05:22:12.251845Z\",\"confirmed_at\":\"2025-06-13T05:22:38.411588Z\",\"last_sign_in_at\":\"2025-09-21T01:13:08.572730514Z\",\"app_metadata\":{\"provider\":\"email\",\"providers\":[\"email\"]},\"user_metadata\":{\"email\":\"pbollineni04@gmail.com\",\"email_verified\":true,\"full_name\":\"Pranav Bollineni\",\"phone_verified\":false,\"sub\":\"57a6f58e-c1af-487d-90f2-9ba9c50f4a51\"},\"identities\":[{\"identity_id\":\"03dbdb23-f4ad-4652-839d-068f6149b322\",\"id\":\"57a6f58e-c1af-487d-90f2-9ba9c50f4a51\",\"user_id\":\"57a6f58e-c1af-487d-90f2-9ba9c50f4a51\",\"identity_data\":{\"email\":\"pbollineni04@gmail.com\",\"email_verified\":true,\"full_name\":\"Pranav Bollineni\",\"phone_verified\":false,\"sub\":\"57a6f58e-c1af-487d-90f2-9ba9c50f4a51\"},\"provider\":\"email\",\"last_sign_in_at\":\"2025-06-13T05:22:12.243133Z\",\"created_at\":\"2025-06-13T05:22:12.243187Z\",\"updated_at\":\"2025-06-13T05:22:12.243187Z\",\"email\":\"pbollineni04@gmail.com\"}],\"created_at\":\"2025-06-13T05:22:12.220455Z\",\"updated_at\":\"2025-09-21T01:13:08.574463Z\",\"is_anonymous\":false},\"weak_password\":null}"
+        }
+      ]
+    }
+  ]
+}

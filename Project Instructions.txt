@@ -1,0 +1,1023 @@
+# Claude Project Instructions: Sheltr Home Management Application
+
+## Project Overview and Current State
+
+Sheltr is a React/TypeScript home management application at **75% MVP completion** using Supabase backend. The application requires strategic completion of remaining features and critical bug fixes to achieve MVP launch readiness within 3-4 weeks.
+
+**Current Status**: Tasks, Documents, and Timeline features are fully functional. Dashboard displays static data, Expense Tracker lacks database connectivity, and Smart Alerts/Energy Tracker/AI Helper remain disabled. The system lacks user onboarding and cross-feature intelligence, with features operating in isolation.
+
+## Phase 1: Foundation and Critical Fixes (Week 1)
+
+### Environment Setup and Configuration
+
+**Initial Setup Requirements**:
+```bash
+# Environment setup
+cp .env.example .env.local
+# Add required variables:
+VITE_SUPABASE_URL=https://rgdmyuuebueufenfluyn.supabase.co
+VITE_SUPABASE_ANON_KEY=[your-anon-key]
+VITE_APP_URL=http://localhost:8080
+
+# Install dependencies with bun for faster performance
+bun install
+
+# Generate TypeScript types from Supabase
+npx supabase gen types typescript --project-id rgdmyuuebueufenfluyn > src/types/database.types.ts
+```
+
+**TypeScript Configuration Enhancement**:
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "verbatimModuleSyntax": true,
+    "paths": {
+      "@features/*": ["./src/features/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@hooks/*": ["./src/hooks/*"]
+    }
+  }
+}
+```
+
+### Dashboard Real Data Integration
+
+**Priority**: Critical - Complete by Day 3
+
+Transform the static dashboard into a dynamic, data-driven interface using materialized views for optimal performance.
+
+**Database Optimization**:
+```sql
+-- Create materialized view for dashboard metrics
+CREATE MATERIALIZED VIEW dashboard_metrics AS
+SELECT 
+  user_id,
+  COUNT(DISTINCT CASE WHEN t.status = 'pending' THEN t.id END) as pending_tasks,
+  COUNT(DISTINCT CASE WHEN t.status = 'overdue' THEN t.id END) as overdue_tasks,
+  COUNT(DISTINCT d.id) as total_documents,
+  SUM(e.amount) FILTER (WHERE e.created_at >= NOW() - INTERVAL '30 days') as monthly_expenses,
+  MAX(t.updated_at) as last_activity
+FROM users u
+LEFT JOIN tasks t ON u.id = t.user_id
+LEFT JOIN documents d ON u.id = d.user_id
+LEFT JOIN expenses e ON u.id = e.user_id
+GROUP BY u.id;
+
+-- Add index for performance
+CREATE INDEX idx_dashboard_metrics_user_id ON dashboard_metrics(user_id);
+
+-- Refresh policy
+CREATE OR REPLACE FUNCTION refresh_dashboard_metrics()
+RETURNS trigger AS $$
+BEGIN
+  REFRESH MATERIALIZED VIEW CONCURRENTLY dashboard_metrics;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+**React Implementation**:
+```typescript
+// src/features/dashboard/hooks/useDashboardMetrics.ts
+export const useDashboardMetrics = () => {
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      const { data, error } = await supabase
+        .from('dashboard_metrics')
+        .select('*')
+        .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+        .single();
+      
+      if (!error) {
+        setMetrics(data);
+      }
+      setLoading(false);
+    };
+
+    fetchMetrics();
+    
+    // Real-time subscription
+    const channel = supabase
+      .channel('dashboard_updates')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'tasks' },
+        () => fetchMetrics()
+      )
+      .subscribe();
+    
+    return () => supabase.removeChannel(channel);
+  }, []);
+
+  return { metrics, loading };
+};
+```
+
+### Expense Tracker Database Connection
+
+**Priority**: Critical - Complete by Day 5
+
+Implement complete database connectivity for the existing expense tracker UI.
+
+**Database Schema**:
+```sql
+-- Expenses table with proper structure
+CREATE TABLE expenses (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  category_id UUID REFERENCES expense_categories(id),
+  amount DECIMAL(10,2) NOT NULL,
+  description TEXT,
+  date DATE NOT NULL,
+  recurring_id UUID REFERENCES recurring_expenses(id),
+  tags TEXT[],
+  receipt_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Categories with icons
+CREATE TABLE expense_categories (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  name VARCHAR(50) NOT NULL,
+  icon VARCHAR(50),
+  color VARCHAR(7),
+  budget_limit DECIMAL(10,2),
+  is_system BOOLEAN DEFAULT false
+);
+
+-- RLS Policies with optimization
+CREATE POLICY "Users manage own expenses" ON expenses
+TO authenticated
+USING ((SELECT auth.uid()) = user_id)
+WITH CHECK ((SELECT auth.uid()) = user_id);
+
+CREATE INDEX idx_expenses_user_date ON expenses(user_id, date DESC);
+CREATE INDEX idx_expenses_category ON expenses(category_id);
+```
+
+**Service Layer Implementation**:
+```typescript
+// src/features/expenses/services/expenseService.ts
+export class ExpenseService {
+  static async createExpense(expense: ExpenseInsert) {
+    const { data, error } = await supabase
+      .from('expenses')
+      .insert({
+        ...expense,
+        user_id: (await supabase.auth.getUser()).data.user?.id
+      })
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  }
+
+  static async getExpensesByDateRange(startDate: Date, endDate: Date) {
+    const { data, error } = await supabase
+      .from('expenses')
+      .select(`
+        *,
+        category:expense_categories(name, icon, color)
+      `)
+      .gte('date', startDate.toISOString())
+      .lte('date', endDate.toISOString())
+      .order('date', { ascending: false });
+    
+    if (error) throw error;
+    return data;
+  }
+
+  static async getCategoryBreakdown(period: 'month' | 'year') {
+    const startDate = period === 'month' 
+      ? new Date(new Date().setDate(1))
+      : new Date(new Date().getFullYear(), 0, 1);
+    
+    const { data, error } = await supabase.rpc('get_expense_breakdown', {
+      start_date: startDate.toISOString(),
+      end_date: new Date().toISOString()
+    });
+    
+    if (error) throw error;
+    return data;
+  }
+}
+```
+
+### Mobile Responsiveness Fix
+
+**Priority**: High - Complete by Day 7
+
+Implement comprehensive mobile-first responsive design patterns.
+
+**Tailwind Configuration Updates**:
+```javascript
+// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      screens: {
+        'xs': '475px',
+        'sm': '640px',
+        'md': '768px',
+        'lg': '1024px',
+        'xl': '1280px',
+        '2xl': '1536px',
+      },
+      container: {
+        center: true,
+        padding: {
+          DEFAULT: '1rem',
+          sm: '2rem',
+          lg: '4rem',
+          xl: '5rem',
+          '2xl': '6rem',
+        },
+      },
+    },
+  },
+};
+```
+
+**Responsive Component Patterns**:
+```typescript
+// src/shared/components/ResponsiveLayout.tsx
+export const ResponsiveLayout: FC<{ children: ReactNode }> = ({ children }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkDevice = () => setIsMobile(window.innerWidth < 768);
+    checkDevice();
+    window.addEventListener('resize', checkDevice);
+    return () => window.removeEventListener('resize', checkDevice);
+  }, []);
+
+  return (
+    <div className={cn(
+      "min-h-screen bg-background",
+      isMobile ? "pb-16" : "pl-64"
+    )}>
+      {isMobile ? <MobileNav /> : <DesktopSidebar />}
+      <main className="container mx-auto px-4 py-6 md:px-6 lg:px-8">
+        {children}
+      </main>
+      {isMobile && <MobileTabBar />}
+    </div>
+  );
+};
+```
+
+## Phase 2: User Onboarding and Feature Integration (Week 2)
+
+### Progressive Onboarding Implementation
+
+**Priority**: High - Complete by Day 10
+
+Create a contextual onboarding flow that guides users through initial setup.
+
+**Onboarding State Management**:
+```typescript
+// src/features/onboarding/context/OnboardingContext.tsx
+interface OnboardingStep {
+  id: string;
+  title: string;
+  description: string;
+  action: () => void;
+  completed: boolean;
+}
+
+export const OnboardingProvider: FC<{ children: ReactNode }> = ({ children }) => {
+  const [steps, setSteps] = useState<OnboardingStep[]>([
+    {
+      id: 'profile-setup',
+      title: 'Complete Your Profile',
+      description: 'Add your household information',
+      action: () => navigate('/settings/profile'),
+      completed: false
+    },
+    {
+      id: 'first-task',
+      title: 'Create Your First Task',
+      description: 'Start organizing your home management',
+      action: () => navigate('/tasks/new'),
+      completed: false
+    },
+    {
+      id: 'expense-category',
+      title: 'Set Up Expense Categories',
+      description: 'Customize your expense tracking',
+      action: () => navigate('/expenses/settings'),
+      completed: false
+    }
+  ]);
+
+  const markStepComplete = async (stepId: string) => {
+    setSteps(prev => prev.map(step => 
+      step.id === stepId ? { ...step, completed: true } : step
+    ));
+    
+    // Persist to database
+    await supabase
+      .from('user_onboarding')
+      .upsert({ 
+        user_id: (await supabase.auth.getUser()).data.user?.id,
+        completed_steps: steps.filter(s => s.completed).map(s => s.id)
+      });
+  };
+
+  return (
+    <OnboardingContext.Provider value={{ steps, markStepComplete }}>
+      {children}
+      <OnboardingWidget />
+    </OnboardingContext.Provider>
+  );
+};
+```
+
+**Smart Prompts System**:
+```typescript
+// src/features/onboarding/components/SmartPrompts.tsx
+export const SmartPrompts: FC = () => {
+  const { shouldShowHint, dismissHint } = useSmartPrompts();
+  
+  const hints: HintConfig[] = [
+    {
+      id: 'empty-tasks',
+      trigger: 'tasks-page-empty',
+      content: 'Get started by creating your first task',
+      action: { label: 'Create Task', onClick: () => openCreateTask() }
+    },
+    {
+      id: 'recurring-expense',
+      trigger: 'expense-added-3-times',
+      content: 'This looks recurring. Set it up to auto-track?',
+      action: { label: 'Make Recurring', onClick: () => convertToRecurring() }
+    }
+  ];
+
+  return (
+    <>
+      {hints.map(hint => 
+        shouldShowHint(hint.id) && (
+          <HintBubble
+            key={hint.id}
+            content={hint.content}
+            action={hint.action}
+            onDismiss={() => dismissHint(hint.id)}
+          />
+        )
+      )}
+    </>
+  );
+};
+```
+
+### Cross-Feature Intelligence Layer
+
+**Priority**: High - Complete by Day 12
+
+Implement a process layer that enables features to communicate and provide intelligent suggestions.
+
+**Cross-Feature Event Bus**:
+```typescript
+// src/shared/services/FeatureEventBus.ts
+type EventPayload = {
+  'task.completed': { taskId: string; category: string };
+  'expense.added': { amount: number; category: string };
+  'document.uploaded': { type: string; relatedTo?: string };
+};
+
+class FeatureEventBus {
+  private listeners = new Map<keyof EventPayload, Set<Function>>();
+
+  emit<K extends keyof EventPayload>(event: K, payload: EventPayload[K]) {
+    const eventListeners = this.listeners.get(event);
+    if (eventListeners) {
+      eventListeners.forEach(listener => listener(payload));
+    }
+    
+    // Log to analytics
+    this.logEvent(event, payload);
+    
+    // Process intelligence rules
+    this.processIntelligenceRules(event, payload);
+  }
+
+  private processIntelligenceRules<K extends keyof EventPayload>(
+    event: K, 
+    payload: EventPayload[K]
+  ) {
+    // Example: Task completion triggers expense reminder
+    if (event === 'task.completed' && payload.category === 'maintenance') {
+      this.suggestExpenseTracking(payload);
+    }
+    
+    // Example: Document upload triggers task creation
+    if (event === 'document.uploaded' && payload.type === 'invoice') {
+      this.suggestPaymentTask(payload);
+    }
+  }
+}
+
+export const eventBus = new FeatureEventBus();
+```
+
+**Intelligence Rules Engine**:
+```typescript
+// src/features/intelligence/services/RulesEngine.ts
+interface IntelligenceRule {
+  id: string;
+  trigger: string;
+  conditions: Array<(context: any) => boolean>;
+  action: (context: any) => void;
+}
+
+export class RulesEngine {
+  private rules: IntelligenceRule[] = [
+    {
+      id: 'maintenance-expense-tracking',
+      trigger: 'task.completed',
+      conditions: [
+        (ctx) => ctx.category === 'maintenance',
+        (ctx) => ctx.hasExpenseData === false
+      ],
+      action: (ctx) => {
+        showNotification({
+          title: 'Track Expense?',
+          message: `Add expense for "${ctx.taskTitle}"?`,
+          action: () => navigateToExpenseWithContext(ctx)
+        });
+      }
+    },
+    {
+      id: 'recurring-task-detection',
+      trigger: 'task.created',
+      conditions: [
+        (ctx) => ctx.similarTasksCount >= 3,
+        (ctx) => ctx.timePattern === 'regular'
+      ],
+      action: (ctx) => {
+        suggestRecurringTask(ctx);
+      }
+    }
+  ];
+
+  processEvent(event: string, context: any) {
+    const applicableRules = this.rules.filter(rule => 
+      rule.trigger === event && 
+      rule.conditions.every(condition => condition(context))
+    );
+    
+    applicableRules.forEach(rule => rule.action(context));
+  }
+}
+```
+
+### Feature Completion Priority Matrix
+
+**Week 2 Feature Priorities**:
+
+| Feature | Priority | Effort | Dependencies | Success Metric |
+|---------|----------|--------|--------------|----------------|
+| Dashboard Real Data | Critical | 3 days | Materialized views | <100ms load time |
+| Expense DB Connection | Critical | 2 days | None | Full CRUD operations |
+| User Onboarding | High | 3 days | Profile setup | 80% completion rate |
+| Cross-Feature Events | High | 2 days | Event bus | 5+ rules active |
+| Mobile Responsive | High | 2 days | Component audit | All pages mobile-ready |
+
+## Phase 3: Performance and Polish (Week 3)
+
+### Database Query Optimization
+
+**Implement Query Performance Monitoring**:
+```typescript
+// src/shared/utils/performanceMonitor.ts
+export const monitorQuery = async <T>(
+  queryName: string,
+  queryFn: () => Promise<T>
+): Promise<T> => {
+  const startTime = performance.now();
+  
+  try {
+    const result = await queryFn();
+    const duration = performance.now() - startTime;
+    
+    // Log slow queries
+    if (duration > 100) {
+      console.warn(`Slow query detected: ${queryName} took ${duration}ms`);
+      
+      // Report to analytics
+      await supabase
+        .from('performance_logs')
+        .insert({
+          query_name: queryName,
+          duration,
+          timestamp: new Date().toISOString()
+        });
+    }
+    
+    return result;
+  } catch (error) {
+    console.error(`Query failed: ${queryName}`, error);
+    throw error;
+  }
+};
+```
+
+**Implement Optimistic Updates**:
+```typescript
+// src/hooks/useOptimisticMutation.ts
+export const useOptimisticMutation = <T>(
+  mutationFn: (data: T) => Promise<T>,
+  options?: {
+    onSuccess?: (data: T) => void;
+    onError?: (error: Error) => void;
+  }
+) => {
+  const [optimisticData, setOptimisticData] = useState<T | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const mutate = async (data: T) => {
+    setIsLoading(true);
+    setOptimisticData(data); // Immediate UI update
+    
+    try {
+      const result = await mutationFn(data);
+      setOptimisticData(result);
+      options?.onSuccess?.(result);
+      return result;
+    } catch (error) {
+      setOptimisticData(null); // Rollback on error
+      options?.onError?.(error as Error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { mutate, optimisticData, isLoading };
+};
+```
+
+### Testing Implementation
+
+**Unit Testing Setup with Vitest**:
+```typescript
+// vitest.config.ts
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.ts',
+    coverage: {
+      reporter: ['text', 'json', 'html'],
+      exclude: ['node_modules/', 'src/test/']
+    }
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+      '@features': path.resolve(__dirname, './src/features'),
+      '@shared': path.resolve(__dirname, './src/shared')
+    }
+  }
+});
+```
+
+**Integration Testing Patterns**:
+```typescript
+// src/test/integration/expense-flow.test.ts
+describe('Expense Tracking Flow', () => {
+  const testUser = createTestUser();
+  
+  beforeEach(async () => {
+    await resetDatabase();
+    await authenticateAs(testUser);
+  });
+
+  it('should complete full expense tracking flow', async () => {
+    // Create category
+    const category = await ExpenseService.createCategory({
+      name: 'Utilities',
+      budget_limit: 500
+    });
+    
+    // Add expense
+    const expense = await ExpenseService.createExpense({
+      category_id: category.id,
+      amount: 120.50,
+      description: 'Electric bill',
+      date: new Date()
+    });
+    
+    // Verify dashboard update
+    const metrics = await DashboardService.getMetrics();
+    expect(metrics.monthly_expenses).toBe(120.50);
+    
+    // Verify real-time update
+    const subscription = supabase
+      .channel('test_expenses')
+      .on('postgres_changes', 
+        { event: 'INSERT', schema: 'public', table: 'expenses' },
+        (payload) => {
+          expect(payload.new.id).toBe(expense.id);
+        }
+      )
+      .subscribe();
+  });
+});
+```
+
+### Error Handling and Recovery
+
+**Global Error Boundary Implementation**:
+```typescript
+// src/shared/components/ErrorBoundary.tsx
+export class ErrorBoundary extends Component<
+  { children: ReactNode; fallback?: ComponentType<{ error: Error }> },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // Log to error tracking service
+    console.error('Error caught by boundary:', error, errorInfo);
+    
+    // Send to Supabase error log
+    supabase
+      .from('error_logs')
+      .insert({
+        error_message: error.message,
+        stack_trace: error.stack,
+        component_stack: errorInfo.componentStack,
+        timestamp: new Date().toISOString()
+      })
+      .then(() => console.log('Error logged to database'));
+  }
+
+  render() {
+    if (this.state.hasError) {
+      const FallbackComponent = this.props.fallback || DefaultErrorFallback;
+      return <FallbackComponent error={this.state.error!} />;
+    }
+
+    return this.props.children;
+  }
+}
+```
+
+## Phase 4: Launch Preparation (Week 4)
+
+### Production Deployment Configuration
+
+**Environment Variables Management**:
+```bash
+# .env.production
+VITE_SUPABASE_URL=https://rgdmyuuebueufenfluyn.supabase.co
+VITE_SUPABASE_ANON_KEY=[production-anon-key]
+VITE_APP_URL=https://sheltr.app
+VITE_SENTRY_DSN=[sentry-dsn]
+VITE_ANALYTICS_ID=[analytics-id]
+VITE_FEATURE_FLAGS_ENDPOINT=https://api.sheltr.app/flags
+```
+
+**CI/CD Pipeline with GitHub Actions**:
+```yaml
+name: Deploy to Production
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+        
+      - name: Run type checking
+        run: bun run type-check
+        
+      - name: Run tests
+        run: bun run test:ci
+        
+      - name: Run linting
+        run: bun run lint
+
+  build-and-deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        
+      - name: Run database migrations
+        run: |
+          supabase db push --project-ref rgdmyuuebueufenfluyn
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          
+      - name: Build application
+        run: |
+          bun install --frozen-lockfile
+          bun run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          
+      - name: Deploy to hosting
+        run: |
+          # Deploy to your hosting provider
+          # Example for Vercel:
+          vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
+```
+
+### Performance Monitoring Setup
+
+**Core Web Vitals Tracking**:
+```typescript
+// src/shared/utils/webVitals.ts
+import { getCLS, getFID, getFCP, getLCP, getTTFB } from 'web-vitals';
+
+export const reportWebVitals = () => {
+  const vitalsData: Record<string, number> = {};
+  
+  getCLS((metric) => {
+    vitalsData.CLS = metric.value;
+    sendToAnalytics(metric);
+  });
+  
+  getFID((metric) => {
+    vitalsData.FID = metric.value;
+    sendToAnalytics(metric);
+  });
+  
+  getFCP((metric) => {
+    vitalsData.FCP = metric.value;
+    sendToAnalytics(metric);
+  });
+  
+  getLCP((metric) => {
+    vitalsData.LCP = metric.value;
+    sendToAnalytics(metric);
+  });
+  
+  getTTFB((metric) => {
+    vitalsData.TTFB = metric.value;
+    sendToAnalytics(metric);
+  });
+  
+  // Report to Supabase
+  if (Object.keys(vitalsData).length === 5) {
+    supabase
+      .from('performance_metrics')
+      .insert({
+        metrics: vitalsData,
+        url: window.location.href,
+        timestamp: new Date().toISOString()
+      });
+  }
+};
+```
+
+### Feature Flag System
+
+**Implementation for Gradual Rollout**:
+```typescript
+// src/shared/services/FeatureFlags.ts
+interface FeatureFlag {
+  key: string;
+  enabled: boolean;
+  percentage?: number;
+  userGroups?: string[];
+}
+
+export class FeatureFlagService {
+  private flags: Map<string, FeatureFlag> = new Map();
+  
+  async initialize() {
+    const { data } = await supabase
+      .from('feature_flags')
+      .select('*')
+      .eq('active', true);
+    
+    data?.forEach(flag => {
+      this.flags.set(flag.key, flag);
+    });
+  }
+  
+  isEnabled(flagKey: string, userId?: string): boolean {
+    const flag = this.flags.get(flagKey);
+    if (!flag || !flag.enabled) return false;
+    
+    // Percentage-based rollout
+    if (flag.percentage && userId) {
+      const hash = this.hashUserId(userId);
+      return hash <= flag.percentage;
+    }
+    
+    return true;
+  }
+  
+  private hashUserId(userId: string): number {
+    let hash = 0;
+    for (let i = 0; i < userId.length; i++) {
+      hash = ((hash << 5) - hash) + userId.charCodeAt(i);
+      hash = hash & hash;
+    }
+    return Math.abs(hash % 100);
+  }
+}
+
+// Usage in components
+export const SmartAlerts: FC = () => {
+  const { isEnabled } = useFeatureFlags();
+  
+  if (!isEnabled('smart-alerts')) {
+    return null; // Feature disabled
+  }
+  
+  return <SmartAlertsComponent />;
+};
+```
+
+## Success Metrics and KPIs
+
+### Technical Metrics
+
+| Metric | Target | Measurement Method |
+|--------|--------|-------------------|
+| Page Load Time | < 2s | Lighthouse CI |
+| Time to Interactive | < 3.5s | Web Vitals |
+| API Response Time | < 200ms | Performance logs |
+| Error Rate | < 0.1% | Sentry monitoring |
+| Test Coverage | > 80% | Vitest coverage |
+| TypeScript Strict | 100% | TSC compile |
+
+### User Experience Metrics
+
+| Metric | Target | Measurement Method |
+|--------|--------|-------------------|
+| Onboarding Completion | > 80% | Analytics funnel |
+| Feature Adoption | > 60% | Usage analytics |
+| Task Creation Rate | > 5/week | Database metrics |
+| Expense Tracking Usage | > 70% users | Active user query |
+| Mobile Usage | > 40% | Device analytics |
+
+### Business Metrics
+
+| Metric | Week 1 | Week 2 | Week 3 | Week 4 |
+|--------|--------|--------|--------|--------|
+| Core Features Complete | 2/5 | 4/5 | 5/5 | 5/5 |
+| Bug Resolution | 90% | 95% | 98% | 99% |
+| Performance Score | 60 | 75 | 85 | 90+ |
+| User Testing Sessions | 0 | 5 | 10 | 15 |
+| Production Readiness | 25% | 50% | 75% | 100% |
+
+## Code Standards and Conventions
+
+### TypeScript Guidelines
+
+**Strict Type Usage**:
+```typescript
+// ✅ Good: Explicit types with proper narrowing
+interface TaskProps {
+  task: Task;
+  onUpdate: (id: string, updates: Partial<Task>) => Promise<void>;
+  isEditable?: boolean;
+}
+
+// ❌ Bad: Using 'any' or implicit types
+interface BadProps {
+  task: any;
+  onUpdate: Function;
+}
+```
+
+### Component Structure
+
+**Feature-Based Organization**:
+```
+src/features/tasks/
+├── components/
+│   ├── TaskList/
+│   │   ├── TaskList.tsx
+│   │   ├── TaskList.test.tsx
+│   │   └── index.ts
+│   └── TaskItem/
+├── hooks/
+│   ├── useTasks.ts
+│   └── useTaskMutations.ts
+├── services/
+│   └── taskService.ts
+├── types/
+│   └── task.types.ts
+└── index.ts  // Public API
+```
+
+### Git Workflow
+
+**Branch Strategy**:
+- `main` - Production-ready code
+- `develop` - Integration branch
+- `feature/*` - New features
+- `fix/*` - Bug fixes
+- `release/*` - Release preparation
+
+**Commit Convention**:
+```
+feat(expenses): add recurring expense support
+fix(dashboard): resolve real-time update issue
+perf(queries): optimize dashboard materialized view
+docs(readme): update setup instructions
+test(auth): add integration tests for login flow
+```
+
+## Critical Path Timeline
+
+### Week 1 Deliverables
+- ✅ Dashboard with real data (Day 3)
+- ✅ Expense tracker database connection (Day 5)
+- ✅ Mobile responsive fixes (Day 7)
+
+### Week 2 Deliverables
+- ✅ User onboarding flow (Day 10)
+- ✅ Cross-feature intelligence (Day 12)
+- ✅ Performance optimizations (Day 14)
+
+### Week 3 Deliverables
+- ✅ Complete test coverage (Day 17)
+- ✅ Error handling implementation (Day 19)
+- ✅ Production environment setup (Day 21)
+
+### Week 4 Deliverables
+- ✅ Final bug fixes (Day 24)
+- ✅ Performance audit (Day 26)
+- ✅ Launch preparation (Day 28)
+
+## Implementation Checklist
+
+### Immediate Actions (Day 1)
+- [ ] Set up development environment with proper TypeScript config
+- [ ] Generate Supabase types and update type definitions
+- [ ] Create materialized views for dashboard performance
+- [ ] Implement basic error boundary
+- [ ] Set up Vitest for testing
+
+### Week 1 Priorities
+- [ ] Connect dashboard to real data sources
+- [ ] Implement expense tracker database layer
+- [ ] Fix mobile navigation and responsive layouts
+- [ ] Add performance monitoring
+- [ ] Create user onboarding context
+
+### Week 2-3 Focus
+- [ ] Build cross-feature event bus
+- [ ] Implement intelligence rules engine
+- [ ] Add comprehensive test coverage
+- [ ] Set up CI/CD pipeline
+- [ ] Conduct user testing sessions
+
+### Launch Readiness
+- [ ] Complete security audit
+- [ ] Optimize bundle size
+- [ ] Set up monitoring and analytics
+- [ ] Prepare rollback procedures
+- [ ] Document deployment process
+
+## Conclusion
+
+These comprehensive instructions provide a clear roadmap for completing the Sheltr MVP within the 3-4 week timeline. The phased approach ensures critical issues are addressed first while building toward a polished, production-ready application. Focus on completing Phase 1 critical fixes immediately, as they unlock the foundation for subsequent improvements. The cross-feature intelligence layer in Phase 2 will differentiate Sheltr from basic task managers, while the performance and testing work in Phase 3 ensures reliability at scale.
+
+Success depends on maintaining strict TypeScript discipline, leveraging Supabase's real-time capabilities effectively, and ensuring mobile-first responsive design throughout. The provided code patterns and architectural decisions are based on current best practices and will scale as the application grows beyond MVP.
