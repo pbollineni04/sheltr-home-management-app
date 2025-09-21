@@ -9,42 +9,42 @@ interface ExpenseSummaryCardsProps {
 export const ExpenseSummaryCards = ({ thisMonthExpenses, totalExpenses }: ExpenseSummaryCardsProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <Card>
+      <Card className="card-luxury">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">This Month</p>
-              <p className="text-3xl font-bold text-foreground">${thisMonthExpenses.toLocaleString()}</p>
+              <p className="text-caption-refined text-neutral-600">This Month</p>
+              <p className="text-heading-xl text-neutral-800">${thisMonthExpenses.toLocaleString()}</p>
             </div>
             <TrendingUp className="w-8 h-8 text-green-600" />
           </div>
-          <p className="text-sm text-green-600 mt-2">+12% from last month</p>
+          <p className="text-body-luxury text-green-700 mt-2">+12% from last month</p>
         </CardContent>
       </Card>
       
-      <Card>
+      <Card className="card-luxury">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Expenses</p>
-              <p className="text-3xl font-bold text-foreground">${totalExpenses.toLocaleString()}</p>
+              <p className="text-caption-refined text-neutral-600">Total Expenses</p>
+              <p className="text-heading-xl text-neutral-800">${totalExpenses.toLocaleString()}</p>
             </div>
             <DollarSign className="w-8 h-8 text-blue-600" />
           </div>
-          <p className="text-sm text-muted-foreground mt-2">All time</p>
+          <p className="text-body-luxury text-neutral-600 mt-2">All time</p>
         </CardContent>
       </Card>
       
-      <Card>
+      <Card className="card-luxury">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Avg per Month</p>
-              <p className="text-3xl font-bold text-foreground">${Math.round(totalExpenses / 12).toLocaleString()}</p>
+              <p className="text-caption-refined text-neutral-600">Avg per Month</p>
+              <p className="text-heading-xl text-neutral-800">${Math.round(totalExpenses / 12).toLocaleString()}</p>
             </div>
             <TrendingDown className="w-8 h-8 text-purple-600" />
           </div>
-          <p className="text-sm text-muted-foreground mt-2">12 month average</p>
+          <p className="text-body-luxury text-neutral-600 mt-2">12 month average</p>
         </CardContent>
       </Card>
     </div>

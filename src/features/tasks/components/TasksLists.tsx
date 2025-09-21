@@ -8,7 +8,8 @@ import TaskListSelector from "./tasks/TaskListSelector";
 import QuickAddTask from "./tasks/QuickAddTask";
 import TaskSection from "./tasks/TaskSection";
 import EmptyTasksState from "./tasks/EmptyTasksState";
-import { getTaskBundle, TaskTemplate } from "../data/taskTemplates";
+import { getTaskBundle } from "../data/taskTemplates";
+import type { TaskTemplate } from "../data/taskTemplates";
 
 const TasksLists = () => {
   const [selectedList, setSelectedList] = useState("maintenance");
@@ -29,18 +30,18 @@ const TasksLists = () => {
   const handleQuickBundle = async (bundleId: string) => {
     const bundle = getTaskBundle(bundleId);
     if (bundle && bundle.taskTemplates) {
-      for (const template of bundle.taskTemplates) {
+      for (const template of bundle.taskTemplates as TaskTemplate[]) {
         const dueDate = template.due_date_offset_days 
           ? new Date(Date.now() + template.due_date_offset_days * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
           : undefined;
 
         await addTask({
           title: template.title,
-          description: template.description,
+          description: template.description ?? "",
           list_type: selectedList as 'maintenance' | 'projects' | 'shopping',
           priority: template.priority,
-          due_date: dueDate,
-          room: template.suggested_room,
+          due_date: dueDate ?? "",
+          room: template.suggested_room ?? "",
           completed: false
         });
       }
@@ -86,8 +87,8 @@ const TasksLists = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-foreground">Tasks & Lists</h2>
-          <p className="text-muted-foreground">Organize maintenance and projects</p>
+          <h2 className="text-heading-xl text-neutral-800">Tasks & Lists</h2>
+          <p className="text-body-luxury text-neutral-600">Organize maintenance and projects</p>
         </div>
         <AddTaskDialog selectedList={selectedList} />
       </div>
@@ -103,8 +104,8 @@ const TasksLists = () => {
       {getQuickBundles().length > 0 && (
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium text-muted-foreground">Quick Setup:</span>
+            <Sparkles className="w-4 h-4 icon-accent" />
+            <span className="text-caption-refined text-neutral-600">Quick Setup</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {getQuickBundles().map((bundleId) => {
@@ -114,14 +115,14 @@ const TasksLists = () => {
               return (
                 <Button
                   key={bundleId}
-                  variant="outline"
+                  className="btn-secondary-luxury"
                   size="sm"
                   onClick={() => handleQuickBundle(bundleId)}
-                  className="flex items-center gap-2"
+                  
                 >
                   <span>{bundle.icon}</span>
                   {bundle.name}
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-neutral-600">
                     ({bundle.tasks.length})
                   </span>
                 </Button>

@@ -16,7 +16,7 @@ import {
   Tag
 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Document } from "../../types";
+import type { Document } from "../../types";
 import { useDocuments } from "../../hooks/useDocuments";
 import { getCategoryColor, getCategoryIcon } from "../../utils/categoryIcons";
 import { format } from "date-fns";
@@ -57,6 +57,13 @@ const DocumentCard = ({ document }: DocumentCardProps) => {
   const { updateDocument, deleteDocument, downloadDocument } = useDocuments();
   const [isLoading, setIsLoading] = useState(false);
   const FileIcon = getFileIcon(document.mime_type);
+  const isExpiringSoon = (() => {
+    if (!document.expiration_date) return false;
+    const now = new Date();
+    const exp = new Date(document.expiration_date);
+    const diffDays = Math.ceil((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    return diffDays >= 0 && diffDays <= 30;
+  })();
 
   const handleToggleFavorite = async () => {
     setIsLoading(true);
@@ -85,7 +92,7 @@ const DocumentCard = ({ document }: DocumentCardProps) => {
   };
 
   return (
-    <Card className={`hover:shadow-md transition-all duration-200 ${document.archived ? 'opacity-60' : ''}`}>
+    <Card className={`card-luxury hover:shadow-md transition-all duration-200 ${document.archived ? 'opacity-60' : ''}`}>
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -150,6 +157,9 @@ const DocumentCard = ({ document }: DocumentCardProps) => {
                 {document.type}
               </Badge>
             )}
+            {isExpiringSoon && (
+              <Badge className="text-xs bg-orange-50 text-orange-700 border border-orange-200">Expiring</Badge>
+            )}
           </div>
 
           {document.tags && document.tags.length > 0 && (
@@ -198,7 +208,7 @@ const DocumentCard = ({ document }: DocumentCardProps) => {
             variant="outline"
             onClick={handleDownload}
             disabled={isLoading}
-            className="flex-1"
+            className="flex-1 btn-secondary-luxury"
           >
             <Download className="w-3 h-3 mr-1" />
             Download

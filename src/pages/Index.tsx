@@ -47,21 +47,17 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(180deg, var(--neutral-50) 0%, var(--neutral-100) 100%)' }}>
       <Navigation />
       
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">
-            Welcome to Sheltr
-          </h1>
-          <p className="text-xl text-muted-foreground">
-            Your all-in-one home management assistant
-          </p>
+      <main className="container-luxury py-8">
+        <div className="mb-8 micro-fade-in">
+          <h1 className="text-display-lg text-neutral-900 mb-2">Welcome to Sheltr</h1>
+          <p className="text-body-luxury text-neutral-600">Your all-in-one home management assistant</p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className={`grid w-full max-w-6xl mx-auto mb-8 grid-cols-${enabledTabCount}`}> 
+          <TabsList className={`grid w-full max-w-6xl mx-auto mb-8 grid-cols-${enabledTabCount} card-luxury`}> 
             {featureFlags.dashboardOverview && (
               <TabsTrigger value="dashboard" className="flex items-center gap-2">
                 <Home className="w-4 h-4" />

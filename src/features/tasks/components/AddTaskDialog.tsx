@@ -10,7 +10,8 @@ import { Plus, Sparkles, Edit } from 'lucide-react';
 import { useTasks } from "../hooks/useTasks";
 import TaskTemplateSelector from "./tasks/TaskTemplateSelector";
 import TaskBundles from "./tasks/TaskBundles";
-import { TaskTemplate } from "../data/taskTemplates";
+import type { TaskTemplate } from "../data/taskTemplates";
+import { searchTasks } from "../data/taskTemplates";
 
 interface AddTaskDialogProps {
   selectedList: string;
@@ -19,6 +20,8 @@ interface AddTaskDialogProps {
 const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("templates");
+  const [suggestions, setSuggestions] = useState<TaskTemplate[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -27,6 +30,7 @@ const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
     room: ''
   });
   const [loading, setLoading] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
   
   const { addTask } = useTasks();
 
@@ -38,11 +42,11 @@ const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
     
     const success = await addTask({
       title: formData.title,
-      description: formData.description || undefined,
+      description: formData.description ?? "",
       list_type: selectedList as 'maintenance' | 'projects' | 'shopping',
       priority: formData.priority,
-      due_date: formData.due_date || undefined,
-      room: formData.room || undefined,
+      due_date: formData.due_date ?? "",
+      room: formData.room ?? "",
       completed: false
     });
 
@@ -60,21 +64,39 @@ const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
     setLoading(false);
   };
 
+  const applyTemplateToForm = (template: TaskTemplate) => {
+    let dueDateStr: string = "";
+    if (template.due_date_offset_days) {
+      dueDateStr = new Date(Date.now() + template.due_date_offset_days * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split('T')[0];
+    }
+    setFormData(prev => ({
+      ...prev,
+      title: template.title,
+      description: template.description ?? "",
+      priority: template.priority,
+      due_date: dueDateStr,
+      room: template.suggested_room ?? ""
+    }));
+    setShowSuggestions(false);
+  };
+
   const handleTemplateSelect = async (templates: TaskTemplate[]) => {
     setLoading(true);
     
-    for (const template of templates) {
+    for (const template of templates as TaskTemplate[]) {
       const dueDate = template.due_date_offset_days 
         ? new Date(Date.now() + template.due_date_offset_days * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
         : undefined;
 
       await addTask({
         title: template.title,
-        description: template.description,
+        description: template.description ?? "",
         list_type: selectedList as 'maintenance' | 'projects' | 'shopping',
         priority: template.priority,
-        due_date: dueDate,
-        room: template.suggested_room,
+        due_date: dueDate ?? "",
+        room: template.suggested_room ?? "",
         completed: false
       });
     }
@@ -90,7 +112,7 @@ const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700">
+        <Button className="btn-primary-luxury">
           <Plus className="w-4 h-4 mr-2" />
           Add Task
         </Button>
@@ -101,7 +123,7 @@ const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
         </DialogHeader>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-3 card-luxury">
             <TabsTrigger value="templates" className="flex items-center gap-2">
               <Sparkles className="w-4 h-4" />
               Quick Select
@@ -129,15 +151,70 @@ const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
 
           <TabsContent value="custom" className="mt-4">
             <form onSubmit={handleCustomSubmit} className="space-y-4">
-              <div className="space-y-2">
+              <div className="space-y-2 relative">
                 <Label htmlFor="title">Title *</Label>
                 <Input
                   id="title"
                   value={formData.title}
-                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setFormData(prev => ({ ...prev, title: value }));
+                    if (value.length >= 2) {
+                      const results = searchTasks(value).filter(t => t.list_type === (selectedList as 'maintenance' | 'projects' | 'shopping'));
+                      setSuggestions(results.slice(0, 6));
+                      setShowSuggestions(results.length > 0);
+                      setActiveIndex(0);
+                    } else {
+                      setSuggestions([]);
+                      setShowSuggestions(false);
+                    }
+                  }}
                   placeholder="Enter task title"
                   required
+                  className="input-luxury"
+                  onFocus={() => {
+                    if (formData.title.length >= 2 && suggestions.length > 0) setShowSuggestions(true);
+                  }}
+                  onBlur={() => {
+                    // Delay to allow click on suggestion
+                    setTimeout(() => setShowSuggestions(false), 120);
+                  }}
+                  onKeyDown={(e) => {
+                    if (!showSuggestions || suggestions.length === 0) return;
+                    if (e.key === 'ArrowDown') {
+                      e.preventDefault();
+                      setActiveIndex((prev) => (prev + 1) % suggestions.length);
+                    } else if (e.key === 'ArrowUp') {
+                      e.preventDefault();
+                      setActiveIndex((prev) => (prev - 1 + suggestions.length) % suggestions.length);
+                    } else if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const chosen = suggestions[activeIndex] ?? suggestions[0];
+                      if (chosen) applyTemplateToForm(chosen);
+                    } else if (e.key === 'Escape') {
+                      setShowSuggestions(false);
+                    }
+                  }}
                 />
+                {showSuggestions && suggestions.length > 0 && (
+                  <div className="absolute left-0 right-0 z-50 mt-1 card-luxury p-2">
+                    {suggestions.map((t, idx) => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        className={`w-full text-left px-3 py-2 rounded hover:bg-neutral-50 focus:bg-neutral-50 ${idx === activeIndex ? 'bg-neutral-50' : ''}`}
+                        onMouseDown={() => applyTemplateToForm(t)}
+                        onMouseEnter={() => setActiveIndex(idx)}
+                      >
+                        <div className="text-sm font-medium text-neutral-800">{t.title}</div>
+                        {t.description && (
+                          <div className="text-xs text-neutral-600 truncate">{t.description}</div>
+                        )}
+                        <div className="text-xs text-neutral-500">{t.priority} • {t.list_type}</div>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -148,13 +225,14 @@ const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Enter task description"
                   rows={3}
+                  className="input-luxury"
                 />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="priority">Priority</Label>
                 <Select value={formData.priority} onValueChange={(value: 'low' | 'medium' | 'high') => setFormData(prev => ({ ...prev, priority: value }))}>
-                  <SelectTrigger>
+                  <SelectTrigger className="input-luxury">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -172,6 +250,7 @@ const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
                   type="date"
                   value={formData.due_date}
                   onChange={(e) => setFormData(prev => ({ ...prev, due_date: e.target.value }))}
+                  className="input-luxury"
                 />
               </div>
 
@@ -182,6 +261,7 @@ const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
                   value={formData.room}
                   onChange={(e) => setFormData(prev => ({ ...prev, room: e.target.value }))}
                   placeholder="e.g., Kitchen, Living Room"
+                  className="input-luxury"
                 />
               </div>
 
@@ -191,10 +271,11 @@ const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
                   variant="outline"
                   onClick={() => setOpen(false)}
                   disabled={loading}
+                  className="btn-secondary-luxury"
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={loading || !formData.title.trim()}>
+                <Button type="submit" disabled={loading || !formData.title.trim()} className="btn-primary-luxury">
                   {loading ? 'Adding...' : 'Add Task'}
                 </Button>
               </div>

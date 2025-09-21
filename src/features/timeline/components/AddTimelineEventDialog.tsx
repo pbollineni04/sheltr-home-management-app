@@ -32,12 +32,12 @@ const AddTimelineEventDialog = () => {
     
     const success = await addEvent({
       title: formData.title,
-      description: formData.description || undefined,
+      description: formData.description ?? "",
       date: formData.date,
       category: formData.category,
-      room: formData.room || undefined,
+      room: formData.room ?? "",
       cost: formData.cost ? parseFloat(formData.cost) : undefined,
-      tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : undefined
+      tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : []
     });
 
     if (success) {
@@ -59,7 +59,7 @@ const AddTimelineEventDialog = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700">
+        <Button className="btn-primary-luxury">
           <Plus className="w-4 h-4 mr-2" />
           Add Event
         </Button>
@@ -77,6 +77,7 @@ const AddTimelineEventDialog = () => {
               onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
               placeholder="Enter event title"
               required
+              className="input-luxury"
             />
           </div>
 
@@ -88,6 +89,7 @@ const AddTimelineEventDialog = () => {
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               placeholder="Enter event description"
               rows={3}
+              className="input-luxury"
             />
           </div>
 
@@ -99,13 +101,14 @@ const AddTimelineEventDialog = () => {
               value={formData.date}
               onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
               required
+              className="input-luxury"
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
             <Select value={formData.category} onValueChange={(value: 'maintenance' | 'renovation' | 'purchase' | 'inspection') => setFormData(prev => ({ ...prev, category: value }))}>
-              <SelectTrigger>
+              <SelectTrigger className="input-luxury">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -124,6 +127,7 @@ const AddTimelineEventDialog = () => {
               value={formData.room}
               onChange={(e) => setFormData(prev => ({ ...prev, room: e.target.value }))}
               placeholder="e.g., Kitchen, Living Room"
+              className="input-luxury"
             />
           </div>
 
@@ -136,6 +140,7 @@ const AddTimelineEventDialog = () => {
               value={formData.cost}
               onChange={(e) => setFormData(prev => ({ ...prev, cost: e.target.value }))}
               placeholder="0.00"
+              className="input-luxury"
             />
           </div>
 
@@ -146,6 +151,7 @@ const AddTimelineEventDialog = () => {
               value={formData.tags}
               onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
               placeholder="e.g., plumbing, repair, urgent"
+              className="input-luxury"
             />
           </div>
 
@@ -155,10 +161,11 @@ const AddTimelineEventDialog = () => {
               variant="outline"
               onClick={() => setOpen(false)}
               disabled={loading}
+              className="btn-secondary-luxury"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading || !formData.title.trim()}>
+            <Button type="submit" disabled={loading || !formData.title.trim()} className="btn-primary-luxury">
               {loading ? 'Adding...' : 'Add Event'}
             </Button>
           </div>

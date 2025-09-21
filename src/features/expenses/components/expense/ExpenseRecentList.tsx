@@ -20,9 +20,9 @@ interface ExpenseRecentListProps {
 
 export const ExpenseRecentList = ({ expenses, getCategoryColor }: ExpenseRecentListProps) => {
   return (
-    <Card>
+    <Card className="card-luxury">
       <CardHeader>
-        <CardTitle>Recent Expenses</CardTitle>
+        <CardTitle className="text-heading-xl text-neutral-800">Recent Expenses</CardTitle>
       </CardHeader>
       <CardContent>
         {expenses.length === 0 ? (

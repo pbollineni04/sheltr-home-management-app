@@ -21,7 +21,7 @@ import {
   Lock
 } from "lucide-react";
 import { useDocuments } from "../hooks/useDocuments";
-import { DocumentFilter, DocumentCategory } from "../types";
+import type { DocumentFilter, DocumentCategory } from "../types";
 import { categoryIcons, getCategoryColor } from "../utils/categoryIcons";
 import DocumentUploadDialog from "./document/DocumentUploadDialog";
 import DocumentCard from "./document/DocumentCard";
@@ -86,8 +86,8 @@ const DocumentVault = () => {
             <Lock className="w-3 h-3 text-primary-foreground absolute -bottom-1 -right-1" />
           </div>
         </div>
-        <h2 className="text-3xl font-bold">Document Vault</h2>
-        <p className="text-muted-foreground">Secure storage and management for all your important documents</p>
+        <h2 className="text-heading-xl text-neutral-900">Document Vault</h2>
+        <p className="text-body-luxury text-neutral-600">Secure storage and management for all your important documents</p>
       </div>
 
       {/* Quick Stats */}
@@ -102,13 +102,14 @@ const DocumentVault = () => {
               placeholder="Search documents, tags, or descriptions..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 input-luxury"
             />
           </div>
           <Button
             variant="outline"
             size="icon"
             onClick={() => setIsFilterOpen(!isFilterOpen)}
+            className="btn-secondary-luxury"
           >
             <Filter className="w-4 h-4" />
           </Button>
@@ -116,11 +117,12 @@ const DocumentVault = () => {
 
         <div className="flex items-center gap-2">
           {/* View Mode Toggle */}
-          <div className="flex items-center border rounded-lg p-1">
+          <div className="flex items-center border rounded-lg p-1 card-luxury">
             <Button
               variant={viewMode === 'grid' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('grid')}
+              className={viewMode === 'grid' ? 'btn-primary-luxury' : 'btn-secondary-luxury'}
             >
               <Grid className="w-4 h-4" />
             </Button>
@@ -128,6 +130,7 @@ const DocumentVault = () => {
               variant={viewMode === 'list' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('list')}
+              className={viewMode === 'list' ? 'btn-primary-luxury' : 'btn-secondary-luxury'}
             >
               <List className="w-4 h-4" />
             </Button>
@@ -135,6 +138,7 @@ const DocumentVault = () => {
               variant={viewMode === 'folders' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('folders')}
+              className={viewMode === 'folders' ? 'btn-primary-luxury' : 'btn-secondary-luxury'}
             >
               <FolderOpen className="w-4 h-4" />
             </Button>
@@ -142,7 +146,7 @@ const DocumentVault = () => {
 
           <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-gradient-to-r from-primary to-primary/80">
+              <Button className="btn-primary-luxury">
                 <Upload className="w-4 h-4 mr-2" />
                 Upload Document
               </Button>
@@ -171,7 +175,7 @@ const DocumentVault = () => {
           variant={selectedCategory === 'all' ? 'default' : 'outline'}
           size="sm"
           onClick={() => setSelectedCategory('all')}
-          className="gap-2"
+          className={`gap-2 ${selectedCategory === 'all' ? 'btn-primary-luxury' : 'btn-secondary-luxury'}`}
         >
           <BarChart3 className="w-4 h-4" />
           All Documents
@@ -184,7 +188,7 @@ const DocumentVault = () => {
               variant={selectedCategory === category.value ? 'default' : 'outline'}
               size="sm"
               onClick={() => setSelectedCategory(category.value)}
-              className="gap-2"
+              className={`gap-2 ${selectedCategory === category.value ? 'btn-primary-luxury' : 'btn-secondary-luxury'}`}
             >
               <CategoryIcon className="w-4 h-4" />
               {category.label}
@@ -199,6 +203,7 @@ const DocumentVault = () => {
           variant={showFavorites ? 'default' : 'outline'}
           size="sm"
           onClick={() => setShowFavorites(!showFavorites)}
+          className={showFavorites ? 'btn-primary-luxury' : 'btn-secondary-luxury'}
         >
           <Star className="w-4 h-4 mr-2" />
           Favorites
@@ -207,6 +212,7 @@ const DocumentVault = () => {
           variant={showArchived ? 'default' : 'outline'}
           size="sm"
           onClick={() => setShowArchived(!showArchived)}
+          className={showArchived ? 'btn-primary-luxury' : 'btn-secondary-luxury'}
         >
           <Archive className="w-4 h-4 mr-2" />
           {showArchived ? 'Hide Archived' : 'Show Archived'}
@@ -215,32 +221,79 @@ const DocumentVault = () => {
 
       {/* Document Display */}
       {loading ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-6">
-                <div className="h-4 bg-muted rounded mb-2"></div>
-                <div className="h-3 bg-muted rounded mb-4 w-2/3"></div>
-                <div className="h-2 bg-muted rounded"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        viewMode === 'list' ? (
+          <Card className="card-luxury animate-pulse">
+            <CardContent className="p-4">
+              <div className="h-5 bg-muted rounded w-56 mb-4"></div>
+              <div className="space-y-2">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="h-10 bg-muted rounded"></div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ) : viewMode === 'folders' ? (
+          <div className="grid gap-6 lg:grid-cols-4">
+            <div className="lg:col-span-1">
+              <Card className="card-luxury animate-pulse">
+                <CardContent className="p-4">
+                  <div className="h-5 bg-muted rounded w-24 mb-4"></div>
+                  <div className="space-y-2">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <div key={i} className="h-6 bg-muted rounded"></div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            <div className="lg:col-span-3">
+              <Card className="card-luxury animate-pulse mb-4">
+                <CardContent className="p-4">
+                  <div className="h-5 bg-muted rounded w-48 mb-2"></div>
+                  <div className="h-4 bg-muted rounded w-32"></div>
+                </CardContent>
+              </Card>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Card key={i} className="card-luxury animate-pulse">
+                    <CardContent className="p-4">
+                      <div className="h-10 w-10 bg-muted rounded mb-2"></div>
+                      <div className="h-4 bg-muted rounded w-24 mb-2"></div>
+                      <div className="h-6 bg-muted rounded w-20"></div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Card key={i} className="animate-pulse card-luxury">
+                <CardContent className="p-6">
+                  <div className="h-4 bg-muted rounded mb-2"></div>
+                  <div className="h-3 bg-muted rounded mb-4 w-2/3"></div>
+                  <div className="h-2 bg-muted rounded"></div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )
       ) : filteredDocuments.length === 0 ? (
-        <Card>
+        <Card className="card-luxury">
           <CardContent className="p-12 text-center">
             <div className="relative w-12 h-12 mx-auto mb-4">
               <ShieldCheck className="w-10 h-10 text-muted-foreground" />
               <Lock className="w-4 h-4 text-muted-foreground absolute -bottom-1 -right-1" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">No documents found</h3>
-            <p className="text-muted-foreground mb-4">
+            <h3 className="text-heading-xl text-neutral-900 mb-2">No documents found</h3>
+            <p className="text-body-luxury text-neutral-600 mb-4">
               {searchTerm || selectedCategory !== 'all' || showFavorites || showArchived
                 ? "No documents match your current filters."
                 : "Get started by uploading your first document to the vault."
               }
             </p>
-            <Button onClick={() => setIsUploadDialogOpen(true)}>
+            <Button onClick={() => setIsUploadDialogOpen(true)} className="btn-primary-luxury">
               <Plus className="w-4 h-4 mr-2" />
               Upload Document
             </Button>

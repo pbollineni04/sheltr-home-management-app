@@ -52,4 +52,20 @@ export class ExpenseService {
     if (error) throw error;
     return (data ?? []) as ExpenseRow[];
   }
+
+  static async deleteSampleExpenses(): Promise<number> {
+    const userRes = await supabase.auth.getUser();
+    const userId = userRes.data.user?.id;
+    if (!userId) throw new Error("Not authenticated");
+
+    // Try deleting rows where metadata->>source matches any of our sample markers
+    const { data, error, count } = await supabase
+      .from("expenses")
+      .delete({ count: 'exact' })
+      .eq("user_id", userId)
+      .or("metadata->>source.eq.sample,metadata->>source.eq.sample-local,metadata->>source.eq.sample-year,metadata->>source.eq.sample-year-local");
+
+    if (error) throw error;
+    return count ?? 0;
+  }
 }

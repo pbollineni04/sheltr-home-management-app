@@ -43,12 +43,12 @@ const HomeTimeline = () => {
   };
 
   const applyFilters = () => {
-    refetch({
-      startDate: startDate || undefined,
-      endDate: endDate || undefined,
-      category: selectedCategory,
-      searchTerm: searchTerm || undefined
-    });
+    const params: { startDate?: string; endDate?: string; category?: string; searchTerm?: string } = {};
+    if (startDate) params.startDate = startDate;
+    if (endDate) params.endDate = endDate;
+    if (selectedCategory && selectedCategory !== 'all') params.category = selectedCategory;
+    if (searchTerm) params.searchTerm = searchTerm;
+    refetch(params);
   };
 
   const clearFilters = () => {
@@ -82,8 +82,8 @@ const HomeTimeline = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">Home Timeline</h2>
-          <p className="text-gray-600">Chronicle every major event in your home</p>
+          <h2 className="text-heading-xl text-neutral-900">Home Timeline</h2>
+          <p className="text-body-luxury text-neutral-600">Chronicle every major event in your home</p>
         </div>
         <AddTimelineEventDialog />
       </div>
@@ -97,15 +97,15 @@ const HomeTimeline = () => {
               placeholder="Search events..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 input-luxury"
             />
           </div>
           <div className="flex gap-2">
-            <Button onClick={applyFilters} size="sm">
+            <Button onClick={applyFilters} size="sm" className="btn-primary-luxury">
               <Filter className="w-4 h-4 mr-2" />
               Apply Filters
             </Button>
-            <Button onClick={clearFilters} variant="outline" size="sm">
+            <Button onClick={clearFilters} variant="outline" size="sm" className="btn-secondary-luxury">
               Clear
             </Button>
           </div>
@@ -119,6 +119,7 @@ const HomeTimeline = () => {
               placeholder="Start Date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
+              className="input-luxury"
             />
           </div>
           <div className="flex-1">
@@ -127,6 +128,7 @@ const HomeTimeline = () => {
               placeholder="End Date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
+              className="input-luxury"
             />
           </div>
         </div>
@@ -141,7 +143,7 @@ const HomeTimeline = () => {
                 variant={selectedCategory === category.id ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedCategory(category.id)}
-                className="flex items-center gap-2"
+                className={`flex items-center gap-2 ${selectedCategory === category.id ? 'btn-primary-luxury' : 'btn-secondary-luxury'}`}
               >
                 <IconComponent className="w-4 h-4" />
                 {category.label}
@@ -154,13 +156,13 @@ const HomeTimeline = () => {
       {/* Timeline */}
       <div className="space-y-4">
         {events.map((event) => (
-          <Card key={event.id} className="hover:shadow-md transition-shadow">
+          <Card key={event.id} className="card-luxury hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-xl font-semibold text-gray-900">{event.title}</h3>
+                      <h3 className="text-heading-xl text-neutral-900">{event.title}</h3>
                       {isTaskEvent(event) && (
                         <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
                           <CheckSquare className="w-3 h-3 mr-1" />
@@ -183,7 +185,7 @@ const HomeTimeline = () => {
                     </div>
                   </div>
                   {event.description && (
-                    <p className="text-gray-600 mb-3">{event.description}</p>
+                    <p className="text-body-luxury text-neutral-700 mb-3">{event.description}</p>
                   )}
                   <div className="flex flex-wrap gap-2 mb-3">
                     {event.tags?.map((tag) => (
@@ -192,7 +194,7 @@ const HomeTimeline = () => {
                       </Badge>
                     ))}
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                  <div className="flex items-center gap-4 text-sm text-neutral-600">
                     <span className="flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
                       {new Date(event.date).toLocaleDateString()}
@@ -207,10 +209,10 @@ const HomeTimeline = () => {
                 </div>
                 {event.cost && (
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-gray-900">
+                    <p className="text-heading-xl text-neutral-900">
                       ${event.cost.toLocaleString()}
                     </p>
-                    <p className="text-sm text-gray-500">Total Cost</p>
+                    <p className="text-body-luxury text-neutral-600">Total Cost</p>
                   </div>
                 )}
               </div>
@@ -220,11 +222,11 @@ const HomeTimeline = () => {
       </div>
 
       {events.length === 0 && (
-        <Card>
+        <Card className="card-luxury">
           <CardContent className="p-12 text-center">
             <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
-            <p className="text-gray-500">Try adjusting your filters or add your first event.</p>
+            <h3 className="text-heading-xl text-neutral-900">No events found</h3>
+            <p className="text-body-luxury text-neutral-600">Try adjusting your filters or add your first event.</p>
           </CardContent>
         </Card>
       )}

@@ -17,27 +17,26 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="bg-background shadow-sm border-b">
-      <div className="container mx-auto px-4 py-3">
+    <nav className="border-b" style={{ background: 'linear-gradient(180deg, var(--neutral-50) 0%, var(--neutral-100) 100%)' }}>
+      <div className="container-luxury py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Home className="w-6 h-6 text-primary" />
-            <h1 className="text-xl font-bold text-foreground">Sheltr</h1>
+            <Home className="w-6 h-6 icon-luxury" />
+            <h1 className="text-heading-xl text-neutral-900">Sheltr</h1>
           </div>
           
           <div className="flex items-center gap-4">
             <ThemeToggle />
             {user && (
               <>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <User className="w-4 h-4" />
+                <div className="flex items-center gap-2 text-sm text-neutral-600">
+                  <User className="w-4 h-4 icon-luxury" />
                   <span>{user.email}</span>
                 </div>
                 <Button 
-                  variant="outline" 
                   size="sm" 
                   onClick={handleSignOut}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 btn-secondary-luxury"
                 >
                   <LogOut className="w-4 h-4" />
                   Sign Out

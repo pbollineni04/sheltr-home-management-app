@@ -90,21 +90,30 @@ export const ExpensePlaidControls = () => {
 
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-      <div className="text-xs text-gray-500">
-        {error ? <span className="text-red-600">{error}</span> : (
-          itemId
-            ? (lastSyncedAt ? `Linked • Last synced ${new Date(lastSyncedAt).toLocaleString()}` : 'Linked • Not synced yet')
-            : 'No bank linked'
+      <div className="text-xs text-neutral-600 flex items-center gap-2">
+        {error ? (
+          <span className="px-2 py-0.5 rounded-full text-xs border bg-red-50 text-red-700 border-red-200">{error}</span>
+        ) : itemId ? (
+          lastSyncedAt ? (
+            <>
+              <span className="px-2 py-0.5 rounded-full text-xs border bg-green-50 text-green-700 border-green-200">Linked</span>
+              <span className="text-neutral-600">Last synced {new Date(lastSyncedAt).toLocaleString()}</span>
+            </>
+          ) : (
+            <span className="px-2 py-0.5 rounded-full text-xs border bg-yellow-50 text-yellow-700 border-yellow-200">Linked • Not synced yet</span>
+          )
+        ) : (
+          <span className="px-2 py-0.5 rounded-full text-xs border bg-gray-50 text-gray-700 border-gray-200">No bank linked</span>
         )}
       </div>
       <div className="flex gap-2">
         {!itemId && (
-          <Button variant="secondary" onClick={handleConnect} disabled={loading}>
+          <Button onClick={handleConnect} disabled={loading} className="btn-secondary-luxury">
             {loading ? 'Preparing…' : 'Connect Bank'}
           </Button>
         )}
         {itemId && (
-          <Button variant="secondary" onClick={handleSync} disabled={syncing}>
+          <Button onClick={handleSync} disabled={syncing} className="btn-secondary-luxury">
             {syncing ? 'Syncing…' : 'Sync Now'}
           </Button>
         )}

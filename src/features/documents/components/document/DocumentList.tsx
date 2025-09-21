@@ -14,13 +14,14 @@ import {
   Tag
 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Document } from "../../types";
+import type { Document } from "../../types";
 import { useDocuments } from "../../hooks/useDocuments";
 import { getCategoryColor, getCategoryIcon } from "../../utils/categoryIcons";
 import { format } from "date-fns";
 
 interface DocumentListProps {
   documents: Document[];
+  loading?: boolean;
 }
 
 const getCategoryBadgeContent = (category?: string) => {
@@ -40,7 +41,7 @@ const formatFileSize = (bytes?: number) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
-const DocumentList = ({ documents }: DocumentListProps) => {
+const DocumentList = ({ documents, loading = false }: DocumentListProps) => {
   const { updateDocument, deleteDocument, downloadDocument } = useDocuments();
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
 
@@ -75,20 +76,47 @@ const DocumentList = ({ documents }: DocumentListProps) => {
   };
 
   return (
-    <div className="border rounded-lg">
+    <div className="border rounded-lg card-luxury">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>Document</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Type</TableHead>
-            <TableHead>Size</TableHead>
-            <TableHead>Upload Date</TableHead>
-            <TableHead>Expiration</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
+          {loading ? (
+            <TableRow className="animate-pulse">
+              <TableHead><div className="h-4 bg-muted rounded w-28"></div></TableHead>
+              <TableHead><div className="h-4 bg-muted rounded w-20"></div></TableHead>
+              <TableHead><div className="h-4 bg-muted rounded w-16"></div></TableHead>
+              <TableHead><div className="h-4 bg-muted rounded w-12"></div></TableHead>
+              <TableHead><div className="h-4 bg-muted rounded w-24"></div></TableHead>
+              <TableHead><div className="h-4 bg-muted rounded w-20"></div></TableHead>
+              <TableHead className="text-right"><div className="h-4 bg-muted rounded w-16 ml-auto"></div></TableHead>
+            </TableRow>
+          ) : (
+            <TableRow>
+              <TableHead>Document</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Size</TableHead>
+              <TableHead>Upload Date</TableHead>
+              <TableHead>Expiration</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          )}
         </TableHeader>
         <TableBody>
+          {loading && (
+            <>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={`sk-${i}`} className="animate-pulse">
+                  <TableCell><div className="h-4 bg-muted rounded w-40"></div></TableCell>
+                  <TableCell><div className="h-4 bg-muted rounded w-20"></div></TableCell>
+                  <TableCell><div className="h-4 bg-muted rounded w-16"></div></TableCell>
+                  <TableCell><div className="h-4 bg-muted rounded w-12"></div></TableCell>
+                  <TableCell><div className="h-4 bg-muted rounded w-24"></div></TableCell>
+                  <TableCell><div className="h-4 bg-muted rounded w-20"></div></TableCell>
+                  <TableCell className="text-right"><div className="h-8 bg-muted rounded w-20 ml-auto"></div></TableCell>
+                </TableRow>
+              ))}
+            </>
+          )}
           {documents.map((document) => (
             <TableRow key={document.id} className={document.archived ? 'opacity-60' : ''}>
               <TableCell>
@@ -167,33 +195,34 @@ const DocumentList = ({ documents }: DocumentListProps) => {
                     variant="outline"
                     onClick={() => handleDownload(document)}
                     disabled={loadingStates[document.id]}
+                    className="btn-secondary-luxury"
                   >
                     <Download className="w-3 h-3" />
                   </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
+                      <Button variant="ghost" size="sm" className="btn-secondary-luxury">
                         <MoreHorizontal className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem 
                         onClick={() => handleToggleFavorite(document)}
-                        disabled={loadingStates[document.id]}
+                        disabled={!!loadingStates[document.id]}
                       >
                         <Star className="w-4 h-4 mr-2" />
                         {document.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         onClick={() => handleToggleArchive(document)}
-                        disabled={loadingStates[document.id]}
+                        disabled={!!loadingStates[document.id]}
                       >
                         <Archive className="w-4 h-4 mr-2" />
                         {document.archived ? 'Unarchive' : 'Archive'}
                       </DropdownMenuItem>
                       <DropdownMenuItem 
                         onClick={() => handleDelete(document)}
-                        disabled={loadingStates[document.id]}
+                        disabled={!!loadingStates[document.id]}
                         className="text-destructive"
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
