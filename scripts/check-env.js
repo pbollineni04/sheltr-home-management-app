@@ -2,8 +2,8 @@
 /* Simple env guard for Vite client variables used by the app.
  * Fails fast if critical env vars are missing locally or in CI.
  */
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
 
 const REQUIRED = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY'];
 
