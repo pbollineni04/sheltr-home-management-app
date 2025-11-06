@@ -19,7 +19,7 @@ interface DashboardOverviewProps {
 }
 
 const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
-  const { metrics, loading, freshnessSeconds, refreshLive } = useDashboardMetrics();
+  const { metrics, loading, freshnessSeconds, refresh } = useDashboardMetrics();
   const moduleCards = [
     {
       id: "timeline",
@@ -83,7 +83,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
             variant="outline"
             size="sm"
             title="Re-fetch dashboard metrics (dev only)"
-            onClick={() => (typeof refreshLive === 'function' ? refreshLive() : null)}
+            onClick={refresh}
           >
             Refresh
           </Button>

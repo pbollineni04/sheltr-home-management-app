@@ -15,7 +15,6 @@ export const useDashboardMetrics = () => {
   const [error, setError] = useState<string | null>(null);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
   const [refreshTick, setRefreshTick] = useState(0);
-  const [refreshMode, setRefreshMode] = useState<'cached' | 'live'>('cached');
 
   useEffect(() => {
     let mounted = true;
@@ -32,88 +31,62 @@ export const useDashboardMetrics = () => {
           throw new Error("User not authenticated");
         }
 
-        const computeFromTables = async () => {
-          const now = new Date();
-          const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        // Always fetch live data from tables
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-          const [tasksRes, docsRes, expensesRes] = await Promise.all([
-            supabase
-              .from("tasks")
-              .select("id, completed, due_date, updated_at")
-              .eq("user_id", userId),
-            supabase
-              .from("documents")
-              .select("id")
-              .eq("user_id", userId),
-            supabase
-              .from("expenses")
-              .select("amount, date, created_at")
-              .eq("user_id", userId)
-              .gte("date", startOfMonth.toISOString()),
-          ]);
-
-          if (tasksRes.error) throw tasksRes.error;
-          if (docsRes.error) throw docsRes.error;
-          if (expensesRes.error) throw expensesRes.error;
-
-          const tasks = tasksRes.data ?? [] as any[];
-          const documents = docsRes.data ?? [] as any[];
-          const expenses = expensesRes.data ?? [] as any[];
-
-          const pending_tasks = tasks.filter((t: any) => !t.completed).length;
-          const overdue_tasks = tasks.filter((t: any) => {
-            if (t.completed) return false;
-            const due = t.due_date ? new Date(t.due_date) : null;
-            return due !== null && due < now;
-          }).length;
-          const total_documents = documents.length;
-          const monthly_expenses = expenses.reduce((sum: number, e: any) => sum + Number(e.amount || 0), 0);
-          const dateVals: number[] = [];
-          tasks.forEach((t: any) => t.updated_at && dateVals.push(new Date(t.updated_at).getTime()));
-          expenses.forEach((e: any) => e.created_at && dateVals.push(new Date(e.created_at).getTime()));
-          const last_activity = dateVals.length ? new Date(Math.max(...dateVals)).toISOString() : null;
-
-          if (mounted) {
-            setMetrics({ pending_tasks, overdue_tasks, total_documents, monthly_expenses, last_activity });
-            setLastRefreshedAt(new Date());
-          }
-        };
-
-        if (refreshMode === 'live') {
-          await computeFromTables();
-        } else {
-          // Try querying the secure dashboard view if it exists
-          const viewRes = await supabase
-            .from("dashboard_metrics_secure" as any)
-            .select("*")
+        const [tasksRes, docsRes, expensesRes] = await Promise.all([
+          supabase
+            .from("tasks")
+            .select("id, completed, due_date, updated_at")
+            .eq("user_id", userId),
+          supabase
+            .from("documents")
+            .select("id")
+            .eq("user_id", userId),
+          supabase
+            .from("expenses")
+            .select("amount, date, created_at")
             .eq("user_id", userId)
-            .maybeSingle();
+            .gte("date", startOfMonth.toISOString())
+            .lte("date", now.toISOString()),
+        ]);
 
-          if (viewRes.data && !viewRes.error) {
-            if (mounted) setMetrics({
-              pending_tasks: (viewRes.data as any).pending_tasks ?? 0,
-              overdue_tasks: (viewRes.data as any).overdue_tasks ?? 0,
-              total_documents: (viewRes.data as any).total_documents ?? 0,
-              monthly_expenses: Number((viewRes.data as any).monthly_expenses ?? 0),
-              last_activity: (viewRes.data as any).last_activity ?? null,
-            });
-            if (mounted) setLastRefreshedAt(new Date());
-          } else {
-            await computeFromTables();
-          }
+        if (tasksRes.error) throw tasksRes.error;
+        if (docsRes.error) throw docsRes.error;
+        if (expensesRes.error) throw expensesRes.error;
+
+        const tasks = tasksRes.data ?? [] as any[];
+        const documents = docsRes.data ?? [] as any[];
+        const expenses = expensesRes.data ?? [] as any[];
+
+        const pending_tasks = tasks.filter((t: any) => !t.completed).length;
+        const overdue_tasks = tasks.filter((t: any) => {
+          if (t.completed) return false;
+          const due = t.due_date ? new Date(t.due_date) : null;
+          return due !== null && due < now;
+        }).length;
+        const total_documents = documents.length;
+        const monthly_expenses = expenses.reduce((sum: number, e: any) => sum + Number(e.amount || 0), 0);
+        const dateVals: number[] = [];
+        tasks.forEach((t: any) => t.updated_at && dateVals.push(new Date(t.updated_at).getTime()));
+        expenses.forEach((e: any) => e.created_at && dateVals.push(new Date(e.created_at).getTime()));
+        const last_activity = dateVals.length ? new Date(Math.max(...dateVals)).toISOString() : null;
+
+        if (mounted) {
+          setMetrics({ pending_tasks, overdue_tasks, total_documents, monthly_expenses, last_activity });
+          setLastRefreshedAt(new Date());
         }
       } catch (e: any) {
         if (mounted) setError(e.message || "Failed to load metrics");
       } finally {
         if (mounted) setLoading(false);
-        // reset mode back to cached after any fetch
-        setRefreshMode('cached');
       }
     };
 
     fetchMetrics();
 
-    // Realtime listeners: apply light-weight deltas so UI feels live between mat view refreshes
+    // Realtime listeners: apply light-weight deltas for instant UI updates
     const channel = supabase
       .channel("dashboard_updates")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "documents" }, () => {
@@ -123,12 +96,24 @@ export const useDashboardMetrics = () => {
         setMetrics((prev) => prev ? { ...prev, total_documents: Math.max(0, prev.total_documents - 1) } : prev);
       })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "expenses" }, (payload) => {
-        const amt = Number((payload.new as any)?.amount ?? 0);
-        setMetrics((prev) => prev ? { ...prev, monthly_expenses: prev.monthly_expenses + amt } : prev);
+        const expenseDate = (payload.new as any)?.date ? new Date((payload.new as any).date) : null;
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        // Only count expenses in current month and not in the future
+        if (expenseDate && expenseDate >= startOfMonth && expenseDate <= now) {
+          const amt = Number((payload.new as any)?.amount ?? 0);
+          setMetrics((prev) => prev ? { ...prev, monthly_expenses: prev.monthly_expenses + amt } : prev);
+        }
       })
       .on("postgres_changes", { event: "DELETE", schema: "public", table: "expenses" }, (payload) => {
-        const amt = Number((payload.old as any)?.amount ?? 0);
-        setMetrics((prev) => prev ? { ...prev, monthly_expenses: Math.max(0, prev.monthly_expenses - amt) } : prev);
+        const expenseDate = (payload.old as any)?.date ? new Date((payload.old as any).date) : null;
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        // Only subtract if it was counted (current month, not future)
+        if (expenseDate && expenseDate >= startOfMonth && expenseDate <= now) {
+          const amt = Number((payload.old as any)?.amount ?? 0);
+          setMetrics((prev) => prev ? { ...prev, monthly_expenses: Math.max(0, prev.monthly_expenses - amt) } : prev);
+        }
       })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "tasks" }, (payload) => {
         const completed = Boolean((payload.new as any)?.completed);
@@ -191,7 +176,6 @@ export const useDashboardMetrics = () => {
   const freshnessSeconds = lastRefreshedAt ? Math.max(0, Math.round((Date.now() - lastRefreshedAt.getTime()) / 1000)) : null;
 
   const refresh = () => setRefreshTick((t) => t + 1);
-  const refreshLive = () => { setRefreshMode('live'); setRefreshTick((t) => t + 1); };
 
-  return { metrics, loading, error, freshnessSeconds, refresh, refreshLive };
+  return { metrics, loading, error, freshnessSeconds, refresh };
 };
