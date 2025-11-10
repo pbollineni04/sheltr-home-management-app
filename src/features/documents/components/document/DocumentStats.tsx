@@ -28,9 +28,9 @@ const DocumentStats = ({ stats }: DocumentStatsProps) => {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
       <Card className="card-luxury">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 min-h-[3.5rem]">
           <CardTitle className="text-caption-refined text-muted-foreground">Total Documents</CardTitle>
-          <Files className="h-4 w-4 icon-luxury" />
+          <Files className="h-5 w-5 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-heading-xl text-foreground">{total}</div>
@@ -39,9 +39,9 @@ const DocumentStats = ({ stats }: DocumentStatsProps) => {
       </Card>
 
       <Card className="card-luxury">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 min-h-[3.5rem]">
           <CardTitle className="text-caption-refined text-muted-foreground">Storage Used</CardTitle>
-          <HardDrive className="h-4 w-4 icon-luxury" />
+          <HardDrive className="h-5 w-5 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-heading-xl text-foreground">{formatFileSize(totalSize)}</div>
@@ -52,9 +52,9 @@ const DocumentStats = ({ stats }: DocumentStatsProps) => {
       </Card>
 
       <Card className="card-luxury">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 min-h-[3.5rem]">
           <CardTitle className="text-caption-refined text-muted-foreground">Recent Uploads</CardTitle>
-          <Upload className="h-4 w-4 icon-luxury" />
+          <Upload className="h-5 w-5 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-heading-xl text-foreground">{recentUploads}</div>
@@ -65,9 +65,9 @@ const DocumentStats = ({ stats }: DocumentStatsProps) => {
       </Card>
 
       <Card className="card-luxury">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 min-h-[3.5rem]">
           <CardTitle className="text-caption-refined text-muted-foreground">Expiring Soon</CardTitle>
-          <Calendar className="h-4 w-4 icon-luxury" />
+          <Calendar className="h-5 w-5 text-orange-600" />
         </CardHeader>
         <CardContent>
           <div className="text-heading-xl text-orange-600">{expiringCount}</div>
@@ -78,12 +78,12 @@ const DocumentStats = ({ stats }: DocumentStatsProps) => {
       </Card>
 
       <Card className="card-luxury">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 min-h-[3.5rem]">
           <CardTitle className="text-caption-refined text-muted-foreground">Expired</CardTitle>
-          <AlertTriangle className="h-4 w-4 icon-luxury" />
+          <AlertTriangle className="h-5 w-5 text-destructive" />
         </CardHeader>
         <CardContent>
-          <div className="text-heading-xl text-red-600">{expiredCount}</div>
+          <div className="text-heading-xl text-destructive">{expiredCount}</div>
           <p className="text-xs text-muted-foreground">
             Need attention
           </p>

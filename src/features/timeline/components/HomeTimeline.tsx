@@ -69,16 +69,16 @@ const HomeTimeline = () => {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 px-3 sm:px-4">
         <div className="flex justify-center items-center py-12">
-          <div className="text-lg text-gray-600">Loading timeline...</div>
+          <div className="text-lg text-muted-foreground">Loading timeline...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-3 sm:px-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
@@ -157,20 +157,20 @@ const HomeTimeline = () => {
       <div className="space-y-4">
         {events.map((event) => (
           <Card key={event.id} className="card-luxury hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-1">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-heading-xl text-foreground">{event.title}</h3>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
+                    <div className="flex items-start gap-2 flex-wrap min-w-0">
+                      <h3 className="text-lg sm:text-heading-xl text-foreground break-words">{event.title}</h3>
                       {isTaskEvent(event) && (
-                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 shrink-0">
                           <CheckSquare className="w-3 h-3 mr-1" />
                           Task
                         </Badge>
                       )}
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
                       <Badge className={getCategoryColor(event.category)}>
                         {event.category}
                       </Badge>
@@ -178,14 +178,14 @@ const HomeTimeline = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteEvent(event.id)}
-                        className="text-red-600 hover:text-red-800"
+                        className="text-destructive hover:text-destructive/80"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
                   {event.description && (
-                    <p className="text-body-luxury text-muted-foreground mb-3">{event.description}</p>
+                    <p className="text-sm sm:text-body-luxury text-muted-foreground mb-3 break-words">{event.description}</p>
                   )}
                   <div className="flex flex-wrap gap-2 mb-3">
                     {event.tags?.map((tag) => (
@@ -194,13 +194,13 @@ const HomeTimeline = () => {
                       </Badge>
                     ))}
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1 shrink-0">
                       <Calendar className="w-4 h-4" />
                       {new Date(event.date).toLocaleDateString()}
                     </span>
                     {event.room && (
-                      <span className="flex items-center gap-1">
+                      <span className="flex items-center gap-1 shrink-0">
                         <Home className="w-4 h-4" />
                         {event.room}
                       </span>
@@ -208,11 +208,11 @@ const HomeTimeline = () => {
                   </div>
                 </div>
                 {event.cost && (
-                  <div className="text-right">
-                    <p className="text-heading-xl text-foreground">
+                  <div className="text-left sm:text-right shrink-0 pt-2 sm:pt-0">
+                    <p className="text-xl sm:text-heading-xl text-foreground">
                       ${event.cost.toLocaleString()}
                     </p>
-                    <p className="text-body-luxury text-muted-foreground">Total Cost</p>
+                    <p className="text-sm sm:text-body-luxury text-muted-foreground">Total Cost</p>
                   </div>
                 )}
               </div>

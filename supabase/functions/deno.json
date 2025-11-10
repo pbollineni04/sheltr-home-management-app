@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "lib": ["deno.window"],
+    "types": ["npm:@types/node"]
+  },
+  "imports": {
+    "plaid": "npm:plaid@24.0.0",
+    "@supabase/supabase-js": "jsr:@supabase/supabase-js@2"
+  }
+}

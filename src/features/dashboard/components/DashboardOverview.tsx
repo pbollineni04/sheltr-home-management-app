@@ -1,12 +1,10 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  Calendar, 
-  CheckSquare, 
-  DollarSign, 
-  MapPin, 
-  Package, 
+import {
+  Calendar,
+  CheckSquare,
+  DollarSign,
   Brain,
   TrendingUp,
   Clock,
@@ -132,10 +130,10 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 whitespace-nowrap">Overdue</p>
-                <p className="text-3xl font-bold text-red-600">{loading ? "—" : (metrics?.overdue_tasks ?? 0)}</p>
+                <p className="text-sm font-medium text-muted-foreground whitespace-nowrap">Overdue</p>
+                <p className="text-3xl font-bold text-destructive">{loading ? "—" : (metrics?.overdue_tasks ?? 0)}</p>
               </div>
-              <AlertTriangle className="w-8 h-8 text-red-600" />
+              <AlertTriangle className="w-8 h-8 text-destructive" />
             </div>
           </CardContent>
         </Card>

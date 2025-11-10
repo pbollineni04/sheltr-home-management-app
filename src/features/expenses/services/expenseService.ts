@@ -29,6 +29,7 @@ export class ExpenseService {
       .from("expenses")
       .select("*")
       .eq("user_id", userId)
+      .is("deleted_at", null)
       .gte("date", startISO)
       .lte("date", endISO)
       .order("date", { ascending: false });
@@ -46,6 +47,7 @@ export class ExpenseService {
       .from("expenses")
       .select("*")
       .eq("user_id", userId)
+      .is("deleted_at", null)
       .order("date", { ascending: false })
       .limit(limit);
 
@@ -67,5 +69,84 @@ export class ExpenseService {
 
     if (error) throw error;
     return count ?? 0;
+  }
+
+  /**
+   * Get expenses that need user review (auto-imported with low confidence)
+   */
+  static async getExpensesNeedingReview(): Promise<ExpenseRow[]> {
+    const userRes = await supabase.auth.getUser();
+    const userId = userRes.data.user?.id;
+    if (!userId) throw new Error("Not authenticated");
+
+    const { data, error } = await supabase
+      .from("expenses")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("needs_review", true)
+      .order("date", { ascending: false });
+
+    if (error) throw error;
+    return (data ?? []) as ExpenseRow[];
+  }
+
+  /**
+   * Confirm/update an expense after review
+   */
+  static async confirmExpense(expenseId: string, updates?: Partial<ExpenseInsert>): Promise<ExpenseRow> {
+    const userRes = await supabase.auth.getUser();
+    const userId = userRes.data.user?.id;
+    if (!userId) throw new Error("Not authenticated");
+
+    const { data, error } = await supabase
+      .from("expenses")
+      .update({
+        ...updates,
+        needs_review: false,
+      })
+      .eq("id", expenseId)
+      .eq("user_id", userId)
+      .select("*")
+      .single();
+
+    if (error) throw error;
+    return data as ExpenseRow;
+  }
+
+  /**
+   * Delete an expense (soft delete)
+   */
+  static async deleteExpense(expenseId: string): Promise<void> {
+    const userRes = await supabase.auth.getUser();
+    const userId = userRes.data.user?.id;
+    if (!userId) throw new Error("Not authenticated");
+
+    const { error } = await supabase
+      .from("expenses")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", expenseId)
+      .eq("user_id", userId);
+
+    if (error) throw error;
+  }
+
+  /**
+   * Update an existing expense
+   */
+  static async updateExpense(expenseId: string, updates: Partial<ExpenseInsert>): Promise<ExpenseRow> {
+    const userRes = await supabase.auth.getUser();
+    const userId = userRes.data.user?.id;
+    if (!userId) throw new Error("Not authenticated");
+
+    const { data, error } = await supabase
+      .from("expenses")
+      .update(updates)
+      .eq("id", expenseId)
+      .eq("user_id", userId)
+      .select("*")
+      .single();
+
+    if (error) throw error;
+    return data as ExpenseRow;
   }
 }

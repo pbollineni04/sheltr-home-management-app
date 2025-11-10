@@ -23,7 +23,7 @@ const TaskCard = ({ task, onToggleComplete, onDelete }: TaskCardProps) => {
   };
 
   return (
-    <Card className={`hover:shadow-md transition-shadow ${task.completed ? 'opacity-75' : ''}`}>
+    <Card className={`card-luxury hover:shadow-md transition-shadow ${task.completed ? 'opacity-75' : ''}`}>
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
           <Checkbox 

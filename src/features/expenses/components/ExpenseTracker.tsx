@@ -24,6 +24,7 @@ const ExpenseTracker = () => {
   const [error, setError] = useState<string | null>(null);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
   const [refreshTick, setRefreshTick] = useState(0);
+  const [displayLimit, setDisplayLimit] = useState(20);
 
   const loadSampleData = async () => {
     try {
@@ -208,13 +209,14 @@ const ExpenseTracker = () => {
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
-      renovation: "bg-blue-100 text-blue-800",
-      maintenance: "bg-green-100 text-green-800",
-      appliances: "bg-purple-100 text-purple-800",
-      services: "bg-orange-100 text-orange-800",
-      utilities: "bg-yellow-100 text-yellow-800",
+      renovation: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
+      maintenance: "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400",
+      appliances: "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400",
+      services: "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400",
+      utilities: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400",
+      uncategorized: "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400",
     };
-    return colors[category] ?? "bg-gray-100 text-gray-800";
+    return colors[category] ?? "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400";
   };
 
   const iconMap: Record<string, any> = {
@@ -223,6 +225,7 @@ const ExpenseTracker = () => {
     appliances: IconShoppingBag,
     services: IconCalendar,
     utilities: IconLightbulb,
+    uncategorized: IconHome, // Default icon for uncategorized
   };
 
   useEffect(() => {
@@ -237,15 +240,23 @@ const ExpenseTracker = () => {
           ? new Date(now.getFullYear(), now.getMonth(), 1)
           : new Date(now.getFullYear(), 0, 1);
 
-        const [recentData, periodData] = await Promise.all([
-          ExpenseService.getRecent(10),
-          ExpenseService.getByDateRange(start.toISOString(), now.toISOString()),
-        ]);
+        console.log('🔍 Fetching expenses from database...', {
+          period: selectedPeriod,
+          startDate: start.toISOString(),
+          endDate: now.toISOString()
+        });
+
+        const periodData = await ExpenseService.getByDateRange(start.toISOString(), now.toISOString());
+
+        console.log('✅ Fetched from database:', {
+          periodCount: periodData.length,
+          periodCategories: periodData.map(e => ({ desc: e.description, cat: e.category, amt: e.amount, date: e.date }))
+        });
 
         if (!mounted) return;
-        setRecent(recentData);
         setAllThisPeriod(periodData);
         setLastRefreshedAt(new Date());
+        setDisplayLimit(20); // Reset display limit when period changes
       } catch (e: any) {
         if (!mounted) return;
         setError(e.message || "Failed to load expenses");
@@ -264,8 +275,13 @@ const ExpenseTracker = () => {
 
   const categories = useMemo(() => {
     const map = new Map<string, number>();
+    console.log('📊 All expenses for category calculation:', allThisPeriod.map(e => ({
+      description: e.description,
+      category: e.category,
+      amount: e.amount
+    })));
     allThisPeriod.forEach(e => map.set(e.category, (map.get(e.category) || 0) + Number(e.amount || 0)));
-    return Array.from(map.entries()).map(([id, amount]) => ({
+    const result = Array.from(map.entries()).map(([id, amount]) => ({
       id,
       label: id.charAt(0).toUpperCase() + id.slice(1),
       icon: iconMap[id] ?? IconHome,
@@ -274,15 +290,41 @@ const ExpenseTracker = () => {
         : id === 'appliances' ? 'purple'
         : id === 'services' ? 'orange'
         : id === 'utilities' ? 'yellow'
+        : id === 'uncategorized' ? 'gray'
         : 'gray',
       amount,
     }));
+    console.log('📊 Category breakdown:', result);
+    return result;
   }, [allThisPeriod]);
 
   return (
     <div className="space-y-6 px-3 sm:px-4">
       <ExpenseHeader />
       <ExpensePlaidControls />
+
+      {/* Period Selector */}
+      <div className="flex items-center gap-2">
+        <span className="text-sm text-muted-foreground">Show:</span>
+        <div className="flex gap-2">
+          <Button
+            variant={selectedPeriod === "month" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedPeriod("month")}
+            className={selectedPeriod === "month" ? "btn-primary-luxury" : "btn-secondary-luxury"}
+          >
+            This Month
+          </Button>
+          <Button
+            variant={selectedPeriod === "year" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedPeriod("year")}
+            className={selectedPeriod === "year" ? "btn-primary-luxury" : "btn-secondary-luxury"}
+          >
+            This Year
+          </Button>
+        </div>
+      </div>
       {/* Freshness + Dev Refresh */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-muted-foreground">
@@ -374,10 +416,24 @@ const ExpenseTracker = () => {
           </div>
         </div>
       ) : (
-        <ExpenseRecentList
-          expenses={recent as any}
-          getCategoryColor={getCategoryColor}
-        />
+        <>
+          <ExpenseRecentList
+            expenses={allThisPeriod.slice(0, displayLimit) as any}
+            getCategoryColor={getCategoryColor}
+            periodLabel={selectedPeriod === "month" ? "This Month's Expenses" : "This Year's Expenses"}
+          />
+          {allThisPeriod.length > displayLimit && (
+            <div className="flex justify-center">
+              <Button
+                onClick={() => setDisplayLimit(prev => prev + 20)}
+                variant="outline"
+                className="btn-secondary-luxury"
+              >
+                Show More ({allThisPeriod.length - displayLimit} remaining)
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

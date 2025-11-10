@@ -74,7 +74,7 @@ const TasksLists = () => {
 
   if (loading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 px-3 sm:px-4">
         <div className="flex justify-center items-center py-12">
           <div className="text-lg text-muted-foreground">Loading tasks...</div>
         </div>
@@ -83,7 +83,7 @@ const TasksLists = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-3 sm:px-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>

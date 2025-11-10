@@ -17,11 +17,11 @@ const DocumentCard = ({ document, onArchive, onDelete }: DocumentCardProps) => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'expired':
-        return <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">Expired</span>;
+        return <span className="px-2 py-1 text-xs bg-destructive/10 text-destructive border border-destructive/20 rounded-full">Expired</span>;
       case 'warning':
-        return <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Expiring Soon</span>;
+        return <span className="px-2 py-1 text-xs bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border border-yellow-500/20 rounded-full">Expiring Soon</span>;
       default:
-        return <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Active</span>;
+        return <span className="px-2 py-1 text-xs bg-green-500/10 text-green-700 dark:text-green-400 border border-green-500/20 rounded-full">Active</span>;
     }
   };
 
@@ -35,18 +35,18 @@ const DocumentCard = ({ document, onArchive, onDelete }: DocumentCardProps) => {
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="card-luxury hover:shadow-md transition-shadow">
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-3 flex-1">
             {getTypeIcon(document.type)}
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-900">{document.name}</h3>
-              <p className="text-sm text-gray-600">{document.category}</p>
+              <h3 className="font-semibold text-foreground">{document.name}</h3>
+              <p className="text-sm text-muted-foreground">{document.category}</p>
               {document.notes && (
-                <p className="text-sm text-gray-500 mt-1">{document.notes}</p>
+                <p className="text-sm text-muted-foreground mt-1">{document.notes}</p>
               )}
-              <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+              <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                 <span>Expires: {new Date(document.expirationDate).toLocaleDateString()}</span>
                 <span>Uploaded: {new Date(document.uploadDate).toLocaleDateString()}</span>
               </div>
@@ -61,8 +61,8 @@ const DocumentCard = ({ document, onArchive, onDelete }: DocumentCardProps) => {
               <Download className="w-4 h-4" />
             </Button>
             {onArchive && (
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="sm"
                 onClick={() => onArchive(document.id)}
                 title="Archive"
@@ -71,12 +71,12 @@ const DocumentCard = ({ document, onArchive, onDelete }: DocumentCardProps) => {
               </Button>
             )}
             {onDelete && (
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="sm"
                 onClick={() => onDelete(document.id)}
                 title="Delete"
-                className="text-red-600 hover:text-red-700"
+                className="text-destructive hover:text-destructive/80"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>

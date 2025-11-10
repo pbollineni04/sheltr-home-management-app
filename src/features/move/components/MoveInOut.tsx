@@ -128,20 +128,20 @@ const MoveInOut = () => {
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      "move-in": "bg-blue-100 text-blue-800",
-      "move-out": "bg-orange-100 text-orange-800",
-      "staging": "bg-purple-100 text-purple-800"
+      "move-in": "bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20",
+      "move-out": "bg-orange-500/10 text-orange-700 dark:text-orange-400 border border-orange-500/20",
+      "staging": "bg-purple-500/10 text-purple-700 dark:text-purple-400 border border-purple-500/20"
     };
-    return colors[category as keyof typeof colors] || "bg-gray-100 text-gray-800";
+    return colors[category as keyof typeof colors] || "bg-muted text-muted-foreground border border-border";
   };
 
   const getStatusColor = (status: string) => {
     const colors = {
-      "planned": "bg-gray-100 text-gray-800",
-      "in-progress": "bg-blue-100 text-blue-800",
-      "completed": "bg-green-100 text-green-800"
+      "planned": "bg-muted text-muted-foreground border border-border",
+      "in-progress": "bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20",
+      "completed": "bg-green-500/10 text-green-700 dark:text-green-400 border border-green-500/20"
     };
-    return colors[status as keyof typeof colors] || "bg-gray-100 text-gray-800";
+    return colors[status as keyof typeof colors] || "bg-muted text-muted-foreground border border-border";
   };
 
   return (
@@ -149,10 +149,10 @@ const MoveInOut = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">Move & Property Management</h2>
-          <p className="text-gray-600">Lifecycle management and real estate insights</p>
+          <h2 className="text-3xl font-bold text-foreground">Move & Property Management</h2>
+          <p className="text-muted-foreground">Lifecycle management and real estate insights</p>
         </div>
-        <Button className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700">
+        <Button className="btn-primary-luxury">
           <Plus className="w-4 h-4 mr-2" />
           New Checklist
         </Button>
@@ -169,18 +169,18 @@ const MoveInOut = () => {
         <TabsContent value="checklists" className="space-y-4">
           <div className="grid gap-4">
             {checklists.map((checklist) => (
-              <Card key={checklist.id} className="hover:shadow-md transition-shadow">
+              <Card key={checklist.id} className="card-luxury hover:shadow-md transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-xl font-semibold text-gray-900">{checklist.title}</h3>
+                        <h3 className="text-xl font-semibold text-foreground">{checklist.title}</h3>
                         <Badge className={getCategoryColor(checklist.category)}>
                           {checklist.category}
                         </Badge>
                       </div>
-                      <p className="text-gray-600 mb-3">{checklist.description}</p>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <p className="text-muted-foreground mb-3">{checklist.description}</p>
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
                           Due: {new Date(checklist.dueDate).toLocaleDateString()}
@@ -191,11 +191,11 @@ const MoveInOut = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-gray-900">
+                      <div className="text-2xl font-bold text-foreground">
                         {Math.round((checklist.progress / checklist.total) * 100)}%
                       </div>
-                      <div className="w-32 bg-gray-200 rounded-full h-2">
-                        <div 
+                      <div className="w-32 bg-muted rounded-full h-2">
+                        <div
                           className="bg-gradient-to-r from-blue-600 to-green-600 h-2 rounded-full"
                           style={{ width: `${(checklist.progress / checklist.total) * 100}%` }}
                         />
@@ -203,15 +203,15 @@ const MoveInOut = () => {
                     </div>
                   </div>
                   {activeChecklist === checklist.id && checklist.id === "move-in" && (
-                    <div className="border-t pt-4 space-y-2">
+                    <div className="border-t border-border pt-4 space-y-2">
                       {moveInTasks.map((task) => (
-                        <div key={task.id} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded">
+                        <div key={task.id} className="flex items-center gap-3 p-2 hover:bg-muted rounded">
                           {task.completed ? (
                             <CheckCircle className="w-5 h-5 text-green-600" />
                           ) : (
-                            <Circle className="w-5 h-5 text-gray-400" />
+                            <Circle className="w-5 h-5 text-muted-foreground" />
                           )}
-                          <span className={task.completed ? "text-gray-500 line-through" : "text-gray-900"}>
+                          <span className={task.completed ? "text-muted-foreground line-through" : "text-foreground"}>
                             {task.task}
                           </span>
                         </div>
@@ -241,42 +241,42 @@ const MoveInOut = () => {
         <TabsContent value="condition" className="space-y-4">
           <div className="grid gap-4">
             {conditionReports.map((report) => (
-              <Card key={report.id}>
+              <Card key={report.id} className="card-luxury">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h3 className="text-xl font-semibold text-gray-900">{report.room}</h3>
-                      <p className="text-gray-600">Inspected on {new Date(report.date).toLocaleDateString()}</p>
+                      <h3 className="text-xl font-semibold text-foreground">{report.room}</h3>
+                      <p className="text-muted-foreground">Inspected on {new Date(report.date).toLocaleDateString()}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       {[...Array(5)].map((_, i) => (
-                        <Star 
-                          key={i} 
-                          className={`w-5 h-5 ${i < report.rating ? "text-yellow-400 fill-current" : "text-gray-300"}`} 
+                        <Star
+                          key={i}
+                          className={`w-5 h-5 ${i < report.rating ? "text-yellow-400 fill-current" : "text-muted"}`}
                         />
                       ))}
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <p className="text-sm font-medium text-gray-700 mb-2">Photos: {report.photos}</p>
+                      <p className="text-sm font-medium text-foreground mb-2">Photos: {report.photos}</p>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" className="btn-secondary-luxury">
                           <Camera className="w-4 h-4 mr-2" />
                           View Photos
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" className="btn-secondary-luxury">
                           <Plus className="w-4 h-4 mr-2" />
                           Add Photos
                         </Button>
                       </div>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-700 mb-2">
+                      <p className="text-sm font-medium text-foreground mb-2">
                         Issues Found: {report.issues.length}
                       </p>
                       {report.issues.length > 0 ? (
-                        <ul className="text-sm text-gray-600 space-y-1">
+                        <ul className="text-sm text-muted-foreground space-y-1">
                           {report.issues.map((issue, idx) => (
                             <li key={idx}>• {issue}</li>
                           ))}
@@ -290,7 +290,7 @@ const MoveInOut = () => {
               </Card>
             ))}
           </div>
-          <Button className="w-full">
+          <Button className="w-full btn-primary-luxury">
             <FileText className="w-4 h-4 mr-2" />
             Generate Move-In Condition PDF Report
           </Button>
@@ -298,7 +298,7 @@ const MoveInOut = () => {
 
         <TabsContent value="valuation" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
+            <Card className="card-luxury">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Home className="w-5 h-5" />
@@ -306,13 +306,13 @@ const MoveInOut = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold text-gray-900 mb-2">
+                <div className="text-3xl font-bold text-foreground mb-2">
                   ${homeValue.toLocaleString()}
                 </div>
                 <div className="text-sm text-green-600 mb-4">
                   +${(homeValue - purchasePrice).toLocaleString()} ({Math.round(((homeValue - purchasePrice) / purchasePrice) * 100)}%) since purchase
                 </div>
-                <div className="space-y-2 text-sm text-gray-600">
+                <div className="space-y-2 text-sm text-muted-foreground">
                   <div className="flex justify-between">
                     <span>Purchase Price:</span>
                     <span>${purchasePrice.toLocaleString()}</span>
@@ -325,7 +325,7 @@ const MoveInOut = () => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="card-luxury">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="w-5 h-5" />
@@ -335,23 +335,23 @@ const MoveInOut = () => {
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Neighborhood Average:</span>
+                    <span className="text-sm text-muted-foreground">Neighborhood Average:</span>
                     <span className="font-semibold">$465,000</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Price per Sq Ft:</span>
+                    <span className="text-sm text-muted-foreground">Price per Sq Ft:</span>
                     <span className="font-semibold">$285</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">6-Month Trend:</span>
+                    <span className="text-sm text-muted-foreground">6-Month Trend:</span>
                     <span className="text-green-600 font-semibold">+3.2%</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Days on Market:</span>
+                    <span className="text-sm text-muted-foreground">Days on Market:</span>
                     <span className="font-semibold">28 days</span>
                   </div>
                 </div>
-                <Button variant="outline" className="w-full mt-4">
+                <Button variant="outline" className="w-full mt-4 btn-secondary-luxury">
                   <MapPin className="w-4 h-4 mr-2" />
                   View Comparable Sales
                 </Button>
@@ -361,7 +361,7 @@ const MoveInOut = () => {
         </TabsContent>
 
         <TabsContent value="roi" className="space-y-6">
-          <Card>
+          <Card className="card-luxury">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <DollarSign className="w-5 h-5" />
@@ -371,32 +371,32 @@ const MoveInOut = () => {
             <CardContent>
               <div className="grid gap-4">
                 {renovationProjects.map((project) => (
-                  <div key={project.id} className="border rounded-lg p-4">
+                  <div key={project.id} className="border border-border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
                       <div>
-                        <h4 className="font-semibold text-gray-900">{project.name}</h4>
+                        <h4 className="font-semibold text-foreground">{project.name}</h4>
                         <Badge className={getStatusColor(project.status)}>
                           {project.status}
                         </Badge>
                       </div>
                       <div className="text-right">
-                        <div className="text-lg font-bold text-gray-900">
+                        <div className="text-lg font-bold text-foreground">
                           {project.roiPercentage}% ROI
                         </div>
                       </div>
                     </div>
                     <div className="grid grid-cols-3 gap-4 text-sm">
                       <div>
-                        <span className="text-gray-600">Investment:</span>
+                        <span className="text-muted-foreground">Investment:</span>
                         <div className="font-semibold">${project.cost.toLocaleString()}</div>
                       </div>
                       <div>
-                        <span className="text-gray-600">Value Add:</span>
+                        <span className="text-muted-foreground">Value Add:</span>
                         <div className="font-semibold text-green-600">+${project.valueAdd.toLocaleString()}</div>
                       </div>
                       <div>
-                        <span className="text-gray-600">Net Impact:</span>
-                        <div className={`font-semibold ${project.valueAdd - project.cost >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <span className="text-muted-foreground">Net Impact:</span>
+                        <div className={`font-semibold ${project.valueAdd - project.cost >= 0 ? 'text-green-600' : 'text-destructive'}`}>
                           ${(project.valueAdd - project.cost).toLocaleString()}
                         </div>
                       </div>
@@ -404,7 +404,7 @@ const MoveInOut = () => {
                   </div>
                 ))}
               </div>
-              <Button className="w-full mt-4">
+              <Button className="w-full mt-4 btn-primary-luxury">
                 <Plus className="w-4 h-4 mr-2" />
                 Calculate New Project ROI
               </Button>

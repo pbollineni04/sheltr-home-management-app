@@ -80,7 +80,17 @@ export const ExpensePlaidControls = () => {
       const res = await syncTransactions(itemId);
       const state = await getSyncState(itemId);
       setLastSyncedAt(state?.last_synced_at ?? null);
-      // Optionally: show a toast with res.imported
+
+      // Show success message with import count
+      const { imported = 0, skipped = 0 } = res as any;
+      if (imported > 0) {
+        // Force page reload to show new expenses
+        window.location.reload();
+      } else if (imported === 0 && skipped === 0) {
+        setError("No transactions found. Try connecting a different account.");
+      } else {
+        setError(`No new transactions (${skipped} already imported)`);
+      }
     } catch (e: any) {
       setError(e.message || "Sync failed");
     } finally {
@@ -90,20 +100,20 @@ export const ExpensePlaidControls = () => {
 
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-      <div className="text-xs text-neutral-600 flex items-center gap-2">
+      <div className="text-xs text-muted-foreground flex items-center gap-2">
         {error ? (
-          <span className="px-2 py-0.5 rounded-full text-xs border bg-red-50 text-red-700 border-red-200">{error}</span>
+          <span className="px-2 py-0.5 rounded-full text-xs border bg-destructive/10 text-destructive border-destructive/20">{error}</span>
         ) : itemId ? (
           lastSyncedAt ? (
             <>
-              <span className="px-2 py-0.5 rounded-full text-xs border bg-green-50 text-green-700 border-green-200">Linked</span>
-              <span className="text-neutral-600">Last synced {new Date(lastSyncedAt).toLocaleString()}</span>
+              <span className="px-2 py-0.5 rounded-full text-xs border bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20">Linked</span>
+              <span className="text-muted-foreground">Last synced {new Date(lastSyncedAt).toLocaleString()}</span>
             </>
           ) : (
-            <span className="px-2 py-0.5 rounded-full text-xs border bg-yellow-50 text-yellow-700 border-yellow-200">Linked • Not synced yet</span>
+            <span className="px-2 py-0.5 rounded-full text-xs border bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20">Linked • Not synced yet</span>
           )
         ) : (
-          <span className="px-2 py-0.5 rounded-full text-xs border bg-gray-50 text-gray-700 border-gray-200">No bank linked</span>
+          <span className="px-2 py-0.5 rounded-full text-xs border bg-muted text-muted-foreground border-border">No bank linked</span>
         )}
       </div>
       <div className="flex gap-2">

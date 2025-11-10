@@ -1,19 +1,12 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Home, 
-  Calendar, 
-  MapPin, 
-  Brain, 
-  CheckSquare, 
-  Package, 
+import {
+  Home,
+  Calendar,
+  Brain,
+  CheckSquare,
   DollarSign,
-  Plus,
-  Filter,
   TrendingUp,
-  Settings,
   Shield,
   Move,
   Bell
@@ -49,7 +42,11 @@ const Index = () => {
   return (
     <div
       className="min-h-screen"
-      style={{ background: 'linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%)' }}
+      style={{
+        background: 'linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%)',
+        backgroundAttachment: 'fixed',
+        backgroundSize: '100% 100vh'
+      }}
     >
       <Navigation />
       
