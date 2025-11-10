@@ -1,16 +1,17 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Calendar,
   CheckSquare,
-  DollarSign,
-  Brain,
   TrendingUp,
-  Clock,
-  AlertTriangle
+  Calendar,
+  Wallet
 } from "lucide-react";
 import { useDashboardMetrics } from "@/features/dashboard/hooks/useDashboardMetrics";
+import { PriorityAlertsCard } from "./cards/PriorityAlertsCard";
+import { MonthSummaryCard } from "./cards/MonthSummaryCard";
+import { ComingUpCard } from "./cards/ComingUpCard";
+import { QuickCaptureCard } from "./cards/QuickCaptureCard";
 
 interface DashboardOverviewProps {
   onNavigate: (tab: string) => void;
@@ -18,51 +19,35 @@ interface DashboardOverviewProps {
 
 const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
   const { metrics, loading, freshnessSeconds, refresh } = useDashboardMetrics();
-  const moduleCards = [
-    {
-      id: "timeline",
-      title: "Home Timeline",
-      description: "Track major events and changes",
-      icon: Calendar,
-      color: "from-blue-500 to-blue-600",
-      stats: "12 events this year",
-      action: "View Timeline"
-    },
-    {
-      id: "tasks",
-      title: "Tasks & Lists",
-      description: "Organize maintenance and projects",
-      icon: CheckSquare,
-      color: "from-green-500 to-green-600",
-      stats: metrics ? `${metrics.pending_tasks} pending tasks` : loading ? "Loading..." : "0 pending tasks",
-      action: "Manage Tasks"
-    },
-    {
-      id: "expenses",
-      title: "Expense Tracker",
-      description: "Monitor home-related spending",
-      icon: DollarSign,
-      color: "from-purple-500 to-purple-600",
-      stats: metrics ? `$${metrics.monthly_expenses.toFixed(2)} this month` : loading ? "Loading..." : "$0.00 this month",
-      action: "View Expenses"
-    },
-    {
-      id: "helper",
-      title: "Sheltr Helper",
-      description: "AI assistant for home questions",
-      icon: Brain,
-      color: "from-orange-500 to-orange-600",
-      stats: "24/7 available",
-      action: "Ask Helper"
-    }
+
+  // Calculate alerts for Priority Alerts card
+  const alerts = [];
+  if (metrics?.overdue_tasks > 0) {
+    alerts.push({
+      type: 'overdue_task' as const,
+      message: `${metrics.overdue_tasks} overdue task${metrics.overdue_tasks > 1 ? 's' : ''}`,
+      count: metrics.overdue_tasks,
+      severity: 'high' as const
+    });
+  }
+  // Add more alert logic here as needed
+
+  // Calculate upcoming items for Coming Up card
+  const upcomingItems = [
+    // This would be populated from actual data
+    // For now, showing empty state
   ];
 
-  const recentActivity = [
-    { type: "maintenance", desc: "HVAC filter replacement", date: "2 days ago" },
-    { type: "expense", desc: "$234 spent at Home Depot", date: "3 days ago" },
-    { type: "task", desc: "Completed: Clean gutters", date: "1 week ago" },
-    { type: "timeline", desc: "Added: New water heater installation", date: "2 weeks ago" }
-  ];
+  // Budget calculation
+  const budgetTarget = 800; // This would come from user settings
+  const budgetRemaining = budgetTarget - (metrics?.monthly_expenses ?? 0);
+  const isBudgetExceeded = budgetRemaining < 0;
+
+  // Mock data for month summary (would come from metrics)
+  const lastMonthSpend = metrics ? metrics.monthly_expenses * 0.88 : 0; // Mock calculation
+  const percentChange = metrics && lastMonthSpend > 0
+    ? Math.round(((metrics.monthly_expenses - lastMonthSpend) / lastMonthSpend) * 100)
+    : 0;
 
   return (
     <div className="space-y-8 px-3 sm:px-4">
@@ -130,70 +115,43 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground whitespace-nowrap">Overdue</p>
-                <p className="text-3xl font-bold text-destructive">{loading ? "—" : (metrics?.overdue_tasks ?? 0)}</p>
+                <p className="text-sm font-medium text-muted-foreground whitespace-nowrap">Budget Left</p>
+                <p className={`text-3xl font-bold ${loading ? 'text-foreground' : isBudgetExceeded ? 'text-destructive' : 'text-foreground'}`}>
+                  {loading ? "—" : `$${Math.abs(budgetRemaining).toFixed(2)}`}
+                </p>
               </div>
-              <AlertTriangle className="w-8 h-8 text-destructive" />
+              <Wallet className={`w-8 h-8 ${isBudgetExceeded ? 'text-destructive' : 'text-green-600'}`} />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Module Cards */}
+      {/* Smart Status Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        {moduleCards.map((module) => {
-          const IconComponent = module.icon;
-          return (
-            <Card key={module.id} className="card-luxury hover:shadow-lg transition-shadow cursor-pointer">
-              <CardHeader>
-                <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 bg-gradient-to-r ${module.color} rounded-lg flex items-center justify-center`}>
-                    <IconComponent className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-heading-xl">{module.title}</CardTitle>
-                    <CardDescription className="text-body-luxury text-muted-foreground">{module.description}</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-sm text-muted-foreground">{module.stats}</p>
-                  <Button 
-                    onClick={() => onNavigate(module.id)}
-                    className="w-full sm:w-auto btn-primary-luxury"
-                  >
-                    {module.action}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+        <PriorityAlertsCard alerts={alerts} onNavigate={onNavigate} />
 
-      {/* Recent Activity */}
-      <Card className="card-luxury">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="w-5 h-5" />
-            Recent Activity
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="divide-y divide-border">
-            {recentActivity.map((activity, index) => (
-              <div key={index} className="flex items-start sm:items-center gap-3 py-3 micro-fade-in">
-                <span className="mt-1 sm:mt-0 inline-block w-2 h-2 rounded-full bg-sky-500" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-body-luxury text-foreground">{activity.desc}</p>
-                  <p className="text-sm text-muted-foreground">{activity.date}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+        <MonthSummaryCard
+          currentMonthSpend={metrics?.monthly_expenses ?? 0}
+          budgetTarget={budgetTarget}
+          percentChange={percentChange}
+          onNavigate={onNavigate}
+        />
+
+        <ComingUpCard upcomingItems={upcomingItems} onNavigate={onNavigate} />
+
+        <QuickCaptureCard
+          onAddExpense={(data) => {
+            console.log('Quick add expense:', data);
+            // This would call the actual expense service
+            onNavigate('expenses');
+          }}
+          onAddTask={(data) => {
+            console.log('Quick add task:', data);
+            // This would call the actual task service
+            onNavigate('tasks');
+          }}
+        />
+      </div>
     </div>
   );
 };
