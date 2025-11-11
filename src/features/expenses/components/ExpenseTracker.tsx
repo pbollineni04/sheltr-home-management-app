@@ -6,9 +6,11 @@ import { ExpensePlaidControls } from "./expense/ExpensePlaidControls";
 import { ExpenseSummaryCards } from "./expense/ExpenseSummaryCards";
 import { ExpenseCategoryBreakdown } from "./expense/ExpenseCategoryBreakdown";
 import { ExpenseRecentList } from "./expense/ExpenseRecentList";
+import { ExpenseBudgetProgress } from "./expense/ExpenseBudgetProgress";
 import { ExpenseService, type ExpenseRow } from "@/features/expenses/services/expenseService";
+import { useBudget } from "@/hooks/useBudget";
 import { toast } from "sonner";
-import { 
+import {
   Home as IconHome,
   Wrench as IconWrench,
   ShoppingBag as IconShoppingBag,
@@ -17,6 +19,7 @@ import {
 } from "lucide-react";
 
 const ExpenseTracker = () => {
+  const { budget, setBudget } = useBudget();
   const [selectedPeriod, setSelectedPeriod] = useState<"month" | "year">("month");
   const [recent, setRecent] = useState<ExpenseRow[]>([]);
   const [allThisPeriod, setAllThisPeriod] = useState<ExpenseRow[]>([]);
@@ -325,6 +328,17 @@ const ExpenseTracker = () => {
           </Button>
         </div>
       </div>
+
+      {/* Budget Progress - Only show for "This Month" */}
+      {selectedPeriod === "month" && !loading && (
+        <ExpenseBudgetProgress
+          currentSpend={thisMonthExpenses}
+          budget={budget}
+          onBudgetUpdate={setBudget}
+          periodLabel="This Month"
+        />
+      )}
+
       {/* Freshness + Dev Refresh */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-muted-foreground">

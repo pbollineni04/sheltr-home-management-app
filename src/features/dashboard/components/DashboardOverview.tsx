@@ -8,10 +8,12 @@ import {
   Wallet
 } from "lucide-react";
 import { useDashboardMetrics } from "@/features/dashboard/hooks/useDashboardMetrics";
+import { useBudget } from "@/hooks/useBudget";
 import { PriorityAlertsCard } from "./cards/PriorityAlertsCard";
 import { MonthSummaryCard } from "./cards/MonthSummaryCard";
 import { ComingUpCard } from "./cards/ComingUpCard";
 import { QuickCaptureCard } from "./cards/QuickCaptureCard";
+import { BudgetSettingsDialog } from "./BudgetSettingsDialog";
 
 interface DashboardOverviewProps {
   onNavigate: (tab: string) => void;
@@ -19,6 +21,7 @@ interface DashboardOverviewProps {
 
 const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
   const { metrics, loading, freshnessSeconds, refresh } = useDashboardMetrics();
+  const { budget: budgetTarget, setBudget: setBudgetTarget } = useBudget();
 
   // Calculate alerts for Priority Alerts card
   const alerts = [];
@@ -39,7 +42,6 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
   ];
 
   // Budget calculation
-  const budgetTarget = 800; // This would come from user settings
   const budgetRemaining = budgetTarget - (metrics?.monthly_expenses ?? 0);
   const isBudgetExceeded = budgetRemaining < 0;
 
@@ -114,10 +116,19 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
         <Card className="card-luxury">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground whitespace-nowrap">Budget Left</p>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-sm font-medium text-muted-foreground whitespace-nowrap">Budget Left</p>
+                  <BudgetSettingsDialog
+                    currentBudget={budgetTarget}
+                    onBudgetUpdate={setBudgetTarget}
+                  />
+                </div>
                 <p className={`text-3xl font-bold ${loading ? 'text-foreground' : isBudgetExceeded ? 'text-destructive' : 'text-foreground'}`}>
                   {loading ? "—" : `$${Math.abs(budgetRemaining).toFixed(2)}`}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  of ${budgetTarget.toLocaleString()} budget
                 </p>
               </div>
               <Wallet className={`w-8 h-8 ${isBudgetExceeded ? 'text-destructive' : 'text-green-600'}`} />
