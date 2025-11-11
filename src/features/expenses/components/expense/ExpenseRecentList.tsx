@@ -1,6 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Home } from "lucide-react";
+import { TimelineSuggestionBanner } from "./TimelineSuggestionBanner";
+import { useState } from "react";
 
 interface Expense {
   id: number;
@@ -10,16 +12,24 @@ interface Expense {
   date: string;
   vendor: string;
   room: string;
-  metadata?: { source?: string } | null;
+  metadata?: { source?: string; timeline_suggestion?: boolean; timeline_created?: boolean } | null;
 }
 
 interface ExpenseRecentListProps {
   expenses: Expense[];
   getCategoryColor: (category: string) => string;
   periodLabel?: string;
+  onRefresh?: () => void;
 }
 
-export const ExpenseRecentList = ({ expenses, getCategoryColor, periodLabel = "Recent Expenses" }: ExpenseRecentListProps) => {
+export const ExpenseRecentList = ({ expenses, getCategoryColor, periodLabel = "Recent Expenses", onRefresh }: ExpenseRecentListProps) => {
+  const [dismissedSuggestions, setDismissedSuggestions] = useState<Set<number>>(new Set());
+
+  const handleDismissSuggestion = (expenseId: number) => {
+    setDismissedSuggestions(prev => new Set(prev).add(expenseId));
+    onRefresh?.();
+  };
+
   return (
     <Card className="card-luxury">
       <CardHeader>
@@ -30,8 +40,22 @@ export const ExpenseRecentList = ({ expenses, getCategoryColor, periodLabel = "R
           <div className="text-sm text-muted-foreground p-4">No expenses yet. Add one to get started.</div>
         ) : (
         <div className="space-y-4">
-          {expenses.map((expense) => (
-            <div key={expense.id} className="w-full p-3 sm:p-4 rounded-lg bg-muted/50">
+          {expenses.map((expense) => {
+            const showSuggestion = expense.metadata?.timeline_suggestion === true &&
+                                   !expense.metadata?.timeline_created &&
+                                   !dismissedSuggestions.has(expense.id);
+
+            return (
+              <div key={expense.id} className="space-y-3">
+                {showSuggestion && (
+                  <TimelineSuggestionBanner
+                    expenseId={expense.id.toString()}
+                    expenseDescription={expense.description}
+                    expenseAmount={expense.amount}
+                    onDismiss={() => handleDismissSuggestion(expense.id)}
+                  />
+                )}
+                <div className="w-full p-3 sm:p-4 rounded-lg bg-muted/50">
               <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 w-full">
                 {/* Left section: Title, badges, and metadata */}
                 <div className="flex-1 min-w-0">
@@ -90,7 +114,9 @@ export const ExpenseRecentList = ({ expenses, getCategoryColor, periodLabel = "R
                 </div>
               </div>
             </div>
-          ))}
+          </div>
+            );
+          })}
         </div>
         )}
       </CardContent>

@@ -147,7 +147,43 @@ export const useTasks = () => {
   };
 
   const toggleTaskComplete = async (id: string, completed: boolean) => {
-    return updateTask(id, { completed });
+    const success = await updateTask(id, { completed });
+
+    // Auto-create timeline entry for completed maintenance tasks
+    if (success && completed) {
+      const task = tasks.find(t => t.id === id);
+      if (task && task.list_type === 'maintenance') {
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return success;
+
+          // Create timeline entry
+          await supabase.from('timeline_events').insert([{
+            user_id: user.id,
+            title: task.title,
+            description: task.description,
+            date: new Date().toISOString(),
+            category: 'maintenance',
+            room: task.room,
+            task_id: task.id,
+            metadata: {
+              auto_created: true,
+              source: 'task'
+            }
+          }]);
+
+          toast({
+            title: "Timeline Updated",
+            description: "This maintenance task was added to your home timeline",
+          });
+        } catch (error) {
+          console.error('Error creating timeline entry:', error);
+          // Don't fail the task completion if timeline creation fails
+        }
+      }
+    }
+
+    return success;
   };
 
   useEffect(() => {

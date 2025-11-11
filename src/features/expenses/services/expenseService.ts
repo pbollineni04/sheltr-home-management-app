@@ -17,7 +17,110 @@ export class ExpenseService {
       .single();
 
     if (error) throw error;
-    return data as ExpenseRow;
+
+    // Auto-suggest timeline entry for large expenses ($200+)
+    const createdExpense = data as ExpenseRow;
+    if (createdExpense.amount >= 200) {
+      try {
+        // Check if timeline entry suggestion has been dismissed for this expense
+        const isDismissed = createdExpense.metadata?.timeline_suggestion_dismissed;
+
+        if (!isDismissed) {
+          // Mark expense as having a timeline suggestion
+          await supabase
+            .from("expenses")
+            .update({
+              metadata: {
+                ...(createdExpense.metadata || {}),
+                timeline_suggestion: true
+              }
+            })
+            .eq("id", createdExpense.id);
+        }
+      } catch (err) {
+        console.error('Error setting timeline suggestion:', err);
+      }
+    }
+
+    return createdExpense;
+  }
+
+  /**
+   * Create timeline entry from expense
+   */
+  static async createTimelineFromExpense(expenseId: string): Promise<void> {
+    const userRes = await supabase.auth.getUser();
+    const userId = userRes.data.user?.id;
+    if (!userId) throw new Error("Not authenticated");
+
+    // Get the expense
+    const { data: expense, error: expenseError } = await supabase
+      .from("expenses")
+      .select("*")
+      .eq("id", expenseId)
+      .eq("user_id", userId)
+      .single();
+
+    if (expenseError) throw expenseError;
+
+    // Create timeline entry
+    const { error: timelineError } = await supabase
+      .from("timeline_events")
+      .insert({
+        user_id: userId,
+        title: expense.description || "Purchase",
+        description: `${expense.vendor ? `From ${expense.vendor}` : ''} - ${expense.category}`,
+        date: expense.date,
+        category: expense.category === 'renovation' ? 'renovation' : 'purchase',
+        room: expense.room,
+        cost: expense.amount,
+        metadata: {
+          auto_created: true,
+          source: 'expense',
+          expense_id: expenseId
+        }
+      });
+
+    if (timelineError) throw timelineError;
+
+    // Mark suggestion as handled
+    await supabase
+      .from("expenses")
+      .update({
+        metadata: {
+          ...(expense.metadata || {}),
+          timeline_suggestion: false,
+          timeline_created: true
+        }
+      })
+      .eq("id", expenseId);
+  }
+
+  /**
+   * Dismiss timeline suggestion for an expense
+   */
+  static async dismissTimelineSuggestion(expenseId: string): Promise<void> {
+    const userRes = await supabase.auth.getUser();
+    const userId = userRes.data.user?.id;
+    if (!userId) throw new Error("Not authenticated");
+
+    const { data: expense } = await supabase
+      .from("expenses")
+      .select("metadata")
+      .eq("id", expenseId)
+      .single();
+
+    await supabase
+      .from("expenses")
+      .update({
+        metadata: {
+          ...(expense?.metadata || {}),
+          timeline_suggestion: false,
+          timeline_suggestion_dismissed: true
+        }
+      })
+      .eq("id", expenseId)
+      .eq("user_id", userId);
   }
 
   static async getByDateRange(startISO: string, endISO: string): Promise<ExpenseRow[]> {
