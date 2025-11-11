@@ -45,7 +45,7 @@ const Index = () => {
       style={{
         background: 'linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%)',
         backgroundAttachment: 'fixed',
-        backgroundSize: '100% 100vh'
+        backgroundSize: '100% 100%'
       }}
     >
       <Navigation />
