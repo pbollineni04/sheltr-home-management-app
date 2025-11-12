@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Option 1: "Protective S" - S curve forming a shelter over a dot -->
+  <circle cx="16" cy="16" r="16" fill="#0F172A"/>
+
+  <!-- Stylized S that curves like a roof -->
+  <path d="M 20 10 Q 24 10 24 14 Q 24 16 20 16 L 12 16 Q 8 16 8 20 Q 8 24 12 24 L 18 24"
+        stroke="#3B82F6"
+        stroke-width="3"
+        stroke-linecap="round"
+        fill="none"/>
+
+  <!-- Dot representing home/protection -->
+  <circle cx="16" cy="20" r="2" fill="#3B82F6"/>
+</svg>
