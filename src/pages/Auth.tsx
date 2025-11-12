@@ -6,12 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Home, Loader2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
 const Auth = () => {
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get('mode') === 'signup' ? 'signup' : 'signin';
   const [isLoading, setIsLoading] = useState(false);
   const [signUpForm, setSignUpForm] = useState({
     email: '',
@@ -118,7 +120,7 @@ const Auth = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="signin" className="w-full">
+            <Tabs defaultValue={defaultTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2 card-luxury">
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>

@@ -15,13 +15,13 @@ export const LandingHeader = () => {
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
-            onClick={() => navigate("/auth")}
+            onClick={() => navigate("/auth?mode=signin")}
           >
             Log In
           </Button>
           <Button
             className="btn-primary-luxury"
-            onClick={() => navigate("/auth")}
+            onClick={() => navigate("/auth?mode=signup")}
           >
             Get Started
           </Button>
