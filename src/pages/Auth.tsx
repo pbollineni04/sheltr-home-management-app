@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,6 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useEffect } from 'react';
 import { Home, Loader2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
@@ -26,15 +24,8 @@ const Auth = () => {
     password: ''
   });
 
-  const { signUp, signIn, user } = useAuth();
+  const { signUp, signIn } = useAuth();
   const navigate = useNavigate();
-
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (user) {
-      navigate('/');
-    }
-  }, [user, navigate]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,9 +59,10 @@ const Auth = () => {
       });
     } else {
       toast({
-        title: "Success",
-        description: "Account created successfully! Please check your email to verify your account.",
+        title: "Check your email",
+        description: "We sent you a confirmation link. Click it to activate your account.",
       });
+      // Don't navigate anywhere - just clear the form and stay on auth page
       setSignUpForm({ email: '', password: '', fullName: '', confirmPassword: '' });
     }
     setIsLoading(false);
@@ -93,7 +85,7 @@ const Auth = () => {
         title: "Success",
         description: "Logged in successfully!",
       });
-      navigate('/');
+      navigate('/onboarding');
     }
     setIsLoading(false);
   };
