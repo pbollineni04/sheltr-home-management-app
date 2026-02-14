@@ -483,6 +483,129 @@ export type Database = {
           },
         ]
       }
+      utility_accounts: {
+        Row: {
+          id: string
+          user_id: string
+          connection_id: string
+          account_id: string
+          utility_type: Database["public"]["Enums"]["utility_type"]
+          service_address: string | null
+          metadata: Json | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          connection_id: string
+          account_id: string
+          utility_type: Database["public"]["Enums"]["utility_type"]
+          service_address?: string | null
+          metadata?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          connection_id?: string
+          account_id?: string
+          utility_type?: Database["public"]["Enums"]["utility_type"]
+          service_address?: string | null
+          metadata?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      utility_bills_raw: {
+        Row: {
+          id: string
+          user_id: string
+          connection_id: string
+          account_id: string
+          bill_id: string
+          statement_date: string
+          usage_amount: number
+          unit: string
+          cost: number | null
+          utility_type: Database["public"]["Enums"]["utility_type"]
+          json_raw: Json | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          connection_id: string
+          account_id: string
+          bill_id: string
+          statement_date: string
+          usage_amount: number
+          unit: string
+          cost?: number | null
+          utility_type: Database["public"]["Enums"]["utility_type"]
+          json_raw?: Json | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          connection_id?: string
+          account_id?: string
+          bill_id?: string
+          statement_date?: string
+          usage_amount?: number
+          unit?: string
+          cost?: number | null
+          utility_type?: Database["public"]["Enums"]["utility_type"]
+          json_raw?: Json | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      utility_connections: {
+        Row: {
+          id: string
+          user_id: string
+          provider: string
+          connection_id: string
+          access_token: string
+          utility_name: string | null
+          account_number: string | null
+          status: string
+          metadata: Json | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          provider?: string
+          connection_id: string
+          access_token: string
+          utility_name?: string | null
+          account_number?: string | null
+          status?: string
+          metadata?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          provider?: string
+          connection_id?: string
+          access_token?: string
+          utility_name?: string | null
+          account_number?: string | null
+          status?: string
+          metadata?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       utility_readings: {
         Row: {
           cost: number | null
@@ -496,6 +619,10 @@ export type Database = {
           usage_amount: number
           user_id: string
           utility_type: Database["public"]["Enums"]["utility_type"]
+          auto_imported: boolean
+          needs_review: boolean
+          bill_id: string | null
+          confidence: string | null
         }
         Insert: {
           cost?: number | null
@@ -509,6 +636,10 @@ export type Database = {
           usage_amount: number
           user_id: string
           utility_type: Database["public"]["Enums"]["utility_type"]
+          auto_imported?: boolean
+          needs_review?: boolean
+          bill_id?: string | null
+          confidence?: string | null
         }
         Update: {
           cost?: number | null
@@ -522,6 +653,34 @@ export type Database = {
           usage_amount?: number
           user_id?: string
           utility_type?: Database["public"]["Enums"]["utility_type"]
+          auto_imported?: boolean
+          needs_review?: boolean
+          bill_id?: string | null
+          confidence?: string | null
+        }
+        Relationships: []
+      }
+      utility_sync_state: {
+        Row: {
+          connection_id: string
+          user_id: string
+          last_synced_at: string | null
+          cursor: string | null
+          metadata: Json | null
+        }
+        Insert: {
+          connection_id: string
+          user_id: string
+          last_synced_at?: string | null
+          cursor?: string | null
+          metadata?: Json | null
+        }
+        Update: {
+          connection_id?: string
+          user_id?: string
+          last_synced_at?: string | null
+          cursor?: string | null
+          metadata?: Json | null
         }
         Relationships: []
       }
@@ -582,6 +741,7 @@ export type Database = {
         | "maintenance"
         | "purchase"
         | "inspection"
+        | "utilities"
       utility_type: "electricity" | "gas" | "water" | "internet"
     }
     CompositeTypes: {
@@ -764,6 +924,7 @@ export const Constants = {
         "maintenance",
         "purchase",
         "inspection",
+        "utilities",
       ],
       utility_type: ["electricity", "gas", "water", "internet"],
     },
