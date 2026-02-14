@@ -503,7 +503,7 @@ Homeowners spend $400+ billion annually on home-related expenses but lack a unif
 | Timeline | ✅ Complete | Medium | UX Enhancement | Launched |
 | Plaid Integration | ✅ Complete | Very High | Core feature | Launched |
 | Payment Processing | ❌ Missing | High | Revenue | Q1 2025 |
-| Warranty Manager | 🔶 Code complete | Medium | Revenue | Q1 2025 |
+
 | Energy Tracker | 🔶 Code complete | Medium | Revenue | Q2 2025 |
 | Smart Alerts | 🔶 Code complete | High | Retention | Q2 2025 |
 | AI Helper | 🔶 Code complete | Medium | Engagement | Q3 2025 |

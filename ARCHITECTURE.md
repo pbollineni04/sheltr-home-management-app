@@ -23,7 +23,6 @@ src/
 │   ├── move/            # Move in/out management
 │   ├── tasks/           # Task management
 │   ├── timeline/        # Home timeline
-│   └── warranty/        # Warranty vault
 ├── contexts/            # React contexts
 ├── hooks/               # Shared hooks
 ├── lib/                 # Utility libraries

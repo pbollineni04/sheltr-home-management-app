@@ -27,11 +27,10 @@
 5. **Timeline/Calendar** - Historical event visualization
 
 ### Code-Complete Features (Disabled)
-6. **Warranty Vault** - Dedicated appliance warranty tracking
-7. **Move Manager** - Move-specific checklists and utilities
-8. **Energy Tracker** - Utility consumption and cost analysis
-9. **AI Helper** - Home maintenance advice and problem diagnosis
-10. **Smart Alerts** - Predictive alerts and auto-task creation
+6. **Move Manager** - Move-specific checklists and utilities
+7. **Energy Tracker** - Utility consumption and cost analysis
+8. **AI Helper** - Home maintenance advice and problem diagnosis
+9. **Smart Alerts** - Predictive alerts and auto-task creation
 
 ### Coming Soon
 - Payment processing (Stripe)

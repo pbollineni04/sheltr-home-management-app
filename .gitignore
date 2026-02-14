@@ -26,3 +26,11 @@ dist-ssr
 
 # Claude Code
 .claude/
+.mcp.json
+
+# Supabase temp
+supabase/.temp/
+
+# Reference projects
+new-ui/
+reference-animations/

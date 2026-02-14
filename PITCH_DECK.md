@@ -233,7 +233,7 @@ Unlike generic finance apps, Sheltr understands **home-specific needs**:
 - Mobile responsive design
 
 **🔧 CODE-COMPLETE** (20% of features - feature flagged)
-- Warranty vault system
+
 - Energy usage tracker
 - Smart maintenance alerts
 - AI-powered home helper
