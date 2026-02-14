@@ -7,10 +7,10 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "13.0.5"
   }
   public: {
     Tables: {
@@ -164,6 +164,7 @@ export type Database = {
       expenses: {
         Row: {
           amount: number
+          auto_imported: boolean | null
           category: Database["public"]["Enums"]["expense_category"]
           created_at: string
           date: string
@@ -171,6 +172,8 @@ export type Database = {
           description: string
           id: string
           metadata: Json | null
+          needs_review: boolean | null
+          plaid_transaction_id: string | null
           receipt_url: string | null
           room: string | null
           room_id: string | null
@@ -180,6 +183,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          auto_imported?: boolean | null
           category: Database["public"]["Enums"]["expense_category"]
           created_at?: string
           date: string
@@ -187,6 +191,8 @@ export type Database = {
           description: string
           id?: string
           metadata?: Json | null
+          needs_review?: boolean | null
+          plaid_transaction_id?: string | null
           receipt_url?: string | null
           room?: string | null
           room_id?: string | null
@@ -196,6 +202,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          auto_imported?: boolean | null
           category?: Database["public"]["Enums"]["expense_category"]
           created_at?: string
           date?: string
@@ -203,6 +210,8 @@ export type Database = {
           description?: string
           id?: string
           metadata?: Json | null
+          needs_review?: boolean | null
+          plaid_transaction_id?: string | null
           receipt_url?: string | null
           room?: string | null
           room_id?: string | null
@@ -219,6 +228,149 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      plaid_accounts: {
+        Row: {
+          account_id: string
+          created_at: string
+          id: string
+          item_id: string
+          mask: string | null
+          name: string | null
+          subtype: string | null
+          type: string | null
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          id?: string
+          item_id: string
+          mask?: string | null
+          name?: string | null
+          subtype?: string | null
+          type?: string | null
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          id?: string
+          item_id?: string
+          mask?: string | null
+          name?: string | null
+          subtype?: string | null
+          type?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plaid_accounts_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "plaid_items"
+            referencedColumns: ["item_id"]
+          },
+        ]
+      }
+      plaid_items: {
+        Row: {
+          access_token: string
+          created_at: string
+          id: string
+          institution_name: string | null
+          item_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          id?: string
+          institution_name?: string | null
+          item_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          id?: string
+          institution_name?: string | null
+          item_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      plaid_sync_state: {
+        Row: {
+          cursor: string | null
+          item_id: string
+          last_synced_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cursor?: string | null
+          item_id: string
+          last_synced_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cursor?: string | null
+          item_id?: string
+          last_synced_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      plaid_transactions_raw: {
+        Row: {
+          account_id: string
+          amount: number
+          categories: string[] | null
+          created_at: string
+          id: string
+          iso_date: string
+          item_id: string
+          json_raw: Json | null
+          merchant_name: string | null
+          name: string | null
+          pending: boolean | null
+          transaction_id: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          amount: number
+          categories?: string[] | null
+          created_at?: string
+          id?: string
+          iso_date: string
+          item_id: string
+          json_raw?: Json | null
+          merchant_name?: string | null
+          name?: string | null
+          pending?: boolean | null
+          transaction_id: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          amount?: number
+          categories?: string[] | null
+          created_at?: string
+          id?: string
+          iso_date?: string
+          item_id?: string
+          json_raw?: Json | null
+          merchant_name?: string | null
+          name?: string | null
+          pending?: boolean | null
+          transaction_id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       predictive_insights: {
         Row: {
@@ -264,21 +416,30 @@ export type Database = {
           created_at: string
           email: string | null
           full_name: string | null
+          home_address: string | null
+          home_value: number | null
           id: string
+          onboarding_completed: boolean | null
           updated_at: string
         }
         Insert: {
           created_at?: string
           email?: string | null
           full_name?: string | null
+          home_address?: string | null
+          home_value?: number | null
           id: string
+          onboarding_completed?: boolean | null
           updated_at?: string
         }
         Update: {
           created_at?: string
           email?: string | null
           full_name?: string | null
+          home_address?: string | null
+          home_value?: number | null
           id?: string
+          onboarding_completed?: boolean | null
           updated_at?: string
         }
         Relationships: []
@@ -368,6 +529,7 @@ export type Database = {
           priority: Database["public"]["Enums"]["task_priority"]
           room: string | null
           room_id: string | null
+          status: string
           title: string
           updated_at: string
           user_id: string
@@ -384,6 +546,7 @@ export type Database = {
           priority?: Database["public"]["Enums"]["task_priority"]
           room?: string | null
           room_id?: string | null
+          status?: string
           title: string
           updated_at?: string
           user_id: string
@@ -400,6 +563,7 @@ export type Database = {
           priority?: Database["public"]["Enums"]["task_priority"]
           room?: string | null
           room_id?: string | null
+          status?: string
           title?: string
           updated_at?: string
           user_id?: string
@@ -485,132 +649,152 @@ export type Database = {
       }
       utility_accounts: {
         Row: {
-          id: string
-          user_id: string
-          connection_id: string
           account_id: string
-          utility_type: Database["public"]["Enums"]["utility_type"]
-          service_address: string | null
-          metadata: Json | null
+          connection_id: string
           created_at: string
+          id: string
+          metadata: Json | null
+          service_address: string | null
           updated_at: string
+          user_id: string
+          utility_type: Database["public"]["Enums"]["utility_type"]
         }
         Insert: {
-          id?: string
-          user_id: string
-          connection_id: string
           account_id: string
-          utility_type: Database["public"]["Enums"]["utility_type"]
-          service_address?: string | null
-          metadata?: Json | null
+          connection_id: string
           created_at?: string
+          id?: string
+          metadata?: Json | null
+          service_address?: string | null
           updated_at?: string
+          user_id: string
+          utility_type: Database["public"]["Enums"]["utility_type"]
         }
         Update: {
-          id?: string
-          user_id?: string
-          connection_id?: string
           account_id?: string
-          utility_type?: Database["public"]["Enums"]["utility_type"]
-          service_address?: string | null
-          metadata?: Json | null
+          connection_id?: string
           created_at?: string
+          id?: string
+          metadata?: Json | null
+          service_address?: string | null
           updated_at?: string
+          user_id?: string
+          utility_type?: Database["public"]["Enums"]["utility_type"]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "utility_accounts_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "utility_connections"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       utility_bills_raw: {
         Row: {
-          id: string
-          user_id: string
-          connection_id: string
           account_id: string
           bill_id: string
-          statement_date: string
-          usage_amount: number
-          unit: string
+          connection_id: string
           cost: number | null
-          utility_type: Database["public"]["Enums"]["utility_type"]
-          json_raw: Json | null
           created_at: string
+          id: string
+          json_raw: Json | null
+          statement_date: string
+          unit: string
+          usage_amount: number
+          user_id: string
+          utility_type: Database["public"]["Enums"]["utility_type"]
         }
         Insert: {
-          id?: string
-          user_id: string
-          connection_id: string
           account_id: string
           bill_id: string
-          statement_date: string
-          usage_amount: number
-          unit: string
+          connection_id: string
           cost?: number | null
-          utility_type: Database["public"]["Enums"]["utility_type"]
-          json_raw?: Json | null
           created_at?: string
+          id?: string
+          json_raw?: Json | null
+          statement_date: string
+          unit: string
+          usage_amount: number
+          user_id: string
+          utility_type: Database["public"]["Enums"]["utility_type"]
         }
         Update: {
-          id?: string
-          user_id?: string
-          connection_id?: string
           account_id?: string
           bill_id?: string
-          statement_date?: string
-          usage_amount?: number
-          unit?: string
+          connection_id?: string
           cost?: number | null
-          utility_type?: Database["public"]["Enums"]["utility_type"]
-          json_raw?: Json | null
           created_at?: string
+          id?: string
+          json_raw?: Json | null
+          statement_date?: string
+          unit?: string
+          usage_amount?: number
+          user_id?: string
+          utility_type?: Database["public"]["Enums"]["utility_type"]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "utility_bills_raw_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "utility_connections"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       utility_connections: {
         Row: {
-          id: string
-          user_id: string
-          provider: string
-          connection_id: string
           access_token: string
-          utility_name: string | null
           account_number: string | null
-          status: string
-          metadata: Json | null
+          connection_id: string
           created_at: string
+          id: string
+          metadata: Json | null
+          provider: string
+          status: string
           updated_at: string
+          user_id: string
+          utility_name: string | null
         }
         Insert: {
-          id?: string
-          user_id: string
-          provider?: string
-          connection_id: string
           access_token: string
-          utility_name?: string | null
           account_number?: string | null
-          status?: string
-          metadata?: Json | null
+          connection_id: string
           created_at?: string
+          id?: string
+          metadata?: Json | null
+          provider?: string
+          status?: string
           updated_at?: string
+          user_id: string
+          utility_name?: string | null
         }
         Update: {
-          id?: string
-          user_id?: string
-          provider?: string
-          connection_id?: string
           access_token?: string
-          utility_name?: string | null
           account_number?: string | null
-          status?: string
-          metadata?: Json | null
+          connection_id?: string
           created_at?: string
+          id?: string
+          metadata?: Json | null
+          provider?: string
+          status?: string
           updated_at?: string
+          user_id?: string
+          utility_name?: string | null
         }
         Relationships: []
       }
       utility_readings: {
         Row: {
+          auto_imported: boolean | null
+          bill_id: string | null
+          confidence: string | null
           cost: number | null
           created_at: string
           id: string
+          needs_review: boolean | null
           reading_date: string
           trend_direction: string | null
           trend_percent: number | null
@@ -619,15 +803,15 @@ export type Database = {
           usage_amount: number
           user_id: string
           utility_type: Database["public"]["Enums"]["utility_type"]
-          auto_imported: boolean
-          needs_review: boolean
-          bill_id: string | null
-          confidence: string | null
         }
         Insert: {
+          auto_imported?: boolean | null
+          bill_id?: string | null
+          confidence?: string | null
           cost?: number | null
           created_at?: string
           id?: string
+          needs_review?: boolean | null
           reading_date: string
           trend_direction?: string | null
           trend_percent?: number | null
@@ -636,15 +820,15 @@ export type Database = {
           usage_amount: number
           user_id: string
           utility_type: Database["public"]["Enums"]["utility_type"]
-          auto_imported?: boolean
-          needs_review?: boolean
-          bill_id?: string | null
-          confidence?: string | null
         }
         Update: {
+          auto_imported?: boolean | null
+          bill_id?: string | null
+          confidence?: string | null
           cost?: number | null
           created_at?: string
           id?: string
+          needs_review?: boolean | null
           reading_date?: string
           trend_direction?: string | null
           trend_percent?: number | null
@@ -653,40 +837,79 @@ export type Database = {
           usage_amount?: number
           user_id?: string
           utility_type?: Database["public"]["Enums"]["utility_type"]
-          auto_imported?: boolean
-          needs_review?: boolean
-          bill_id?: string | null
-          confidence?: string | null
         }
         Relationships: []
       }
       utility_sync_state: {
         Row: {
           connection_id: string
-          user_id: string
-          last_synced_at: string | null
           cursor: string | null
+          last_synced_at: string | null
           metadata: Json | null
+          user_id: string
         }
         Insert: {
           connection_id: string
-          user_id: string
-          last_synced_at?: string | null
           cursor?: string | null
+          last_synced_at?: string | null
           metadata?: Json | null
+          user_id: string
         }
         Update: {
           connection_id?: string
-          user_id?: string
-          last_synced_at?: string | null
           cursor?: string | null
+          last_synced_at?: string | null
           metadata?: Json | null
+          user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "utility_sync_state_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: true
+            referencedRelation: "utility_connections"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
-      [_ in never]: never
+      expenses_with_plaid_details: {
+        Row: {
+          account_mask: string | null
+          account_name: string | null
+          amount: number | null
+          auto_imported: boolean | null
+          category: Database["public"]["Enums"]["expense_category"] | null
+          created_at: string | null
+          date: string | null
+          deleted_at: string | null
+          description: string | null
+          id: string | null
+          institution_name: string | null
+          metadata: Json | null
+          needs_review: boolean | null
+          plaid_categories: string[] | null
+          plaid_merchant: string | null
+          plaid_pending: boolean | null
+          plaid_transaction_id: string | null
+          receipt_url: string | null
+          room: string | null
+          room_id: string | null
+          updated_at: string | null
+          user_id: string | null
+          vendor: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never
@@ -726,6 +949,7 @@ export type Database = {
         | "appliances"
         | "services"
         | "utilities"
+        | "uncategorized"
       sensor_type:
         | "temperature"
         | "humidity"
@@ -907,6 +1131,7 @@ export const Constants = {
         "appliances",
         "services",
         "utilities",
+        "uncategorized",
       ],
       sensor_type: [
         "temperature",
