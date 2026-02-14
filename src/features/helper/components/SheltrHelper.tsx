@@ -1,18 +1,20 @@
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar } from "@/components/ui/avatar";
-import { 
-  Brain, 
-  Send, 
-  Home, 
-  Lightbulb, 
-  Wrench, 
+import {
+  Brain,
+  Send,
+  Home,
+  Lightbulb,
+  Wrench,
   DollarSign,
   MessageCircle
 } from "lucide-react";
+import { staggerContainer, staggerContainerMedium, fadeUpItem, listItemAnim } from "@/lib/motion";
 
 const SheltrHelper = () => {
   const [message, setMessage] = useState("");
@@ -80,13 +82,17 @@ const SheltrHelper = () => {
   return (
     <div className="space-y-6 pb-4">
       {/* Header */}
-      <div className="text-center">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center"
+      >
         <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4">
           <Brain className="w-8 h-8 text-white" />
         </div>
         <h2 className="text-3xl font-bold text-gray-900">Sheltr Helper</h2>
         <p className="text-gray-600">Your AI assistant for all homeownership questions</p>
-      </div>
+      </motion.div>
 
       {/* Quick Questions */}
       <Card>
@@ -97,27 +103,34 @@ const SheltrHelper = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 md:grid-cols-2 gap-3"
+          >
             {quickQuestions.map((question, index) => {
               const IconComponent = question.icon;
               return (
-                <Button
-                  key={index}
-                  variant="outline"
-                  className="justify-start h-auto p-4 text-left"
-                  onClick={() => handleQuickQuestion(question.text)}
-                >
-                  <div className="flex items-start gap-3">
-                    <IconComponent className="w-5 h-5 text-orange-600 mt-1" />
-                    <div>
-                      <p className="font-medium">{question.text}</p>
-                      <p className="text-sm text-gray-500">{question.category}</p>
+                <motion.div key={index} variants={fadeUpItem}>
+                  <Button
+                    key={index}
+                    variant="outline"
+                    className="justify-start h-auto p-4 text-left"
+                    onClick={() => handleQuickQuestion(question.text)}
+                  >
+                    <div className="flex items-start gap-3">
+                      <IconComponent className="w-5 h-5 text-orange-600 mt-1" />
+                      <div>
+                        <p className="font-medium">{question.text}</p>
+                        <p className="text-sm text-gray-500">{question.category}</p>
+                      </div>
                     </div>
-                  </div>
-                </Button>
+                  </Button>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </CardContent>
       </Card>
 
@@ -132,22 +145,20 @@ const SheltrHelper = () => {
         <CardContent className="flex flex-col p-0">
           {/* Messages Container - Fixed height with scroll */}
           <div className="h-80 overflow-y-auto p-6 space-y-4">
-            {messages.map((msg) => (
-              <div key={msg.id} className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+            {messages.map((msg, idx) => (
+              <motion.div key={msg.id} {...listItemAnim(idx)} className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {msg.sender === 'assistant' && (
                   <Avatar className="w-8 h-8 bg-orange-100 flex-shrink-0">
                     <Brain className="w-4 h-4 text-orange-600" />
                   </Avatar>
                 )}
-                <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                  msg.sender === 'user' 
-                    ? 'bg-blue-600 text-white' 
+                <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${msg.sender === 'user'
+                    ? 'bg-blue-600 text-white'
                     : 'bg-gray-100 text-gray-900'
-                }`}>
-                  <p className="text-sm">{msg.content}</p>
-                  <p className={`text-xs mt-1 ${
-                    msg.sender === 'user' ? 'text-blue-100' : 'text-gray-500'
                   }`}>
+                  <p className="text-sm">{msg.content}</p>
+                  <p className={`text-xs mt-1 ${msg.sender === 'user' ? 'text-blue-100' : 'text-gray-500'
+                    }`}>
                     {msg.timestamp.toLocaleTimeString()}
                   </p>
                 </div>
@@ -156,7 +167,7 @@ const SheltrHelper = () => {
                     <Home className="w-4 h-4 text-blue-600" />
                   </Avatar>
                 )}
-              </div>
+              </motion.div>
             ))}
           </div>
 
@@ -170,7 +181,7 @@ const SheltrHelper = () => {
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                 className="flex-1"
               />
-              <Button 
+              <Button
                 onClick={handleSendMessage}
                 className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 flex-shrink-0"
               >
@@ -182,31 +193,42 @@ const SheltrHelper = () => {
       </Card>
 
       {/* Features */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardContent className="p-6 text-center">
-            <Home className="w-8 h-8 text-blue-600 mx-auto mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-2">Tailored Advice</h3>
-            <p className="text-sm text-gray-600">Based on your home type and location</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6 text-center">
-            <Lightbulb className="w-8 h-8 text-green-600 mx-auto mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-2">Best Practices</h3>
-            <p className="text-sm text-gray-600">Tips to improve efficiency and value</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardContent className="p-6 text-center">
-            <Brain className="w-8 h-8 text-purple-600 mx-auto mb-3" />
-            <h3 className="font-semibold text-gray-900 mb-2">Second Opinion</h3>
-            <p className="text-sm text-gray-600">Cross-check your ideas and budgets</p>
-          </CardContent>
-        </Card>
-      </div>
+      <motion.div
+        variants={staggerContainerMedium}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 md:grid-cols-3 gap-6"
+      >
+        <motion.div variants={fadeUpItem}>
+          <Card>
+            <CardContent className="p-6 text-center">
+              <Home className="w-8 h-8 text-blue-600 mx-auto mb-3" />
+              <h3 className="font-semibold text-gray-900 mb-2">Tailored Advice</h3>
+              <p className="text-sm text-gray-600">Based on your home type and location</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={fadeUpItem}>
+          <Card>
+            <CardContent className="p-6 text-center">
+              <Lightbulb className="w-8 h-8 text-green-600 mx-auto mb-3" />
+              <h3 className="font-semibold text-gray-900 mb-2">Best Practices</h3>
+              <p className="text-sm text-gray-600">Tips to improve efficiency and value</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={fadeUpItem}>
+          <Card>
+            <CardContent className="p-6 text-center">
+              <Brain className="w-8 h-8 text-purple-600 mx-auto mb-3" />
+              <h3 className="font-semibold text-gray-900 mb-2">Second Opinion</h3>
+              <p className="text-sm text-gray-600">Cross-check your ideas and budgets</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };

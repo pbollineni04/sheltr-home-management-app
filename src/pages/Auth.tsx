@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useEffect } from 'react';
-import { Home, Loader2 } from 'lucide-react';
+import { Home, Loader2, Mail, Lock, User } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
 const Auth = () => {
@@ -38,7 +38,7 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (signUpForm.password !== signUpForm.confirmPassword) {
       toast({
         title: "Error",
@@ -59,7 +59,7 @@ const Auth = () => {
 
     setIsLoading(true);
     const { error } = await signUp(signUpForm.email, signUpForm.password, signUpForm.fullName);
-    
+
     if (error) {
       toast({
         title: "Error",
@@ -79,9 +79,9 @@ const Auth = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     const { error } = await signIn(signInForm.email, signInForm.password);
-    
+
     if (error) {
       toast({
         title: "Error",
@@ -101,27 +101,29 @@ const Auth = () => {
   return (
     <div
       className="min-h-screen flex items-center justify-center p-4"
-      style={{ background: 'linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%)' }}
+      style={{ background: 'linear-gradient(135deg, hsl(221 83% 53% / 0.05) 0%, hsl(var(--background)) 50%, hsl(270 70% 60% / 0.05) 100%)' }}
     >
       <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Home className="w-8 h-8 icon-luxury" />
-            <h1 className="text-3xl font-bold" style={{ color: 'hsl(var(--foreground))' }}>Sheltr</h1>
+        {/* Logo and Title */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-2xl mb-4 shadow-lg" style={{ background: 'hsl(var(--primary))' }}>
+            <Home className="w-8 h-8" style={{ color: 'hsl(var(--primary-foreground))' }} />
           </div>
-          <p className="text-body-luxury" style={{ color: 'hsl(var(--muted-foreground))' }}>Your home management assistant</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Sheltr</h1>
+          <p className="text-muted-foreground text-sm md:text-base">Manage your home, all in one place</p>
         </div>
 
-        <Card className="card-luxury">
+        {/* Login Card */}
+        <Card className="rounded-2xl shadow-xl border-border/50">
           <CardHeader>
-            <CardTitle>Welcome</CardTitle>
+            <CardTitle className="text-xl md:text-2xl">Welcome</CardTitle>
             <CardDescription>
               Sign in to your account or create a new one to get started
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue={defaultTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-2 card-luxury">
+              <TabsList className="grid w-full grid-cols-2 mb-4">
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
               </TabsList>
@@ -130,27 +132,39 @@ const Auth = () => {
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signin-email">Email</Label>
-                    <Input
-                      id="signin-email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={signInForm.email}
-                      onChange={(e) => setSignInForm({ ...signInForm, email: e.target.value })}
-                      required
-                    />
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                      <Input
+                        id="signin-email"
+                        type="email"
+                        placeholder="you@example.com"
+                        className="pl-10"
+                        value={signInForm.email}
+                        onChange={(e) => setSignInForm({ ...signInForm, email: e.target.value })}
+                        required
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signin-password">Password</Label>
-                    <Input
-                      id="signin-password"
-                      type="password"
-                      placeholder="Enter your password"
-                      value={signInForm.password}
-                      onChange={(e) => setSignInForm({ ...signInForm, password: e.target.value })}
-                      required
-                    />
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                      <Input
+                        id="signin-password"
+                        type="password"
+                        placeholder="Enter your password"
+                        className="pl-10"
+                        value={signInForm.password}
+                        onChange={(e) => setSignInForm({ ...signInForm, password: e.target.value })}
+                        required
+                      />
+                    </div>
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button
+                    type="submit"
+                    className="w-full font-semibold shadow-md hover:shadow-lg transition-all duration-200"
+                    disabled={isLoading}
+                  >
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Sign In
                   </Button>
@@ -161,49 +175,69 @@ const Auth = () => {
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signup-name">Full Name</Label>
-                    <Input
-                      id="signup-name"
-                      type="text"
-                      placeholder="Enter your full name"
-                      value={signUpForm.fullName}
-                      onChange={(e) => setSignUpForm({ ...signUpForm, fullName: e.target.value })}
-                      required
-                    />
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                      <Input
+                        id="signup-name"
+                        type="text"
+                        placeholder="Enter your full name"
+                        className="pl-10"
+                        value={signUpForm.fullName}
+                        onChange={(e) => setSignUpForm({ ...signUpForm, fullName: e.target.value })}
+                        required
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">Email</Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={signUpForm.email}
-                      onChange={(e) => setSignUpForm({ ...signUpForm, email: e.target.value })}
-                      required
-                    />
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                      <Input
+                        id="signup-email"
+                        type="email"
+                        placeholder="you@example.com"
+                        className="pl-10"
+                        value={signUpForm.email}
+                        onChange={(e) => setSignUpForm({ ...signUpForm, email: e.target.value })}
+                        required
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-password">Password</Label>
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      placeholder="Create a password (min 6 characters)"
-                      value={signUpForm.password}
-                      onChange={(e) => setSignUpForm({ ...signUpForm, password: e.target.value })}
-                      required
-                    />
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                      <Input
+                        id="signup-password"
+                        type="password"
+                        placeholder="Create a password (min 6 characters)"
+                        className="pl-10"
+                        value={signUpForm.password}
+                        onChange={(e) => setSignUpForm({ ...signUpForm, password: e.target.value })}
+                        required
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-confirm">Confirm Password</Label>
-                    <Input
-                      id="signup-confirm"
-                      type="password"
-                      placeholder="Confirm your password"
-                      value={signUpForm.confirmPassword}
-                      onChange={(e) => setSignUpForm({ ...signUpForm, confirmPassword: e.target.value })}
-                      required
-                    />
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                      <Input
+                        id="signup-confirm"
+                        type="password"
+                        placeholder="Confirm your password"
+                        className="pl-10"
+                        value={signUpForm.confirmPassword}
+                        onChange={(e) => setSignUpForm({ ...signUpForm, confirmPassword: e.target.value })}
+                        required
+                      />
+                    </div>
                   </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <Button
+                    type="submit"
+                    className="w-full font-semibold shadow-md hover:shadow-lg transition-all duration-200"
+                    disabled={isLoading}
+                  >
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Sign Up
                   </Button>
@@ -212,6 +246,34 @@ const Auth = () => {
             </Tabs>
           </CardContent>
         </Card>
+
+        {/* Feature highlights – matching new UI login page */}
+        <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="text-center">
+            <div className="w-12 h-12 bg-card rounded-lg shadow-sm flex items-center justify-center mx-auto mb-2 border border-border/50">
+              <span className="text-2xl">💰</span>
+            </div>
+            <p className="text-xs text-muted-foreground">Track Expenses</p>
+          </div>
+          <div className="text-center">
+            <div className="w-12 h-12 bg-card rounded-lg shadow-sm flex items-center justify-center mx-auto mb-2 border border-border/50">
+              <span className="text-2xl">📅</span>
+            </div>
+            <p className="text-xs text-muted-foreground">Home Timeline</p>
+          </div>
+          <div className="text-center">
+            <div className="w-12 h-12 bg-card rounded-lg shadow-sm flex items-center justify-center mx-auto mb-2 border border-border/50">
+              <span className="text-2xl">✅</span>
+            </div>
+            <p className="text-xs text-muted-foreground">Manage Tasks</p>
+          </div>
+          <div className="text-center">
+            <div className="w-12 h-12 bg-card rounded-lg shadow-sm flex items-center justify-center mx-auto mb-2 border border-border/50">
+              <span className="text-2xl">⚡</span>
+            </div>
+            <p className="text-xs text-muted-foreground">Track Energy</p>
+          </div>
+        </div>
       </div>
     </div>
   );

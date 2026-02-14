@@ -1,5 +1,6 @@
 
 import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ExpenseHeader } from "./expense/ExpenseHeader";
 import { ExpensePlaidControls } from "./expense/ExpensePlaidControls";
@@ -35,10 +36,10 @@ const ExpenseTracker = () => {
       const today = new Date();
       const iso = (d: Date) => d.toISOString().split('T')[0];
       const samples = [
-        { description: "Home Depot - supplies", amount: 234.56, category: "renovation", date: iso(new Date(today.getFullYear(), today.getMonth(), today.getDate()-3)), vendor: "Home Depot", room: "Kitchen" },
-        { description: "HVAC Service", amount: 180.00, category: "services", date: iso(new Date(today.getFullYear(), today.getMonth(), today.getDate()-10)), vendor: "AC Pros", room: "Utility Room" },
-        { description: "LED Bulbs", amount: 42.15, category: "utilities", date: iso(new Date(today.getFullYear(), today.getMonth(), today.getDate()-5)), vendor: "Amazon", room: "Living Room" },
-        { description: "Washing Machine Repair", amount: 129.00, category: "appliances", date: iso(new Date(today.getFullYear(), today.getMonth(), today.getDate()-15)), vendor: "ApplianceFix", room: "Laundry Room" },
+        { description: "Home Depot - supplies", amount: 234.56, category: "renovation", date: iso(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 3)), vendor: "Home Depot", room: "Kitchen" },
+        { description: "HVAC Service", amount: 180.00, category: "services", date: iso(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 10)), vendor: "AC Pros", room: "Utility Room" },
+        { description: "LED Bulbs", amount: 42.15, category: "utilities", date: iso(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 5)), vendor: "Amazon", room: "Living Room" },
+        { description: "Washing Machine Repair", amount: 129.00, category: "appliances", date: iso(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 15)), vendor: "ApplianceFix", room: "Laundry Room" },
       ];
 
       // Try to persist via Supabase
@@ -290,11 +291,11 @@ const ExpenseTracker = () => {
       icon: iconMap[id] ?? IconHome,
       color: id === 'renovation' ? 'blue'
         : id === 'maintenance' ? 'green'
-        : id === 'appliances' ? 'purple'
-        : id === 'services' ? 'orange'
-        : id === 'utilities' ? 'yellow'
-        : id === 'uncategorized' ? 'gray'
-        : 'gray',
+          : id === 'appliances' ? 'purple'
+            : id === 'services' ? 'orange'
+              : id === 'utilities' ? 'yellow'
+                : id === 'uncategorized' ? 'gray'
+                  : 'gray',
       amount,
     }));
     console.log('📊 Category breakdown:', result);
@@ -345,7 +346,7 @@ const ExpenseTracker = () => {
           {loading
             ? 'Loading…'
             : lastRefreshedAt
-              ? (() => { const s = Math.max(0, Math.round((Date.now() - lastRefreshedAt.getTime()) / 1000)); return `Updated ${Math.floor(s/60)}m ${s%60}s ago`; })()
+              ? (() => { const s = Math.max(0, Math.round((Date.now() - lastRefreshedAt.getTime()) / 1000)); return `Updated ${Math.floor(s / 60)}m ${s % 60}s ago`; })()
               : ''}
         </p>
         <div className="flex flex-wrap gap-2">
@@ -386,7 +387,7 @@ const ExpenseTracker = () => {
           </Button>
         </div>
       </div>
-      
+
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -397,10 +398,16 @@ const ExpenseTracker = () => {
           ))}
         </div>
       ) : (
-        <ExpenseSummaryCards
-          thisMonthExpenses={thisMonthExpenses}
-          totalExpenses={totalExpenses}
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0 }}
+        >
+          <ExpenseSummaryCards
+            thisMonthExpenses={thisMonthExpenses}
+            totalExpenses={totalExpenses}
+          />
+        </motion.div>
       )}
 
       {loading ? (
@@ -417,7 +424,13 @@ const ExpenseTracker = () => {
           </div>
         </div>
       ) : (
-        <ExpenseCategoryBreakdown categories={categories} />
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.08 }}
+        >
+          <ExpenseCategoryBreakdown categories={categories} />
+        </motion.div>
       )}
 
       {loading ? (
@@ -431,11 +444,17 @@ const ExpenseTracker = () => {
         </div>
       ) : (
         <>
-          <ExpenseRecentList
-            expenses={allThisPeriod.slice(0, displayLimit) as any}
-            getCategoryColor={getCategoryColor}
-            periodLabel={selectedPeriod === "month" ? "This Month's Expenses" : "This Year's Expenses"}
-          />
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.16 }}
+          >
+            <ExpenseRecentList
+              expenses={allThisPeriod.slice(0, displayLimit) as any}
+              getCategoryColor={getCategoryColor}
+              periodLabel={selectedPeriod === "month" ? "This Month's Expenses" : "This Year's Expenses"}
+            />
+          </motion.div>
           {allThisPeriod.length > displayLimit && (
             <div className="flex justify-center">
               <Button

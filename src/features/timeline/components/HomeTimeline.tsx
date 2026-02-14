@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,7 @@ import {
 import { useTimeline } from "../hooks/useTimeline";
 import AddTimelineEventDialog from "./AddTimelineEventDialog";
 import { cn } from "@/lib/utils";
+import { timelineItemAnim } from "@/lib/motion";
 
 const HomeTimeline = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -277,7 +279,7 @@ const HomeTimeline = () => {
             const isYearCollapsed = collapsedYears.has(year);
             const monthsInYear = Object.keys(groupedEvents[year]).sort((a, b) => {
               const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June',
-                                'July', 'August', 'September', 'October', 'November', 'December'];
+                'July', 'August', 'September', 'October', 'November', 'December'];
               return monthOrder.indexOf(b) - monthOrder.indexOf(a);
             });
 
@@ -342,7 +344,7 @@ const HomeTimeline = () => {
                                 const SourceIcon = sourceInfo?.icon;
 
                                 return (
-                                  <div key={event.id} className="relative group/event">
+                                  <motion.div key={event.id} {...timelineItemAnim(eventsInMonth.indexOf(event))} className="relative group/event">
                                     {/* Timeline Dot with Glow */}
                                     <div className="absolute left-[-22px] sm:left-[-26px] top-6 z-10">
                                       <div
@@ -440,7 +442,7 @@ const HomeTimeline = () => {
                                         </div>
                                       </CardContent>
                                     </Card>
-                                  </div>
+                                  </motion.div>
                                 );
                               })}
                             </div>

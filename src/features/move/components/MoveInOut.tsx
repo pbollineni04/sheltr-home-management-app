@@ -1,12 +1,13 @@
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Plus, 
+import {
+  Plus,
   Calendar,
   CheckCircle,
   Circle,
@@ -18,6 +19,7 @@ import {
   MapPin,
   Star
 } from "lucide-react";
+import { listItemAnim, cardItemAnim } from "@/lib/motion";
 
 const MoveInOut = () => {
   const [activeChecklist, setActiveChecklist] = useState<string | null>(null);
@@ -147,7 +149,11 @@ const MoveInOut = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between"
+      >
         <div>
           <h2 className="text-3xl font-bold text-foreground">Move & Property Management</h2>
           <p className="text-muted-foreground">Lifecycle management and real estate insights</p>
@@ -156,7 +162,7 @@ const MoveInOut = () => {
           <Plus className="w-4 h-4 mr-2" />
           New Checklist
         </Button>
-      </div>
+      </motion.div>
 
       <Tabs defaultValue="checklists" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
@@ -168,126 +174,130 @@ const MoveInOut = () => {
 
         <TabsContent value="checklists" className="space-y-4">
           <div className="grid gap-4">
-            {checklists.map((checklist) => (
-              <Card key={checklist.id} className="card-luxury hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-xl font-semibold text-foreground">{checklist.title}</h3>
-                        <Badge className={getCategoryColor(checklist.category)}>
-                          {checklist.category}
-                        </Badge>
-                      </div>
-                      <p className="text-muted-foreground mb-3">{checklist.description}</p>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          Due: {new Date(checklist.dueDate).toLocaleDateString()}
-                        </span>
-                        <span>
-                          {checklist.progress} of {checklist.total} completed
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-foreground">
-                        {Math.round((checklist.progress / checklist.total) * 100)}%
-                      </div>
-                      <div className="w-32 bg-muted rounded-full h-2">
-                        <div
-                          className="bg-gradient-to-r from-blue-600 to-green-600 h-2 rounded-full"
-                          style={{ width: `${(checklist.progress / checklist.total) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  {activeChecklist === checklist.id && checklist.id === "move-in" && (
-                    <div className="border-t border-border pt-4 space-y-2">
-                      {moveInTasks.map((task) => (
-                        <div key={task.id} className="flex items-center gap-3 p-2 hover:bg-muted rounded">
-                          {task.completed ? (
-                            <CheckCircle className="w-5 h-5 text-green-600" />
-                          ) : (
-                            <Circle className="w-5 h-5 text-muted-foreground" />
-                          )}
-                          <span className={task.completed ? "text-muted-foreground line-through" : "text-foreground"}>
-                            {task.task}
+            {checklists.map((checklist, i) => (
+              <motion.div key={checklist.id} {...listItemAnim(i)}>
+                <Card className="card-luxury hover:shadow-md transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-xl font-semibold text-foreground">{checklist.title}</h3>
+                          <Badge className={getCategoryColor(checklist.category)}>
+                            {checklist.category}
+                          </Badge>
+                        </div>
+                        <p className="text-muted-foreground mb-3">{checklist.description}</p>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            Due: {new Date(checklist.dueDate).toLocaleDateString()}
+                          </span>
+                          <span>
+                            {checklist.progress} of {checklist.total} completed
                           </span>
                         </div>
-                      ))}
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-foreground">
+                          {Math.round((checklist.progress / checklist.total) * 100)}%
+                        </div>
+                        <div className="w-32 bg-muted rounded-full h-2">
+                          <div
+                            className="bg-gradient-to-r from-blue-600 to-green-600 h-2 rounded-full"
+                            style={{ width: `${(checklist.progress / checklist.total) * 100}%` }}
+                          />
+                        </div>
+                      </div>
                     </div>
-                  )}
-                  <div className="flex gap-2 mt-4">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setActiveChecklist(activeChecklist === checklist.id ? null : checklist.id)}
-                    >
-                      <FileText className="w-4 h-4 mr-2" />
-                      {activeChecklist === checklist.id ? "Hide Tasks" : "View Tasks"}
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Camera className="w-4 h-4 mr-2" />
-                      Add Photos
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                    {activeChecklist === checklist.id && checklist.id === "move-in" && (
+                      <div className="border-t border-border pt-4 space-y-2">
+                        {moveInTasks.map((task) => (
+                          <div key={task.id} className="flex items-center gap-3 p-2 hover:bg-muted rounded">
+                            {task.completed ? (
+                              <CheckCircle className="w-5 h-5 text-green-600" />
+                            ) : (
+                              <Circle className="w-5 h-5 text-muted-foreground" />
+                            )}
+                            <span className={task.completed ? "text-muted-foreground line-through" : "text-foreground"}>
+                              {task.task}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flex gap-2 mt-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setActiveChecklist(activeChecklist === checklist.id ? null : checklist.id)}
+                      >
+                        <FileText className="w-4 h-4 mr-2" />
+                        {activeChecklist === checklist.id ? "Hide Tasks" : "View Tasks"}
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Camera className="w-4 h-4 mr-2" />
+                        Add Photos
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
         </TabsContent>
 
         <TabsContent value="condition" className="space-y-4">
           <div className="grid gap-4">
-            {conditionReports.map((report) => (
-              <Card key={report.id} className="card-luxury">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="text-xl font-semibold text-foreground">{report.room}</h3>
-                      <p className="text-muted-foreground">Inspected on {new Date(report.date).toLocaleDateString()}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-5 h-5 ${i < report.rating ? "text-yellow-400 fill-current" : "text-muted"}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm font-medium text-foreground mb-2">Photos: {report.photos}</p>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" className="btn-secondary-luxury">
-                          <Camera className="w-4 h-4 mr-2" />
-                          View Photos
-                        </Button>
-                        <Button variant="outline" size="sm" className="btn-secondary-luxury">
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add Photos
-                        </Button>
+            {conditionReports.map((report, i) => (
+              <motion.div key={report.id} {...cardItemAnim(i)}>
+                <Card className="card-luxury">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-xl font-semibold text-foreground">{report.room}</h3>
+                        <p className="text-muted-foreground">Inspected on {new Date(report.date).toLocaleDateString()}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`w-5 h-5 ${i < report.rating ? "text-yellow-400 fill-current" : "text-muted"}`}
+                          />
+                        ))}
                       </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground mb-2">
-                        Issues Found: {report.issues.length}
-                      </p>
-                      {report.issues.length > 0 ? (
-                        <ul className="text-sm text-muted-foreground space-y-1">
-                          {report.issues.map((issue, idx) => (
-                            <li key={idx}>• {issue}</li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="text-sm text-green-600">No issues found</p>
-                      )}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium text-foreground mb-2">Photos: {report.photos}</p>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm" className="btn-secondary-luxury">
+                            <Camera className="w-4 h-4 mr-2" />
+                            View Photos
+                          </Button>
+                          <Button variant="outline" size="sm" className="btn-secondary-luxury">
+                            <Plus className="w-4 h-4 mr-2" />
+                            Add Photos
+                          </Button>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground mb-2">
+                          Issues Found: {report.issues.length}
+                        </p>
+                        {report.issues.length > 0 ? (
+                          <ul className="text-sm text-muted-foreground space-y-1">
+                            {report.issues.map((issue, idx) => (
+                              <li key={idx}>• {issue}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-sm text-green-600">No issues found</p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ))}
           </div>
           <Button className="w-full btn-primary-luxury">
@@ -370,8 +380,8 @@ const MoveInOut = () => {
             </CardHeader>
             <CardContent>
               <div className="grid gap-4">
-                {renovationProjects.map((project) => (
-                  <div key={project.id} className="border border-border rounded-lg p-4">
+                {renovationProjects.map((project, i) => (
+                  <motion.div key={project.id} {...listItemAnim(i)} className="border border-border rounded-lg p-4 hover:shadow-md hover:border-primary/30 transition-all">
                     <div className="flex items-center justify-between mb-3">
                       <div>
                         <h4 className="font-semibold text-foreground">{project.name}</h4>
@@ -401,7 +411,7 @@ const MoveInOut = () => {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
               <Button className="w-full mt-4 btn-primary-luxury">
@@ -412,7 +422,7 @@ const MoveInOut = () => {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </div >
   );
 };
 

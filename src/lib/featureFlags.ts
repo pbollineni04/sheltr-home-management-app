@@ -1,14 +1,15 @@
 export const featureFlags = {
   dashboardOverview: true,
-  energyTracker: false,
+  energyTracker: true,
   expenseTracker: true,
   homeTimeline: true,
+  homeWealth: true,
   moveInOut: false,
   navigation: true,
   protectedRoute: true,
   sheltrHelper: false,
   smartAlerts: false,
   tasksLists: true,
-  warrantyVault: true,
+  documentVault: true,
   // Add more flags as needed
 }

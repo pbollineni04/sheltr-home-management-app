@@ -1,16 +1,5 @@
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Home,
-  Calendar,
-  Brain,
-  CheckSquare,
-  DollarSign,
-  TrendingUp,
-  Shield,
-  Move,
-  Bell
-} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { featureFlags } from "@/lib/featureFlags";
 import { DashboardOverview } from "@/features/dashboard";
 import { HomeTimeline } from "@/features/timeline";
@@ -19,137 +8,104 @@ import { ExpenseTracker } from "@/features/expenses";
 import { SheltrHelper } from "@/features/helper";
 import { DocumentVault } from "@/features/documents";
 import { MoveInOut } from "@/features/move";
-import Navigation from "@/components/Navigation";
+import { HomeWealth } from "@/features/homewealth";
+import SidebarNavigation from "@/components/Navigation";
 import { EnergyTracker } from "@/features/energy";
 import { SmartAlerts } from "@/features/alerts";
-
-const tabFlags = [
-  featureFlags.dashboardOverview,
-  featureFlags.homeTimeline,
-  featureFlags.tasksLists,
-  featureFlags.expenseTracker,
-  featureFlags.warrantyVault,
-  featureFlags.moveInOut,
-  featureFlags.sheltrHelper,
-  featureFlags.energyTracker,
-  featureFlags.smartAlerts,
-];
-const enabledTabCount = tabFlags.filter(Boolean).length;
+import { pageHeader } from "@/lib/motion";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
 
+  const renderContent = () => {
+    switch (activeTab) {
+      case "dashboard":
+        return featureFlags.dashboardOverview ? <DashboardOverview onNavigate={setActiveTab} /> : null;
+      case "homewealth":
+        return featureFlags.homeWealth ? <HomeWealth /> : null;
+      case "timeline":
+        return featureFlags.homeTimeline ? <HomeTimeline /> : null;
+      case "tasks":
+        return featureFlags.tasksLists ? <TasksLists /> : null;
+      case "expenses":
+        return featureFlags.expenseTracker ? <ExpenseTracker /> : null;
+      case "vault":
+        return featureFlags.documentVault ? <DocumentVault /> : null;
+      case "move":
+        return featureFlags.moveInOut ? <MoveInOut /> : null;
+      case "helper":
+        return featureFlags.sheltrHelper ? <SheltrHelper /> : null;
+      case "energy":
+        return featureFlags.energyTracker ? <EnergyTracker /> : null;
+      case "alerts":
+        return featureFlags.smartAlerts ? <SmartAlerts /> : null;
+      default:
+        return featureFlags.dashboardOverview ? <DashboardOverview onNavigate={setActiveTab} /> : null;
+    }
+  };
+
+  // Map tab IDs to readable page titles
+  const pageTitles: Record<string, string> = {
+    dashboard: "Dashboard",
+    homewealth: "HomeWealth",
+    timeline: "Home Timeline",
+    tasks: "Tasks",
+    expenses: "Expenses",
+    vault: "Document Vault",
+    move: "Move In/Out",
+    helper: "Sheltr Helper",
+    energy: "Energy Tracker",
+    alerts: "Smart Alerts",
+  };
+
+  const pageSubtitles: Record<string, string> = {
+    dashboard: "Welcome back! Here's your home overview.",
+    homewealth: "Track your home's investment performance and build wealth",
+    timeline: "A history of everything that happens in your home",
+    tasks: "Manage your household to-dos",
+    expenses: "Track your household spending",
+    vault: "Your documents stored securely",
+    energy: "Monitor bills and usage across your household",
+    alerts: "Stay on top of your home alerts",
+    move: "Manage your move-in/out process",
+    helper: "Your AI-powered home assistant",
+  };
+
   return (
-    <div
-      className="min-h-screen"
-      style={{
-        background: 'linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%)',
-        backgroundAttachment: 'fixed',
-        backgroundSize: '100% 100%'
-      }}
-    >
-      <Navigation />
-      
-      <main className="container-luxury py-8">
-        <div className="mb-8 micro-fade-in">
-          <h1 className="text-display-lg text-foreground mb-2">Welcome to Sheltr</h1>
-          <p className="text-body-luxury text-muted-foreground">Your all-in-one home management assistant</p>
-        </div>
+    <div className="sidebar-layout" style={{ background: 'hsl(var(--background))' }}>
+      <SidebarNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className={`grid w-full max-w-6xl mx-auto mb-8 grid-cols-${enabledTabCount} card-luxury`}> 
-            {featureFlags.dashboardOverview && (
-              <TabsTrigger value="dashboard" className="flex items-center gap-2">
-                <Home className="w-4 h-4" />
-                <span className="hidden sm:inline">Dashboard</span>
-              </TabsTrigger>
-            )}
-            {featureFlags.homeTimeline && (
-              <TabsTrigger value="timeline" className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                <span className="hidden sm:inline">Timeline</span>
-              </TabsTrigger>
-            )}
-            {featureFlags.tasksLists && (
-              <TabsTrigger value="tasks" className="flex items-center gap-2">
-                <CheckSquare className="w-4 h-4" />
-                <span className="hidden sm:inline">Tasks</span>
-              </TabsTrigger>
-            )}
-            {featureFlags.expenseTracker && (
-              <TabsTrigger value="expenses" className="flex items-center gap-2">
-                <DollarSign className="w-4 h-4" />
-                <span className="hidden sm:inline">Expenses</span>
-              </TabsTrigger>
-            )}
-            {featureFlags.warrantyVault && (
-              <TabsTrigger value="vault" className="flex items-center gap-2">
-                <Shield className="w-4 h-4" />
-                <span className="hidden sm:inline">Vault</span>
-              </TabsTrigger>
-            )}
-            {featureFlags.moveInOut && (
-              <TabsTrigger value="move" className="flex items-center gap-2">
-                <Move className="w-4 h-4" />
-                <span className="hidden sm:inline">Move</span>
-              </TabsTrigger>
-            )}
-            {featureFlags.sheltrHelper && (
-              <TabsTrigger value="helper" className="flex items-center gap-2">
-                <Brain className="w-4 h-4" />
-                <span className="hidden sm:inline">Helper</span>
-              </TabsTrigger>
-            )}
-            {featureFlags.energyTracker && (
-              <TabsTrigger value="energy" className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" />
-                <span className="hidden sm:inline">Energy</span>
-              </TabsTrigger>
-            )}
-            {featureFlags.smartAlerts && (
-              <TabsTrigger value="alerts" className="flex items-center gap-2">
-                <Bell className="w-4 h-4" />
-                <span className="hidden sm:inline">Alerts</span>
-              </TabsTrigger>
-            )}
-          </TabsList>
+      {/* Main Content Area */}
+      <main className="sidebar-content mt-[65px] lg:mt-0 min-h-screen">
+        {/* Page header – slides down like the reference repo's Index header */}
+        <motion.div
+          key={`header-${activeTab}`}
+          initial={pageHeader.initial}
+          animate={pageHeader.animate}
+          className="mb-6"
+        >
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+            {pageTitles[activeTab] || "Dashboard"}
+          </h1>
+          {pageSubtitles[activeTab] && (
+            <p className="text-sm text-muted-foreground mt-1">
+              {pageSubtitles[activeTab]}
+            </p>
+          )}
+        </motion.div>
 
-          <TabsContent value="dashboard">
-            {featureFlags.dashboardOverview && <DashboardOverview onNavigate={setActiveTab} />}
-          </TabsContent>
-
-          <TabsContent value="timeline">
-            {featureFlags.homeTimeline && <HomeTimeline />}
-          </TabsContent>
-
-          <TabsContent value="tasks">
-            {featureFlags.tasksLists && <TasksLists />}
-          </TabsContent>
-
-          <TabsContent value="expenses">
-            {featureFlags.expenseTracker && <ExpenseTracker />}
-          </TabsContent>
-
-          <TabsContent value="vault">
-            {featureFlags.warrantyVault && <DocumentVault />}
-          </TabsContent>
-
-          <TabsContent value="move">
-            {featureFlags.moveInOut && <MoveInOut />}
-          </TabsContent>
-
-          <TabsContent value="helper">
-            {featureFlags.sheltrHelper && <SheltrHelper />}
-          </TabsContent>
-
-          <TabsContent value="energy">
-            {featureFlags.energyTracker && <EnergyTracker />}
-          </TabsContent>
-
-          <TabsContent value="alerts">
-            {featureFlags.smartAlerts && <SmartAlerts />}
-          </TabsContent>
-        </Tabs>
+        {/* Page content – fade in on tab switch */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
+            {renderContent()}
+          </motion.div>
+        </AnimatePresence>
       </main>
     </div>
   );

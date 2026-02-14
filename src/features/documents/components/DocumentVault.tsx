@@ -1,13 +1,14 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Shield, 
-  Upload, 
+import {
+  Shield,
+  Upload,
   Search,
   Filter,
   Grid,
@@ -61,13 +62,13 @@ const DocumentVault = () => {
 
   const filteredDocuments = documents.filter(doc => {
     const matchesSearch = doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         doc.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         doc.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    
+      doc.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doc.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+
     const matchesCategory = selectedCategory === 'all' || doc.category_enum === selectedCategory;
     const matchesFavorites = !showFavorites || doc.is_favorite;
     const matchesArchived = showArchived ? doc.archived : !doc.archived;
-    
+
     return matchesSearch && matchesCategory && matchesFavorites && matchesArchived;
   });
 
@@ -79,7 +80,11 @@ const DocumentVault = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="text-center">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center"
+      >
         <div className="w-16 h-16 bg-gradient-to-r from-primary to-primary/80 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
           <div className="relative">
             <ShieldCheck className="w-6 h-6 text-primary-foreground" />
@@ -88,7 +93,7 @@ const DocumentVault = () => {
         </div>
         <h2 className="text-heading-xl text-foreground">Document Vault</h2>
         <p className="text-body-luxury text-muted-foreground">Secure storage and management for all your important documents</p>
-      </div>
+      </motion.div>
 
       {/* Quick Stats */}
       <DocumentStats stats={stats} />
@@ -307,8 +312,15 @@ const DocumentVault = () => {
             <DocumentList documents={filteredDocuments} />
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {filteredDocuments.map((doc) => (
-                <DocumentCard key={doc.id} document={doc} />
+              {filteredDocuments.map((doc, i) => (
+                <motion.div
+                  key={doc.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.04 }}
+                >
+                  <DocumentCard document={doc} />
+                </motion.div>
               ))}
             </div>
           )}

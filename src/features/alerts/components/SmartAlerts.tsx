@@ -1,13 +1,14 @@
 
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Plus, 
-  AlertTriangle, 
+import {
+  Plus,
+  AlertTriangle,
   CheckCircle,
   Clock,
   Thermometer,
@@ -24,6 +25,7 @@ import {
   Zap,
   Shield
 } from "lucide-react";
+import { staggerContainer, fadeUpItem, cardItemAnim, listItemAnim } from "@/lib/motion";
 
 const SmartAlerts = () => {
   const [selectedAlert, setSelectedAlert] = useState("all");
@@ -206,61 +208,74 @@ const SmartAlerts = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="card-luxury">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Critical Alerts</p>
-                <p className="text-3xl font-bold text-red-600">{criticalAlerts}</p>
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 md:grid-cols-4 gap-6"
+      >
+        <motion.div variants={fadeUpItem}>
+          <Card className="card-luxury">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Critical Alerts</p>
+                  <p className="text-3xl font-bold text-red-600">{criticalAlerts}</p>
+                </div>
+                <AlertTriangle className="w-8 h-8 text-red-600" />
               </div>
-              <AlertTriangle className="w-8 h-8 text-red-600" />
-            </div>
-            <p className="text-sm text-muted-foreground mt-2">Immediate attention required</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="card-luxury">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Warnings</p>
-                <p className="text-3xl font-bold text-yellow-600">{warningAlerts}</p>
+              <p className="text-sm text-muted-foreground mt-2">Immediate attention required</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={fadeUpItem}>
+          <Card className="card-luxury">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Warnings</p>
+                  <p className="text-3xl font-bold text-yellow-600">{warningAlerts}</p>
+                </div>
+                <Bell className="w-8 h-8 text-yellow-600" />
               </div>
-              <Bell className="w-8 h-8 text-yellow-600" />
-            </div>
-            <p className="text-sm text-muted-foreground mt-2">Action recommended</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="card-luxury">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Sensors Online</p>
-                <p className="text-3xl font-bold text-green-600">{onlineSensors}/{sensorData.length}</p>
+              <p className="text-sm text-muted-foreground mt-2">Action recommended</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={fadeUpItem}>
+          <Card className="card-luxury">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Sensors Online</p>
+                  <p className="text-3xl font-bold text-green-600">{onlineSensors}/{sensorData.length}</p>
+                </div>
+                <Wifi className="w-8 h-8 text-green-600" />
               </div>
-              <Wifi className="w-8 h-8 text-green-600" />
-            </div>
-            <p className="text-sm text-muted-foreground mt-2">All systems operational</p>
-          </CardContent>
-        </Card>
-        
-        <Card className="card-luxury">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Tasks Created</p>
-                <p className="text-3xl font-bold text-blue-600">
-                  {alerts.filter(a => a.autoTask).length}
-                </p>
+              <p className="text-sm text-muted-foreground mt-2">All systems operational</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <motion.div variants={fadeUpItem}>
+          <Card className="card-luxury">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Tasks Created</p>
+                  <p className="text-3xl font-bold text-blue-600">
+                    {alerts.filter(a => a.autoTask).length}
+                  </p>
+                </div>
+                <CheckCircle className="w-8 h-8 text-blue-600" />
               </div>
-              <CheckCircle className="w-8 h-8 text-blue-600" />
-            </div>
-            <p className="text-sm text-muted-foreground mt-2">Auto-generated today</p>
-          </CardContent>
-        </Card>
-      </div>
+              <p className="text-sm text-muted-foreground mt-2">Auto-generated today</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </motion.div>
 
       <Tabs defaultValue="dashboard" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
@@ -285,7 +300,7 @@ const SmartAlerts = () => {
                   const IconComponent = getSensorIcon(sensor.type);
                   const TrendIcon = getTrendIcon(sensor.trend);
                   return (
-                    <div key={sensor.id} className="p-4 rounded-lg border" style={{ background: 'hsl(var(--card))' }}>
+                    <motion.div key={sensor.id} {...cardItemAnim(sensorData.indexOf(sensor))} className="p-4 rounded-lg border hover:shadow-md hover:border-primary/30 transition-all" style={{ background: 'hsl(var(--card))' }}>
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getStatusColor(sensor.status)}`}>
@@ -300,7 +315,7 @@ const SmartAlerts = () => {
                           {sensor.status}
                         </Badge>
                       </div>
-                      
+
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
                           <span className="text-2xl font-bold text-foreground">
@@ -315,11 +330,11 @@ const SmartAlerts = () => {
                           </span>
                         </div>
                       </div>
-                      
+
                       <p className="text-xs text-muted-foreground">
                         Last update: {sensor.lastUpdate}
                       </p>
-                    </div>
+                    </motion.div>
                   );
                 })}
               </div>
@@ -337,8 +352,8 @@ const SmartAlerts = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {alerts.map((alert) => (
-                  <div key={alert.id} className={`p-4 rounded-lg border-2 ${getSeverityColor(alert.severity)}`}>
+                {alerts.map((alert, i) => (
+                  <motion.div key={alert.id} {...listItemAnim(i)} className={`p-4 rounded-lg border-2 ${getSeverityColor(alert.severity)}`}>
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
@@ -363,7 +378,7 @@ const SmartAlerts = () => {
                         {alert.severity}
                       </Badge>
                     </div>
-                    
+
                     {alert.autoTask && (
                       <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: 'hsl(var(--muted))' }}>
                         <div className="flex items-center gap-2">
@@ -377,7 +392,7 @@ const SmartAlerts = () => {
                         </Button>
                       </div>
                     )}
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </CardContent>
@@ -394,8 +409,8 @@ const SmartAlerts = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {predictiveInsights.map((insight) => (
-                  <div key={insight.id} className="p-4 rounded-lg border" style={{ background: 'hsl(var(--card))' }}>
+                {predictiveInsights.map((insight, i) => (
+                  <motion.div key={insight.id} {...cardItemAnim(i)} className="p-4 rounded-lg border" style={{ background: 'hsl(var(--card))' }}>
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <h4 className="font-semibold text-foreground mb-2">{insight.title}</h4>
@@ -415,7 +430,7 @@ const SmartAlerts = () => {
                         {insight.category}
                       </Badge>
                     </div>
-                    
+
                     <div className="flex items-center justify-between p-3 rounded-lg" style={{ background: 'hsl(var(--muted))' }}>
                       <div className="flex items-center gap-2">
                         <Wrench className="w-4 h-4 text-green-600" />
@@ -427,7 +442,7 @@ const SmartAlerts = () => {
                         Create Task
                       </Button>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </CardContent>
