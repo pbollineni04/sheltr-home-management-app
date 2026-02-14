@@ -203,11 +203,10 @@ const TasksLists = () => {
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => setShowLibrary(!showLibrary)}
-                        className={`text-sm px-3 py-2 flex items-center gap-1 rounded-lg border transition-colors ${
-                            showLibrary
+                        className={`text-sm px-3 py-2 flex items-center gap-1 rounded-lg border transition-colors ${showLibrary
                                 ? 'bg-primary text-primary-foreground border-primary'
                                 : 'bg-background text-muted-foreground border-border hover:bg-muted'
-                        }`}
+                            }`}
                     >
                         <BookOpen size={14} />
                         <span className="hidden sm:inline">Library</span>
@@ -323,11 +322,10 @@ const TasksLists = () => {
                                 {(isOver) => (
                                     <motion.div
                                         variants={fadeUpItem}
-                                        className={`bg-card rounded-lg shadow-sm border overflow-hidden transition-colors ${
-                                            isOver
+                                        className={`bg-card rounded-lg shadow-sm border overflow-hidden transition-colors ${isOver
                                                 ? 'border-primary ring-2 ring-primary/20'
                                                 : 'border-border'
-                                        }`}
+                                            }`}
                                     >
                                         {/* Column header */}
                                         <div className={`p-4 border-b border-border ${column.headerBg}`}>
@@ -348,7 +346,7 @@ const TasksLists = () => {
                                                     <motion.div key={task.id} {...listItemAnim(taskIdx)}>
                                                         <TaskCard
                                                             task={task}
-                                                            status={task.status}
+                                                            status={task.status || 'todo'}
                                                             onToggleComplete={handleToggleComplete}
                                                             onDelete={handleDelete}
                                                         />
@@ -369,9 +367,9 @@ const TasksLists = () => {
                         <div className="opacity-70">
                             <TaskCard
                                 task={activeTask}
-                                status={activeTask.status}
-                                onToggleComplete={async () => {}}
-                                onDelete={async () => {}}
+                                status={activeTask.status || 'todo'}
+                                onToggleComplete={async () => { }}
+                                onDelete={async () => { }}
                                 dragDisabled
                             />
                         </div>
@@ -379,11 +377,10 @@ const TasksLists = () => {
                         <div className="opacity-70 bg-card border border-primary rounded-lg p-3 shadow-lg w-64">
                             <div className="flex items-center justify-between gap-2">
                                 <h4 className="font-semibold text-sm text-foreground truncate">{activeTemplate.title}</h4>
-                                <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
-                                    activeTemplate.priority === 'high' ? 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300' :
-                                    activeTemplate.priority === 'medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300' :
-                                    'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300'
-                                }`}>
+                                <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${activeTemplate.priority === 'high' ? 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300' :
+                                        activeTemplate.priority === 'medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300' :
+                                            'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300'
+                                    }`}>
                                     {activeTemplate.priority}
                                 </span>
                             </div>

@@ -68,7 +68,7 @@ export const useTimeline = () => {
       // Apply search term filter (client-side for now)
       if (filters?.searchTerm) {
         const searchLower = filters.searchTerm.toLowerCase();
-        filteredEvents = filteredEvents.filter(event => 
+        filteredEvents = filteredEvents.filter(event =>
           event.title.toLowerCase().includes(searchLower) ||
           event.description?.toLowerCase().includes(searchLower) ||
           event.room?.toLowerCase().includes(searchLower) ||
@@ -76,7 +76,7 @@ export const useTimeline = () => {
         );
       }
 
-      setEvents(filteredEvents);
+      setEvents(filteredEvents as TimelineEvent[]);
     } catch (error) {
       console.error('Unexpected error:', error);
     } finally {
@@ -87,7 +87,7 @@ export const useTimeline = () => {
   const addEvent = async (eventData: Omit<TimelineEvent, 'id' | 'created_at' | 'updated_at'>) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         toast({
           title: "Authentication required",
@@ -116,7 +116,7 @@ export const useTimeline = () => {
         return false;
       }
 
-      setEvents(prev => [data, ...prev]);
+      setEvents(prev => [data as TimelineEvent, ...prev]);
       toast({
         title: "Success",
         description: "Timeline event added successfully",
@@ -147,7 +147,7 @@ export const useTimeline = () => {
         return false;
       }
 
-      setEvents(prev => prev.map(event => event.id === id ? data : event));
+      setEvents(prev => prev.map(event => event.id === id ? (data as TimelineEvent) : event));
       return true;
     } catch (error) {
       console.error('Unexpected error:', error);

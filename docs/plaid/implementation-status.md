@@ -139,9 +139,9 @@ if (imported > 0) {
 
 **Supabase Dashboard → Project Settings → Edge Functions → Secrets**:
 ```env
-PLAID_CLIENT_ID=your_plaid_client_id
-PLAID_SECRET=your_plaid_sandbox_secret  # or development/production secret
-PLAID_ENV=sandbox  # sandbox | development | production
+PLAID_CLIENT_ID=your_plaid_client_id  # From https://dashboard.plaid.com/team/keys
+PLAID_SECRET=your_plaid_sandbox_secret  # Secret for the environment you chose below
+PLAID_ENV=sandbox  # use 'sandbox' for testing, 'development' for building
 PLAID_WEBHOOK_URL=https://your-project.supabase.co/functions/v1/plaid-webhook  # optional
 ```
 

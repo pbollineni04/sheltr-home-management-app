@@ -36,7 +36,7 @@ const navItems = [
   { id: "vault", label: "Documents", icon: FolderLock, flag: featureFlags.documentVault },
   { id: "move", label: "Move", icon: Move, flag: featureFlags.moveInOut },
   { id: "helper", label: "Helper", icon: Brain, flag: featureFlags.sheltrHelper },
-  { id: "energy", label: "Energy", icon: Zap, flag: featureFlags.energyTracker },
+  { id: "energy", label: "Utilities", icon: Zap, flag: featureFlags.energyTracker },
   { id: "alerts", label: "Alerts", icon: Bell, flag: featureFlags.smartAlerts },
 ];
 

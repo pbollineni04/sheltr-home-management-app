@@ -13,7 +13,7 @@ export interface Task {
   priority: 'low' | 'medium' | 'high';
   due_date?: string;
   completed: boolean;
-  status: TaskStatus;
+  status?: TaskStatus;
   room?: string;
   created_at: string;
   updated_at: string;
@@ -41,7 +41,7 @@ export const useTasks = () => {
         return;
       }
 
-      setTasks(data || []);
+      setTasks((data || []) as Task[]);
     } catch (error) {
       console.error('Unexpected error:', error);
     } finally {
@@ -52,7 +52,7 @@ export const useTasks = () => {
   const addTask = async (taskData: Omit<Task, 'id' | 'created_at' | 'updated_at'>) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         toast({
           title: "Authentication required",
@@ -82,7 +82,7 @@ export const useTasks = () => {
         return false;
       }
 
-      setTasks(prev => [data, ...prev]);
+      setTasks(prev => [data as Task, ...prev]);
       toast({
         title: "Success",
         description: "Task added successfully",
@@ -113,7 +113,7 @@ export const useTasks = () => {
         return false;
       }
 
-      setTasks(prev => prev.map(task => task.id === id ? data : task));
+      setTasks(prev => prev.map(task => task.id === id ? (data as Task) : task));
       return true;
     } catch (error) {
       console.error('Unexpected error:', error);

@@ -70,7 +70,7 @@ export const useDocuments = () => {
       // Upload file to storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-      
+
       const { error: uploadError } = await supabase.storage
         .from('documents')
         .upload(fileName, file);
@@ -102,7 +102,7 @@ export const useDocuments = () => {
       if (error) throw error;
 
       await fetchDocuments();
-      
+
       toast({
         title: "Document uploaded successfully",
         description: `${file.name} has been uploaded to your vault.`
@@ -126,12 +126,12 @@ export const useDocuments = () => {
         .from('documents')
         .update(updates)
         .eq('id', id)
-        .eq('user_id', user?.id);
+        .eq('user_id', user!.id);
 
       if (error) throw error;
 
       await fetchDocuments();
-      
+
       toast({
         title: "Document updated",
         description: "Document has been updated successfully."
@@ -163,12 +163,12 @@ export const useDocuments = () => {
         .from('documents')
         .delete()
         .eq('id', id)
-        .eq('user_id', user?.id);
+        .eq('user_id', user!.id);
 
       if (error) throw error;
 
       await fetchDocuments();
-      
+
       toast({
         title: "Document deleted",
         description: "Document has been permanently deleted."
@@ -188,7 +188,7 @@ export const useDocuments = () => {
       if (!document.file_url) return;
 
       const filePath = document.file_url.split('/').slice(-2).join('/');
-      
+
       const { data, error } = await supabase.storage
         .from('documents')
         .download(filePath);
@@ -226,14 +226,14 @@ export const useDocuments = () => {
       acc[cat] = (acc[cat] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
-    
+
     const byType = documents.reduce((acc, doc) => {
       acc[doc.type] = (acc[doc.type] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
 
     const totalSize = documents.reduce((sum, doc) => sum + (doc.file_size || 0), 0);
-    
+
     const recentUploads = documents.filter(doc => {
       const uploadDate = new Date(doc.upload_date);
       const sevenDaysAgo = new Date();

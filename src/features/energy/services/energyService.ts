@@ -14,7 +14,7 @@ export class EnergyService {
   /**
    * Create a new utility reading
    */
-  static async createReading(reading: UtilityReadingInsert): Promise<UtilityReadingRow> {
+  static async createReading(reading: Omit<UtilityReadingInsert, 'user_id'>): Promise<UtilityReadingRow> {
     const userRes = await supabase.auth.getUser();
     const userId = userRes.data.user?.id;
     if (!userId) throw new Error("Not authenticated");
@@ -327,11 +327,11 @@ export class EnergyService {
 
     // Calculate average usage for current period
     const currentAvg = currentReadings.reduce((sum, r) => sum + r.usage_amount, 0) /
-                       Math.max(currentReadings.length, 1);
+      Math.max(currentReadings.length, 1);
 
     // Calculate historical average (last 12 months)
     const historicalAvg = historicalReadings.reduce((sum, r) => sum + r.usage_amount, 0) /
-                          historicalReadings.length;
+      historicalReadings.length;
 
     if (historicalAvg === 0) return 50;
 
@@ -417,7 +417,7 @@ export class EnergyService {
 
     // Create timeline entry
     const utilityLabel = reading.utility_type.charAt(0).toUpperCase() +
-                        reading.utility_type.slice(1);
+      reading.utility_type.slice(1);
 
     const { error: timelineError } = await supabase
       .from("timeline_events")

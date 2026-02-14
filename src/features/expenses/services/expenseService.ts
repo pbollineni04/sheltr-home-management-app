@@ -23,7 +23,7 @@ export class ExpenseService {
     if (createdExpense.amount >= 200) {
       try {
         // Check if timeline entry suggestion has been dismissed for this expense
-        const isDismissed = createdExpense.metadata?.timeline_suggestion_dismissed;
+        const isDismissed = (createdExpense.metadata as Record<string, unknown> | null)?.timeline_suggestion_dismissed;
 
         if (!isDismissed) {
           // Mark expense as having a timeline suggestion
@@ -31,7 +31,7 @@ export class ExpenseService {
             .from("expenses")
             .update({
               metadata: {
-                ...(createdExpense.metadata || {}),
+                ...((createdExpense.metadata as Record<string, unknown>) || {}),
                 timeline_suggestion: true
               }
             })
@@ -88,7 +88,7 @@ export class ExpenseService {
       .from("expenses")
       .update({
         metadata: {
-          ...(expense.metadata || {}),
+          ...((expense.metadata as Record<string, unknown>) || {}),
           timeline_suggestion: false,
           timeline_created: true
         }
@@ -114,7 +114,7 @@ export class ExpenseService {
       .from("expenses")
       .update({
         metadata: {
-          ...(expense?.metadata || {}),
+          ...((expense?.metadata as Record<string, unknown>) || {}),
           timeline_suggestion: false,
           timeline_suggestion_dismissed: true
         }

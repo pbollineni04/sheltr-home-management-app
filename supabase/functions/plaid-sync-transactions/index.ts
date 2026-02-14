@@ -20,19 +20,31 @@ import {
 import { getSupabaseAdmin, verifyUserToken } from '../_shared/supabase-admin.ts';
 
 serve(async (req) => {
+  console.log('Plaid Sync Transactions function started');
+
   if (req.method !== 'POST') {
+    console.error('Method not allowed:', req.method);
     return errorResponse('Method not allowed', 405);
   }
 
   try {
+    // Verify environment variables
+    const clientId = Deno.env.get('PLAID_CLIENT_ID');
+    const secret = Deno.env.get('PLAID_SECRET');
+    console.log(`Env Check: PLAID_CLIENT_ID=${!!clientId}, PLAID_SECRET=${!!secret}`);
+
     // Verify authentication
     const authHeader = req.headers.get('Authorization');
     const userId = await verifyUserToken(authHeader);
+    console.log('Authenticated user:', userId);
 
     // Get request body
-    const { item_id } = await req.json();
+    const body = await req.json();
+    const { item_id } = body;
+    console.log('Request body item_id:', item_id);
 
     if (!item_id) {
+      console.error('Missing required field: item_id');
       return errorResponse('Missing required field: item_id');
     }
 
@@ -47,8 +59,10 @@ serve(async (req) => {
       .single();
 
     if (itemError || !item) {
+      console.error('Item fetch error:', itemError);
       return errorResponse('Item not found or access denied', 404);
     }
+    console.log('Fetched access token for item');
 
     // Get current sync cursor
     const { data: syncState } = await supabase
@@ -58,15 +72,18 @@ serve(async (req) => {
       .maybeSingle();
 
     const cursor = syncState?.cursor || undefined;
+    console.log('Current cursor:', cursor);
 
     // Get Plaid client
     const plaidClient = getPlaidClient();
 
     // Fetch transactions from Plaid
+    console.log('Calling Plaid transactionsSync...');
     const syncResponse = await plaidClient.transactionsSync({
       access_token: item.access_token,
       cursor,
     });
+    console.log('Plaid sync successful. Added:', syncResponse.data.added.length);
 
     const { added, modified, removed, next_cursor } = syncResponse.data;
 
@@ -129,6 +146,7 @@ serve(async (req) => {
         );
 
         if (isDuplicate) {
+          console.log('Duplicate detected, skipping expense creation for:', tx.transaction_id);
           skipped++;
           continue;
         }
@@ -172,67 +190,74 @@ serve(async (req) => {
     }
 
     // Process modified transactions
-    for (const tx of modified) {
-      try {
-        // Update plaid_transactions_raw
-        await supabase
-          .from('plaid_transactions_raw')
-          .update({
-            amount: Math.abs(tx.amount),
-            iso_date: tx.date,
-            name: tx.name,
-            merchant_name: tx.merchant_name,
-            categories: tx.category,
-            pending: tx.pending,
-            json_raw: tx,
-          })
-          .eq('transaction_id', tx.transaction_id)
-          .eq('user_id', userId);
+    if (modified.length > 0) {
+      console.log('Processing modified transactions:', modified.length);
+      for (const tx of modified) {
+        try {
+          // Update plaid_transactions_raw
+          await supabase
+            .from('plaid_transactions_raw')
+            .update({
+              amount: Math.abs(tx.amount),
+              iso_date: tx.date,
+              name: tx.name,
+              merchant_name: tx.merchant_name,
+              categories: tx.category,
+              pending: tx.pending,
+              json_raw: tx,
+            })
+            .eq('transaction_id', tx.transaction_id)
+            .eq('user_id', userId);
 
-        // Update corresponding expense if exists
-        const { error: updateError } = await supabase
-          .from('expenses')
-          .update({
-            description: tx.merchant_name || tx.name,
-            amount: Math.abs(tx.amount),
-            date: tx.date,
-            vendor: tx.merchant_name,
-          })
-          .eq('plaid_transaction_id', tx.transaction_id)
-          .eq('user_id', userId);
+          // Update corresponding expense if exists
+          const { error: updateError } = await supabase
+            .from('expenses')
+            .update({
+              description: tx.merchant_name || tx.name,
+              amount: Math.abs(tx.amount),
+              date: tx.date,
+              vendor: tx.merchant_name,
+            })
+            .eq('plaid_transaction_id', tx.transaction_id)
+            .eq('user_id', userId);
 
-        if (!updateError) {
-          updated++;
+          if (!updateError) {
+            updated++;
+          }
+        } catch (error) {
+          console.error('Error updating transaction:', error);
+          continue;
         }
-      } catch (error) {
-        console.error('Error updating transaction:', error);
-        continue;
       }
     }
 
     // Process removed transactions
-    for (const removedTx of removed) {
-      try {
-        // Soft delete from plaid_transactions_raw
-        await supabase
-          .from('plaid_transactions_raw')
-          .delete()
-          .eq('transaction_id', removedTx.transaction_id)
-          .eq('user_id', userId);
+    if (removed.length > 0) {
+      console.log('Processing removed transactions:', removed.length);
+      for (const removedTx of removed) {
+        try {
+          // Soft delete from plaid_transactions_raw
+          await supabase
+            .from('plaid_transactions_raw')
+            .delete()
+            .eq('transaction_id', removedTx.transaction_id)
+            .eq('user_id', userId);
 
-        // Soft delete corresponding expense
-        await supabase
-          .from('expenses')
-          .update({ deleted_at: new Date().toISOString() })
-          .eq('plaid_transaction_id', removedTx.transaction_id)
-          .eq('user_id', userId);
-      } catch (error) {
-        console.error('Error removing transaction:', error);
-        continue;
+          // Soft delete corresponding expense
+          await supabase
+            .from('expenses')
+            .update({ deleted_at: new Date().toISOString() })
+            .eq('plaid_transaction_id', removedTx.transaction_id)
+            .eq('user_id', userId);
+        } catch (error) {
+          console.error('Error removing transaction:', error);
+          continue;
+        }
       }
     }
 
     // Update sync cursor
+    console.log('Updating sync cursor to:', next_cursor);
     await supabase
       .from('plaid_sync_state')
       .upsert({
@@ -248,8 +273,12 @@ serve(async (req) => {
       updated,
       removed: removed.length,
     });
-  } catch (error) {
-    console.error('Error syncing transactions:', error);
+  } catch (error: any) {
+    console.error('Critical error in plaid-sync-transactions:', error);
+    // Log detailed Plaid error if available
+    if (error?.response?.data) {
+      console.error('Plaid API Error Details:', JSON.stringify(error.response.data));
+    }
     return errorResponse(
       error instanceof Error ? error.message : 'Failed to sync transactions',
       500

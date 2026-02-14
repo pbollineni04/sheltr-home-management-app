@@ -39,7 +39,7 @@ export const useUtilityReadings = () => {
   };
 
   // Add new reading
-  const addReading = async (reading: UtilityReadingInsert): Promise<boolean> => {
+  const addReading = async (reading: Omit<UtilityReadingInsert, 'user_id'>): Promise<boolean> => {
     try {
       const newReading = await EnergyService.createReading(reading);
       setReadings(prev => [newReading, ...prev]);

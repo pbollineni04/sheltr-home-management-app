@@ -459,7 +459,7 @@ export const taskBundles: TaskBundle[] = [
 
 // Helper functions
 export const getTasksByCategory = (category: string, subcategory?: string) => {
-  return taskTemplates.filter(task => 
+  return taskTemplates.filter(task =>
     task.category === category && (!subcategory || task.subcategory === subcategory)
   );
 };
@@ -474,7 +474,7 @@ export const getSeasonalTasks = (season: 'spring' | 'summer' | 'fall' | 'winter'
 
 export const searchTasks = (query: string) => {
   const lowerQuery = query.toLowerCase();
-  return taskTemplates.filter(task => 
+  return taskTemplates.filter(task =>
     task.title.toLowerCase().includes(lowerQuery) ||
     task.description?.toLowerCase().includes(lowerQuery) ||
     task.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
@@ -484,10 +484,10 @@ export const searchTasks = (query: string) => {
 export const getTaskBundle = (bundleId: string) => {
   const bundle = taskBundles.find(b => b.id === bundleId);
   if (!bundle) return null;
-  
-  const tasks = bundle.tasks.map(taskId => 
+
+  const tasks = bundle.tasks.map(taskId =>
     taskTemplates.find(t => t.id === taskId)
-  ).filter(Boolean);
-  
+  ).filter(Boolean) as TaskTemplate[];
+
   return { ...bundle, taskTemplates: tasks };
 };

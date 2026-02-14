@@ -54,7 +54,7 @@ const Index = () => {
     vault: "Document Vault",
     move: "Move In/Out",
     helper: "Sheltr Helper",
-    energy: "Energy Tracker",
+    energy: "Utilities",
     alerts: "Smart Alerts",
   };
 
@@ -65,7 +65,7 @@ const Index = () => {
     tasks: "Manage your household to-dos",
     expenses: "Track your household spending",
     vault: "Your documents stored securely",
-    energy: "Monitor bills and usage across your household",
+    energy: "Monitor utility bills and usage across your household",
     alerts: "Stay on top of your home alerts",
     move: "Manage your move-in/out process",
     helper: "Your AI-powered home assistant",

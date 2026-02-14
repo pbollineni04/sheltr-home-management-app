@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { createLinkToken, exchangePublicToken, getLatestItemId, getSyncState, syncTransactions } from "@/integrations/plaid/plaidService";
 import { usePlaidLink } from "react-plaid-link";
+import { TransactionReviewModal } from "./TransactionReviewModal";
+import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
 
 export const ExpensePlaidControls = () => {
   const [itemId, setItemId] = useState<string | null>(null);
@@ -10,6 +13,10 @@ export const ExpensePlaidControls = () => {
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Review state
+  const [reviewCount, setReviewCount] = useState(0);
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
 
   // Load current item and sync state
   useEffect(() => {
@@ -31,6 +38,25 @@ export const ExpensePlaidControls = () => {
     })();
     return () => { mounted = false; };
   }, []);
+
+  // Fetch review count
+  const fetchReviewCount = async () => {
+    try {
+      const { count } = await supabase
+        .from('expenses')
+        .select('*', { count: 'exact', head: true })
+        .eq('needs_review', true);
+      setReviewCount(count || 0);
+    } catch (e) {
+      console.error("Failed to fetch review count", e);
+    }
+  };
+
+  useEffect(() => {
+    if (itemId) {
+      fetchReviewCount();
+    }
+  }, [itemId, lastSyncedAt]); // Refetch when item loads or sync finishes
 
   // Configure Plaid Link when we have a link token
   const plaidConfig = useMemo(() => ({
@@ -123,11 +149,29 @@ export const ExpensePlaidControls = () => {
           </Button>
         )}
         {itemId && (
-          <Button onClick={handleSync} disabled={syncing} className="btn-secondary-luxury">
-            {syncing ? 'Syncing…' : 'Sync Now'}
+          <Button onClick={handleSync} disabled={syncing} variant="outline" className="gap-2">
+            {syncing ? 'Syncing…' : 'Sync'}
+          </Button>
+        )}
+        {reviewCount > 0 && (
+          <Button onClick={() => setIsReviewOpen(true)} variant="default" className="gap-2 relative">
+            Review Needed
+            <Badge variant="destructive" className="ml-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px]">
+              {reviewCount}
+            </Badge>
           </Button>
         )}
       </div>
+
+      <TransactionReviewModal
+        isOpen={isReviewOpen}
+        onOpenChange={setIsReviewOpen}
+        onReviewComplete={() => {
+          fetchReviewCount();
+          // Optional: refresh main list if we had a callback
+          window.location.reload();
+        }}
+      />
     </div>
   );
 };
