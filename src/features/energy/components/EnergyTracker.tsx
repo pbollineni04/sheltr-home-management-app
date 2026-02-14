@@ -21,8 +21,10 @@ import {
   Wifi,
   Plug,
   Settings,
+  Trash2,
 } from "lucide-react";
 import { useUtilityReadings } from "../hooks/useUtilityReadings";
+import { EnergyService } from "../services/energyService";
 import AddReadingDialog from "./AddReadingDialog";
 import UsageChart from "./UsageChart";
 import CostBreakdownChart from "./CostBreakdownChart";
@@ -225,6 +227,20 @@ const EnergyTracker = () => {
               onClick={() => setShowSettings(!showSettings)}
             >
               <Settings className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-red-500 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/30"
+              onClick={async () => {
+                if (window.confirm("Clear all energy data? This cannot be undone.")) {
+                  await EnergyService.clearAllReadings();
+                  refetch();
+                }
+              }}
+              title="Clear all data (testing)"
+            >
+              <Trash2 className="w-4 h-4" />
             </Button>
           </div>
         </div>

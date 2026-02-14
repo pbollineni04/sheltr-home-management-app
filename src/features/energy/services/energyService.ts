@@ -129,6 +129,22 @@ export class EnergyService {
   }
 
   /**
+   * Delete all utility readings for the current user (testing only)
+   */
+  static async clearAllReadings(): Promise<void> {
+    const userRes = await supabase.auth.getUser();
+    const userId = userRes.data.user?.id;
+    if (!userId) throw new Error("Not authenticated");
+
+    const { error } = await supabase
+      .from("utility_readings")
+      .delete()
+      .eq("user_id", userId);
+
+    if (error) throw error;
+  }
+
+  /**
    * Delete a utility reading
    */
   static async deleteReading(id: string): Promise<void> {
