@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+export type TaskStatus = 'todo' | 'in_progress' | 'completed';
+
 export interface Task {
   id: string;
   title: string;
@@ -11,6 +13,7 @@ export interface Task {
   priority: 'low' | 'medium' | 'high';
   due_date?: string;
   completed: boolean;
+  status: TaskStatus;
   room?: string;
   created_at: string;
   updated_at: string;
@@ -63,6 +66,7 @@ export const useTasks = () => {
         .from('tasks')
         .insert([{
           ...taskData,
+          status: taskData.status ?? 'todo',
           user_id: user.id
         }])
         .select()
@@ -146,8 +150,9 @@ export const useTasks = () => {
     }
   };
 
-  const toggleTaskComplete = async (id: string, completed: boolean) => {
-    const success = await updateTask(id, { completed });
+  const updateTaskStatus = async (id: string, newStatus: TaskStatus) => {
+    const completed = newStatus === 'completed';
+    const success = await updateTask(id, { status: newStatus, completed });
 
     // Auto-create timeline entry for completed maintenance tasks
     if (success && completed) {
@@ -157,7 +162,6 @@ export const useTasks = () => {
           const { data: { user } } = await supabase.auth.getUser();
           if (!user) return success;
 
-          // Create timeline entry
           await supabase.from('timeline_events').insert([{
             user_id: user.id,
             title: task.title,
@@ -178,12 +182,15 @@ export const useTasks = () => {
           });
         } catch (error) {
           console.error('Error creating timeline entry:', error);
-          // Don't fail the task completion if timeline creation fails
         }
       }
     }
 
     return success;
+  };
+
+  const toggleTaskComplete = async (id: string, completed: boolean) => {
+    return updateTaskStatus(id, completed ? 'completed' : 'todo');
   };
 
   useEffect(() => {
@@ -197,6 +204,7 @@ export const useTasks = () => {
     updateTask,
     deleteTask,
     toggleTaskComplete,
+    updateTaskStatus,
     refetch: fetchTasks
   };
 };

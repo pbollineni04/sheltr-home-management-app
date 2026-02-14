@@ -47,7 +47,8 @@ const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
       priority: formData.priority,
       due_date: formData.due_date ?? "",
       room: formData.room ?? "",
-      completed: false
+      completed: false,
+      status: 'todo',
     });
 
     if (success) {
@@ -97,7 +98,8 @@ const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
         priority: template.priority,
         due_date: dueDate ?? "",
         room: template.suggested_room ?? "",
-        completed: false
+        completed: false,
+        status: 'todo',
       });
     }
     
