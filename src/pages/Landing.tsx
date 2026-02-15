@@ -6,6 +6,7 @@ import { FAQSection } from "@/components/landing/FAQSection";
 import { FinalCTA } from "@/components/landing/FinalCTA";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 import { LandingHeader } from "@/components/landing/LandingHeader";
+import { PricingSection } from "@/components/landing/PricingSection";
 
 const Landing = () => {
   return (
@@ -16,6 +17,7 @@ const Landing = () => {
         <ProblemSection />
         <FeaturesSection />
         <HowItWorksSection />
+        <PricingSection />
         <FAQSection />
         <FinalCTA />
       </main>

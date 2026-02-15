@@ -516,6 +516,210 @@ export type Database = {
         }
         Relationships: []
       }
+      service_providers: {
+        Row: {
+          category: string
+          created_at: string | null
+          email: string | null
+          id: string
+          is_favorite: boolean | null
+          metadata: Json | null
+          name: string
+          notes: string | null
+          phone: string | null
+          rating: number | null
+          updated_at: string | null
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          metadata?: Json | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          rating?: number | null
+          updated_at?: string | null
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          metadata?: Json | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          rating?: number | null
+          updated_at?: string | null
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      service_recurrences: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          end_date: string | null
+          estimated_cost: number | null
+          frequency: string
+          id: string
+          is_active: boolean | null
+          metadata: Json | null
+          next_due_date: string
+          provider_id: string | null
+          room: string | null
+          start_date: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          estimated_cost?: number | null
+          frequency?: string
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          next_due_date: string
+          provider_id?: string | null
+          room?: string | null
+          start_date: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          end_date?: string | null
+          estimated_cost?: number | null
+          frequency?: string
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          next_due_date?: string
+          provider_id?: string | null
+          room?: string | null
+          start_date?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_recurrences_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "service_providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      services: {
+        Row: {
+          actual_cost: number | null
+          attachments: Json | null
+          category: string
+          completed_date: string | null
+          created_at: string | null
+          description: string | null
+          estimated_cost: number | null
+          id: string
+          metadata: Json | null
+          priority: string
+          provider_id: string | null
+          recurrence_id: string | null
+          room: string | null
+          scheduled_date: string
+          scheduled_time: string | null
+          status: string
+          task_id: string | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          actual_cost?: number | null
+          attachments?: Json | null
+          category?: string
+          completed_date?: string | null
+          created_at?: string | null
+          description?: string | null
+          estimated_cost?: number | null
+          id?: string
+          metadata?: Json | null
+          priority?: string
+          provider_id?: string | null
+          recurrence_id?: string | null
+          room?: string | null
+          scheduled_date: string
+          scheduled_time?: string | null
+          status?: string
+          task_id?: string | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          actual_cost?: number | null
+          attachments?: Json | null
+          category?: string
+          completed_date?: string | null
+          created_at?: string | null
+          description?: string | null
+          estimated_cost?: number | null
+          id?: string
+          metadata?: Json | null
+          priority?: string
+          provider_id?: string | null
+          recurrence_id?: string | null
+          room?: string | null
+          scheduled_date?: string
+          scheduled_time?: string | null
+          status?: string
+          task_id?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "services_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "service_providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_recurrence_id_fkey"
+            columns: ["recurrence_id"]
+            isOneToOne: false
+            referencedRelation: "service_recurrences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           completed: boolean
@@ -590,6 +794,7 @@ export type Database = {
           metadata: Json | null
           room: string | null
           room_id: string | null
+          service_id: string | null
           tags: string[] | null
           task_id: string | null
           title: string
@@ -607,6 +812,7 @@ export type Database = {
           metadata?: Json | null
           room?: string | null
           room_id?: string | null
+          service_id?: string | null
           tags?: string[] | null
           task_id?: string | null
           title: string
@@ -624,6 +830,7 @@ export type Database = {
           metadata?: Json | null
           room?: string | null
           room_id?: string | null
+          service_id?: string | null
           tags?: string[] | null
           task_id?: string | null
           title?: string
@@ -636,6 +843,13 @@ export type Database = {
             columns: ["room_id"]
             isOneToOne: false
             referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "timeline_events_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
             referencedColumns: ["id"]
           },
           {
@@ -966,6 +1180,7 @@ export type Database = {
         | "purchase"
         | "inspection"
         | "utilities"
+        | "services"
       utility_type: "electricity" | "gas" | "water" | "internet"
     }
     CompositeTypes: {
@@ -1150,6 +1365,7 @@ export const Constants = {
         "purchase",
         "inspection",
         "utilities",
+        "services",
       ],
       utility_type: ["electricity", "gas", "water", "internet"],
     },

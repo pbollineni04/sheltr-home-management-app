@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { Home } from "lucide-react";
 
 export const LandingFooter = () => {
   const navigate = useNavigate();
@@ -12,7 +11,7 @@ export const LandingFooter = () => {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <Home className="w-6 h-6 text-primary" />
+              <img src="/sheltr-logo.svg" alt="Sheltr" className="w-8 h-8" />
               <span className="text-xl font-bold">Sheltr</span>
             </div>
             <p className="text-sm text-muted-foreground">
@@ -25,20 +24,13 @@ export const LandingFooter = () => {
             <h3 className="font-semibold">Product</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <button
-                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="hover:text-foreground transition-colors"
-                >
-                  Features
-                </button>
+                <a href="#features" className="hover:text-foreground transition-colors">Features</a>
               </li>
               <li>
-                <button
-                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="hover:text-foreground transition-colors"
-                >
-                  How It Works
-                </button>
+                <a href="#how-it-works" className="hover:text-foreground transition-colors">How It Works</a>
+              </li>
+              <li>
+                <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
               </li>
             </ul>
           </div>
@@ -48,12 +40,7 @@ export const LandingFooter = () => {
             <h3 className="font-semibold">Company</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <button
-                  onClick={() => navigate("/auth")}
-                  className="hover:text-foreground transition-colors"
-                >
-                  About
-                </button>
+                <button onClick={() => navigate("/auth")} className="hover:text-foreground transition-colors">About</button>
               </li>
             </ul>
           </div>
@@ -63,20 +50,10 @@ export const LandingFooter = () => {
             <h3 className="font-semibold">Legal</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <button
-                  onClick={() => navigate("/auth")}
-                  className="hover:text-foreground transition-colors"
-                >
-                  Privacy Policy
-                </button>
+                <button onClick={() => navigate("/auth")} className="hover:text-foreground transition-colors">Privacy Policy</button>
               </li>
               <li>
-                <button
-                  onClick={() => navigate("/auth")}
-                  className="hover:text-foreground transition-colors"
-                >
-                  Terms of Service
-                </button>
+                <button onClick={() => navigate("/auth")} className="hover:text-foreground transition-colors">Terms of Service</button>
               </li>
             </ul>
           </div>
