@@ -16,6 +16,7 @@ import {
   User,
   Menu,
   X,
+  Wrench,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/components/ui/use-toast";
@@ -33,6 +34,7 @@ const navItems = [
   { id: "timeline", label: "Timeline", icon: Calendar, flag: featureFlags.homeTimeline },
   { id: "tasks", label: "Tasks", icon: CheckSquare, flag: featureFlags.tasksLists },
   { id: "expenses", label: "Expenses", icon: DollarSign, flag: featureFlags.expenseTracker },
+  { id: "services", label: "Services", icon: Wrench, flag: featureFlags.services },
   { id: "vault", label: "Documents", icon: FolderLock, flag: featureFlags.documentVault },
   { id: "move", label: "Move", icon: Move, flag: featureFlags.moveInOut },
   { id: "helper", label: "Helper", icon: Brain, flag: featureFlags.sheltrHelper },

@@ -11,5 +11,6 @@ export const featureFlags = {
   smartAlerts: false,
   tasksLists: true,
   documentVault: true,
+  services: true,
   // Add more flags as needed
 }

@@ -12,6 +12,7 @@ import { HomeWealth } from "@/features/homewealth";
 import SidebarNavigation from "@/components/Navigation";
 import { EnergyTracker } from "@/features/energy";
 import { SmartAlerts } from "@/features/alerts";
+import { ServicesMain } from "@/features/services";
 import { pageHeader } from "@/lib/motion";
 
 const Index = () => {
@@ -31,6 +32,8 @@ const Index = () => {
         return featureFlags.expenseTracker ? <ExpenseTracker /> : null;
       case "vault":
         return featureFlags.documentVault ? <DocumentVault /> : null;
+      case "services":
+        return featureFlags.services ? <ServicesMain /> : null;
       case "move":
         return featureFlags.moveInOut ? <MoveInOut /> : null;
       case "helper":
@@ -52,6 +55,7 @@ const Index = () => {
     tasks: "Tasks",
     expenses: "Expenses",
     vault: "Document Vault",
+    services: "Services",
     move: "Move In/Out",
     helper: "Sheltr Helper",
     energy: "Utilities",
@@ -65,6 +69,7 @@ const Index = () => {
     tasks: "Manage your household to-dos",
     expenses: "Track your household spending",
     vault: "Your documents stored securely",
+    services: "Manage your home service providers and appointments",
     energy: "Monitor utility bills and usage across your household",
     alerts: "Stay on top of your home alerts",
     move: "Manage your move-in/out process",
