@@ -39,7 +39,7 @@ export const ProblemSection = () => {
           viewport={{ once: true, margin: "-60px" }}
         >
           {/* Problem 1 */}
-          <motion.div variants={itemVariants}>
+          <motion.div variants={itemVariants} whileHover={{ y: -5, transition: { duration: 0.2 } }}>
             <Card className="card-luxury h-full">
               <CardContent className="p-8 space-y-4">
                 <div className="w-14 h-14 rounded-2xl bg-red-100 dark:bg-red-950/30 flex items-center justify-center">
@@ -63,7 +63,7 @@ export const ProblemSection = () => {
           </motion.div>
 
           {/* Problem 2 */}
-          <motion.div variants={itemVariants}>
+          <motion.div variants={itemVariants} whileHover={{ y: -5, transition: { duration: 0.2 } }}>
             <Card className="card-luxury h-full">
               <CardContent className="p-8 space-y-4">
                 <div className="w-14 h-14 rounded-2xl bg-orange-100 dark:bg-orange-950/30 flex items-center justify-center">
@@ -86,7 +86,7 @@ export const ProblemSection = () => {
           </motion.div>
 
           {/* Problem 3 */}
-          <motion.div variants={itemVariants}>
+          <motion.div variants={itemVariants} whileHover={{ y: -5, transition: { duration: 0.2 } }}>
             <Card className="card-luxury h-full">
               <CardContent className="p-8 space-y-4">
                 <div className="w-14 h-14 rounded-2xl bg-yellow-100 dark:bg-yellow-950/30 flex items-center justify-center">

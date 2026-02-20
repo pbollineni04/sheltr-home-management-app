@@ -54,17 +54,22 @@ export const HowItWorksSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.5, delay: index * 0.15 }}
+              whileHover={{ y: -5, transition: { duration: 0.2 } }}
             >
-              <Card className="card-luxury text-center hover:shadow-xl transition-all duration-300 relative z-10">
+              <Card className="card-luxury text-center hover:shadow-xl transition-all duration-300 relative z-10 group">
                 <CardContent className="p-8 space-y-4">
                   {/* Icon with step number badge */}
                   <div className="relative inline-block">
-                    <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center">
-                      <step.icon className="w-8 h-8 text-primary" />
+                    <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                      <step.icon className="w-8 h-8 text-primary group-hover:rotate-6 transition-transform" />
                     </div>
-                    <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold shadow-md">
+                    <motion.div
+                      className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold shadow-md"
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ repeat: Infinity, duration: 2, delay: index * 0.5 }}
+                    >
                       {step.number}
-                    </div>
+                    </motion.div>
                   </div>
 
                   {/* Content */}

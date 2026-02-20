@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, Play, Shield, CreditCard, Zap } from "lucide-react";
 import { motion } from "framer-motion";
+import { HeroDashboardMockup } from "./HeroDashboardMockup";
 
 export const HeroSection = () => {
   const navigate = useNavigate();
@@ -85,22 +86,16 @@ export const HeroSection = () => {
             </div>
           </motion.div>
 
-          {/* Right: Hero Image */}
+          {/* Right: Dynamic Hero Mockup */}
           <motion.div
             className="relative"
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, ease: "easeOut", delay: 0.15 }}
           >
-            <div className="relative rounded-xl border-2 border-border shadow-2xl overflow-hidden">
-              <img
-                src="/screenshots/dashboard-hero.png"
-                alt="Sheltr Dashboard showing expense tracking, tasks, and home timeline"
-                className="w-full h-auto"
-              />
-            </div>
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl -z-10" />
-            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl -z-10" />
+            <HeroDashboardMockup />
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl z-0" />
+            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl z-0" />
           </motion.div>
         </div>
       </div>

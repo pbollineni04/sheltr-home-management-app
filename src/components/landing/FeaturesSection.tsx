@@ -20,19 +20,25 @@ const features = [
           <TrendingUp className="w-3 h-3" />
           12% under budget
         </div>
-        <div className="space-y-2 pt-2">
+        <div className="space-y-4 pt-2">
           {[
-            { label: "Utilities", amount: "$420", pct: 60 },
-            { label: "Maintenance", amount: "$890", pct: 85 },
-            { label: "Services", amount: "$340", pct: 45 },
+            { label: "Utilities", amount: "$420", pct: 60, delay: 0.1 },
+            { label: "Maintenance", amount: "$890", pct: 85, delay: 0.2 },
+            { label: "Services", amount: "$340", pct: 45, delay: 0.3 },
           ].map((item) => (
-            <div key={item.label} className="space-y-1">
+            <div key={item.label} className="space-y-2">
               <div className="flex justify-between text-xs text-muted-foreground">
                 <span>{item.label}</span>
                 <span>{item.amount}</span>
               </div>
-              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                <div className="h-full bg-green-500 dark:bg-green-400 rounded-full" style={{ width: `${item.pct}%` }} />
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <motion.div
+                  className="h-full w-full bg-green-500 dark:bg-green-400 rounded-full origin-left"
+                  initial={{ scaleX: 0 }}
+                  whileInView={{ scaleX: item.pct / 100 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1, ease: "easeOut", delay: item.delay }}
+                />
               </div>
             </div>
           ))}
@@ -50,18 +56,25 @@ const features = [
       <div className="space-y-2 p-4">
         <div className="text-sm font-semibold text-foreground mb-3">Maintenance Tasks</div>
         {[
-          { text: "Replace HVAC filter", done: true, due: "Done" },
-          { text: "Clean gutters", done: false, due: "Mar 1" },
-          { text: "Test smoke detectors", done: false, due: "Mar 15" },
-          { text: "Service water heater", done: false, due: "Apr 1" },
-        ].map((task) => (
-          <div key={task.text} className="flex items-center gap-3 p-2 rounded-lg bg-background/60">
+          { text: "Replace HVAC filter", done: true, due: "Done", delay: 0.1 },
+          { text: "Clean gutters", done: false, due: "Mar 1", delay: 0.2 },
+          { text: "Test smoke detectors", done: false, due: "Mar 15", delay: 0.3 },
+          { text: "Service water heater", done: false, due: "Apr 1", delay: 0.4 },
+        ].map((task, i) => (
+          <motion.div
+            key={task.text}
+            className="flex items-center gap-3 p-2.5 rounded-lg bg-background/80 shadow-sm"
+            initial={{ opacity: 0, x: -10 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: task.delay }}
+          >
             <div className={`w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${task.done ? "bg-blue-500 border-blue-500" : "border-muted-foreground/30"}`}>
               {task.done && <CheckSquare className="w-3 h-3 text-white" />}
             </div>
-            <span className={`text-xs flex-1 ${task.done ? "line-through text-muted-foreground" : "text-foreground"}`}>{task.text}</span>
-            <span className="text-xs text-muted-foreground">{task.due}</span>
-          </div>
+            <span className={`text-xs flex-1 ${task.done ? "line-through text-muted-foreground" : "text-foreground font-medium"}`}>{task.text}</span>
+            <span className="text-[10px] text-muted-foreground font-medium">{task.due}</span>
+          </motion.div>
         ))}
       </div>
     ),
@@ -76,23 +89,46 @@ const features = [
       <div className="space-y-3 p-4">
         <div className="text-sm font-semibold text-foreground mb-3">Recent History</div>
         {[
-          { title: "Roof inspection", date: "Feb 10", icon: "🏠", cat: "Inspection" },
-          { title: "New dishwasher", date: "Jan 28", icon: "🔧", cat: "Purchase" },
-          { title: "Furnace serviced", date: "Jan 15", icon: "⚙️", cat: "Maintenance" },
+          { title: "Roof inspection", date: "Feb 10", icon: "🏠", cat: "Inspection", delay: 0.1 },
+          { title: "New dishwasher", date: "Jan 28", icon: "🔧", cat: "Purchase", delay: 0.3 },
+          { title: "Furnace serviced", date: "Jan 15", icon: "⚙️", cat: "Maintenance", delay: 0.5 },
         ].map((event, i) => (
-          <div key={event.title} className="flex gap-3">
+          <motion.div
+            key={event.title}
+            className="flex gap-4"
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: event.delay }}
+          >
             <div className="flex flex-col items-center">
-              <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-950/50 flex items-center justify-center text-sm">{event.icon}</div>
-              {i < 2 && <div className="w-0.5 flex-1 bg-border mt-1" />}
+              <motion.div
+                className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-950/50 flex items-center justify-center text-lg shadow-sm"
+                initial={{ scale: 0 }}
+                whileInView={{ scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ type: "spring", stiffness: 200, delay: event.delay }}
+              >
+                {event.icon}
+              </motion.div>
+              {i < 2 && (
+                <motion.div
+                  className="w-0.5 h-8 bg-purple-200 dark:bg-purple-900/50 mt-2 origin-top"
+                  initial={{ scaleY: 0 }}
+                  whileInView={{ scaleY: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: event.delay + 0.2 }}
+                />
+              )}
             </div>
-            <div className="pb-3">
-              <p className="text-xs font-medium text-foreground">{event.title}</p>
-              <div className="flex gap-2 items-center">
+            <div className="pb-4 pt-1">
+              <p className="text-sm font-semibold text-foreground">{event.title}</p>
+              <div className="flex gap-2 items-center mt-1">
                 <span className="text-xs text-muted-foreground">{event.date}</span>
-                <span className="text-xs px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-950/30 text-purple-600 dark:text-purple-400">{event.cat}</span>
+                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400">{event.cat}</span>
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     ),
@@ -111,18 +147,30 @@ const features = [
         </div>
         <div className="grid grid-cols-2 gap-2">
           {[
-            { name: "Home Insurance", type: "PDF", size: "2.1 MB" },
-            { name: "Roof Warranty", type: "PDF", size: "840 KB" },
-            { name: "HVAC Manual", type: "PDF", size: "5.4 MB" },
-            { name: "Property Tax", type: "PDF", size: "1.2 MB" },
+            { name: "Home Insurance", type: "PDF", size: "2.1 MB", delay: 0.1 },
+            { name: "Roof Warranty", type: "PDF", size: "840 KB", delay: 0.2 },
+            { name: "HVAC Manual", type: "PDF", size: "5.4 MB", delay: 0.3 },
+            { name: "Property Tax", type: "PDF", size: "1.2 MB", delay: 0.4 },
           ].map((doc) => (
-            <div key={doc.name} className="p-2.5 rounded-lg bg-background/60 space-y-1">
-              <div className="w-6 h-7 rounded bg-orange-100 dark:bg-orange-950/30 flex items-center justify-center">
-                <FileText className="w-3.5 h-3.5 text-orange-500" />
+            <motion.div
+              key={doc.name}
+              className="p-3 rounded-xl bg-background border border-border/50 shadow-sm space-y-2 hover:border-orange-200 transition-colors"
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: doc.delay }}
+            >
+              <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-950/30 flex items-center justify-center">
+                <FileText className="w-4 h-4 text-orange-500" />
               </div>
-              <p className="text-xs font-medium text-foreground truncate">{doc.name}</p>
-              <p className="text-xs text-muted-foreground">{doc.size}</p>
-            </div>
+              <div>
+                <p className="text-xs font-semibold text-foreground truncate">{doc.name}</p>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <span className="text-[10px] uppercase font-bold text-orange-600 dark:text-orange-400">{doc.type}</span>
+                  <span className="text-[10px] text-muted-foreground">{doc.size}</span>
+                </div>
+              </div>
+            </motion.div>
           ))}
         </div>
       </div>

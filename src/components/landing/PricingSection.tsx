@@ -63,58 +63,68 @@ export const PricingSection = () => {
 
         <motion.div
           className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial="hidden"
+          whileInView="visible"
           viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.5, delay: 0.1 }}
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.15 } }
+          }}
         >
           {plans.map((plan) => (
-            <Card
+            <motion.div
               key={plan.name}
-              className={`card-luxury relative overflow-hidden transition-all duration-300 hover:shadow-xl ${
-                plan.highlighted ? "border-primary ring-2 ring-primary/20" : ""
-              }`}
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
+              }}
+              whileHover={{ y: -5, transition: { duration: 0.2 } }}
             >
-              {plan.badge && (
-                <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-bl-lg flex items-center gap-1">
-                  <Star className="w-3 h-3" />
-                  {plan.badge}
-                </div>
-              )}
-              <CardContent className="p-8 space-y-6">
-                <div>
-                  <h3 className="text-2xl font-bold">{plan.name}</h3>
-                  <p className="text-muted-foreground text-sm mt-1">{plan.description}</p>
-                </div>
+              <Card
+                className={`card-luxury relative overflow-hidden transition-all duration-300 hover:shadow-xl h-full ${plan.highlighted ? "border-primary ring-2 ring-primary/20" : ""
+                  }`}
+              >
+                {plan.badge && (
+                  <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-bl-lg flex items-center gap-1">
+                    <Star className="w-3 h-3" />
+                    {plan.badge}
+                  </div>
+                )}
+                <CardContent className="p-8 space-y-6">
+                  <div>
+                    <h3 className="text-2xl font-bold">{plan.name}</h3>
+                    <p className="text-muted-foreground text-sm mt-1">{plan.description}</p>
+                  </div>
 
-                <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold">{plan.price}</span>
-                  <span className="text-muted-foreground">{plan.period}</span>
-                  {plan.originalPrice && (
-                    <span className="ml-2 text-sm text-muted-foreground line-through">
-                      {plan.originalPrice}/mo
-                    </span>
-                  )}
-                </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-bold">{plan.price}</span>
+                    <span className="text-muted-foreground">{plan.period}</span>
+                    {plan.originalPrice && (
+                      <span className="ml-2 text-sm text-muted-foreground line-through">
+                        {plan.originalPrice}/mo
+                      </span>
+                    )}
+                  </div>
 
-                <ul className="space-y-3">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-3">
-                      <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                      <span className="text-sm text-foreground">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+                  <ul className="space-y-3">
+                    {plan.features.map((feature) => (
+                      <li key={feature} className="flex items-start gap-3">
+                        <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                        <span className="text-sm text-foreground">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
 
-                <Button
-                  className={`w-full py-5 ${plan.highlighted ? "btn-primary-luxury" : ""}`}
-                  variant={plan.highlighted ? "default" : "outline"}
-                  onClick={() => navigate("/auth?mode=signup")}
-                >
-                  {plan.cta}
-                </Button>
-              </CardContent>
-            </Card>
+                  <Button
+                    className={`w-full py-5 ${plan.highlighted ? "btn-primary-luxury" : ""}`}
+                    variant={plan.highlighted ? "default" : "outline"}
+                    onClick={() => navigate("/auth?mode=signup")}
+                  >
+                    {plan.cta}
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
         </motion.div>
       </div>
