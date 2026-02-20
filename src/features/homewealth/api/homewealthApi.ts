@@ -13,6 +13,7 @@ export interface Property {
     property_type: PropertyType;
     year_built?: number | null;
     sqft?: number | null;
+    lot_size?: number | null;
     bedrooms?: number | null;
     bathrooms?: number | null;
     purchase_price?: number | null;
@@ -23,6 +24,10 @@ export interface Property {
     loan_term_years: number;
     monthly_rental_income?: number | null;
     estimated_monthly_expenses?: number | null;
+    property_taxes?: number | null;
+    tax_year?: number | null;
+    last_sale_price?: number | null;
+    last_sale_date?: string | null;
     last_avm_sync?: string | null;
     created_at: string;
     updated_at: string;

@@ -19,6 +19,18 @@ import {
     Activity,
     Plus,
     RefreshCw,
+    Gauge,
+    Award,
+    AlertTriangle,
+    Clock,
+    Building2,
+    Ruler,
+    MapPin,
+    Shield,
+    BedDouble,
+    Bath,
+    Calendar,
+    Receipt,
 } from "lucide-react";
 import { staggerContainer, staggerContainerFast, fadeUpItem } from "@/lib/motion";
 import { Button } from "@/components/ui/button";
@@ -130,7 +142,7 @@ const HomeWealth = () => {
         )
     }
 
-    // Map DB data or fallback to defaults
+    // ─── Core Data ───
     const currentPropertyValue = property.current_value || 0;
     const currentMortgageDebt = property.current_mortgage_debt || 0;
     const currentEquity = currentPropertyValue - currentMortgageDebt;
@@ -146,21 +158,93 @@ const HomeWealth = () => {
     const projectedValue = currentPropertyValue + totalROI + (currentPropertyValue * marketTrend) / 100;
 
     const yoyAppreciation = originalPurchasePrice > 0 ? (
-        ((currentPropertyValue - originalPurchasePrice) / originalPurchasePrice) *
-        100
+        ((currentPropertyValue - originalPurchasePrice) / originalPurchasePrice) * 100
     ).toFixed(1) : "0.0";
+
+    // ─── Real Mortgage Calculation ───
+    const monthlyRate = (property.interest_rate || 6.5) / 100 / 12;
+    const totalPayments = (property.loan_term_years || 30) * 12;
+    const monthlyMortgage = currentMortgageDebt > 0 && monthlyRate > 0
+        ? (currentMortgageDebt * monthlyRate * Math.pow(1 + monthlyRate, totalPayments))
+        / (Math.pow(1 + monthlyRate, totalPayments) - 1)
+        : 0;
 
     const rentalIncome = property.monthly_rental_income || 0;
     const estimatedExpenses = property.estimated_monthly_expenses || 0;
-    const monthlyMortgage = 2100; // Simplified for MVP, ideally calculate from debt + interest
     const netRentalIncome = rentalIncome - monthlyMortgage - estimatedExpenses;
 
-    // Profit Calculator
+    // ─── Profit Calculator ───
     const salePrice = projectedValue;
     const agentCommission = salePrice * 0.06;
     const closingCosts = salePrice * 0.02;
     const remainingMortgage = currentMortgageDebt;
     const netProceeds = salePrice - agentCommission - closingCosts - remainingMortgage;
+
+    // ─── Derived Insights ───
+    const pricePerSqft = property.sqft && currentPropertyValue > 0
+        ? Math.round(currentPropertyValue / property.sqft) : null;
+
+    const avgCompPricePerSqft = compSalesData.length > 0
+        ? Math.round(compSalesData.reduce((s, c) => s + (c.price_per_sqft || 0), 0) / compSalesData.filter(c => c.price_per_sqft).length)
+        : null;
+
+    const priceVsCompsPct = pricePerSqft && avgCompPricePerSqft
+        ? ((pricePerSqft - avgCompPricePerSqft) / avgCompPricePerSqft * 100).toFixed(1)
+        : null;
+
+    const taxRate = property.property_taxes && currentPropertyValue > 0
+        ? ((property.property_taxes / currentPropertyValue) * 100).toFixed(2) : null;
+
+    const monthsSincePurchase = property.purchase_date
+        ? Math.max(1, Math.round((Date.now() - new Date(property.purchase_date).getTime()) / (1000 * 60 * 60 * 24 * 30)))
+        : null;
+
+    const totalAppreciation = currentPropertyValue - originalPurchasePrice;
+    const monthlyEquityVelocity = monthsSincePurchase
+        ? Math.round((totalAppreciation + (originalPurchasePrice > 0 ? originalPurchasePrice * 0.02 * (monthsSincePurchase / 12) : 0)) / monthsSincePurchase)
+        : null;
+
+    const yearsSincePurchase = monthsSincePurchase ? monthsSincePurchase / 12 : null;
+    const annualAppreciation = yearsSincePurchase && yearsSincePurchase > 0
+        ? Math.round(totalAppreciation / yearsSincePurchase) : null;
+
+    // ─── Data Freshness ───
+    const daysSinceSync = property.last_avm_sync
+        ? Math.floor((Date.now() - new Date(property.last_avm_sync).getTime()) / (1000 * 60 * 60 * 24))
+        : null;
+
+    // ─── Investment Scorecard ───
+    const getGrade = (score: number): { grade: string; color: string } => {
+        if (score >= 4) return { grade: 'A', color: 'text-emerald-600 dark:text-emerald-400' };
+        if (score >= 3) return { grade: 'B', color: 'text-blue-600 dark:text-blue-400' };
+        if (score >= 2) return { grade: 'C', color: 'text-yellow-600 dark:text-yellow-400' };
+        return { grade: 'D', color: 'text-red-600 dark:text-red-400' };
+    };
+
+    const ltvNum = parseFloat(ltvRatio);
+    const equityGrade = getGrade(ltvNum < 60 ? 4 : ltvNum < 80 ? 3 : ltvNum < 90 ? 2 : 1);
+    const cashFlowGrade = getGrade(netRentalIncome > 200 ? 4 : netRentalIncome > 0 ? 3 : netRentalIncome > -200 ? 2 : 1);
+    const appreciationGrade = getGrade(parseFloat(yoyAppreciation) > 5 ? 4 : parseFloat(yoyAppreciation) > 3 ? 3 : parseFloat(yoyAppreciation) > 0 ? 2 : 1);
+    const taxGrade = taxRate ? getGrade(parseFloat(taxRate) < 0.9 ? 4 : parseFloat(taxRate) < 1.2 ? 3 : parseFloat(taxRate) < 1.5 ? 2 : 1) : getGrade(3);
+    const compGrade = priceVsCompsPct ? getGrade(parseFloat(priceVsCompsPct) < -10 ? 4 : parseFloat(priceVsCompsPct) < 0 ? 3 : parseFloat(priceVsCompsPct) < 10 ? 2 : 1) : getGrade(3);
+
+    // ─── Smart Alerts ───
+    const alerts: { icon: typeof Info; variant: 'info' | 'success' | 'warning'; message: string }[] = [];
+    if (taxRate && parseFloat(taxRate) > 1.5) {
+        alerts.push({ icon: Receipt, variant: 'warning', message: `Your effective tax rate (${taxRate}%) is above the national average. Consider appealing your assessment.` });
+    }
+    if (priceVsCompsPct && parseFloat(priceVsCompsPct) < -10) {
+        alerts.push({ icon: TrendingUp, variant: 'info', message: `Your home is valued ${Math.abs(parseFloat(priceVsCompsPct))}% below neighborhood comps — potential equity upside.` });
+    }
+    if (ltvNum < 80 && ltvNum > 0) {
+        alerts.push({ icon: Shield, variant: 'success', message: `Your LTV is ${ltvRatio}% — you may qualify to remove PMI. Contact your lender.` });
+    }
+    if (daysSinceSync !== null && daysSinceSync > 60) {
+        alerts.push({ icon: RefreshCw, variant: 'warning', message: `Market data is ${daysSinceSync} days old. Sync to get the latest valuation.` });
+    }
+    if (totalAppreciation > 0 && originalPurchasePrice > 0 && (totalAppreciation / originalPurchasePrice) > 0.2) {
+        alerts.push({ icon: Award, variant: 'success', message: `Your home has appreciated ${((totalAppreciation / originalPurchasePrice) * 100).toFixed(0)}% since purchase — congratulations!` });
+    }
 
     const toggleImprovement = (id: string, currentStatus: boolean) => {
         toggleMutation.mutate({ id, completed: !currentStatus });
@@ -210,15 +294,23 @@ const HomeWealth = () => {
                 initial={{ opacity: 0, y: -12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-                className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-6 md:p-8 text-white shadow-xl flex justify-between items-center"
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row justify-between md:items-center gap-4"
             >
                 <div className="flex items-center gap-3">
                     <TrendingUp size={36} />
                     <div>
                         <h1 className="text-3xl md:text-4xl font-bold">HomeWealth</h1>
-                        <p className="text-emerald-100 text-sm md:text-base mt-1">
-                            {property.address_line1}, {property.city}
-                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                            <p className="text-emerald-100 text-sm md:text-base">
+                                {property.address_line1}, {property.city}
+                            </p>
+                            {daysSinceSync !== null && (
+                                <span className={`text-xs px-2 py-0.5 rounded-full ${daysSinceSync < 30 ? 'bg-emerald-500/30' : 'bg-yellow-500/30'}`}>
+                                    <Clock size={10} className="inline mr-1" />
+                                    Synced {daysSinceSync}d ago
+                                </span>
+                            )}
+                        </div>
                     </div>
                 </div>
                 <div className="flex gap-2">
@@ -241,34 +333,231 @@ const HomeWealth = () => {
                 </div>
             </motion.div>
 
-            {/* Live Market Pulse */}
+            {/* Property Overview Card */}
+            <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.05 }}
+                className="bg-card rounded-xl shadow-lg border border-border p-6"
+            >
+                <div className="flex items-center gap-2 mb-4">
+                    <Building2 className="text-slate-600 dark:text-slate-400" size={20} />
+                    <h3 className="text-lg font-bold text-foreground">Property Overview</h3>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    {property.property_type && (
+                        <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+                            <Home size={16} className="text-muted-foreground shrink-0" />
+                            <div>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Type</p>
+                                <p className="text-sm font-semibold text-foreground capitalize">{property.property_type.replace('_', ' ')}</p>
+                            </div>
+                        </div>
+                    )}
+                    {(property.bedrooms || property.bathrooms) && (
+                        <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+                            <BedDouble size={16} className="text-muted-foreground shrink-0" />
+                            <div>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Beds / Baths</p>
+                                <p className="text-sm font-semibold text-foreground">{property.bedrooms || '—'} bd · {property.bathrooms || '—'} ba</p>
+                            </div>
+                        </div>
+                    )}
+                    {property.sqft && (
+                        <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+                            <Ruler size={16} className="text-muted-foreground shrink-0" />
+                            <div>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Sq Ft</p>
+                                <p className="text-sm font-semibold text-foreground">{property.sqft.toLocaleString()}</p>
+                            </div>
+                        </div>
+                    )}
+                    {property.year_built && (
+                        <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+                            <Calendar size={16} className="text-muted-foreground shrink-0" />
+                            <div>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Built</p>
+                                <p className="text-sm font-semibold text-foreground">{property.year_built} ({new Date().getFullYear() - property.year_built} yrs)</p>
+                            </div>
+                        </div>
+                    )}
+                    {property.purchase_price && (
+                        <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+                            <DollarSign size={16} className="text-muted-foreground shrink-0" />
+                            <div>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Purchased</p>
+                                <p className="text-sm font-semibold text-foreground">{formatCurrency(property.purchase_price)}</p>
+                            </div>
+                        </div>
+                    )}
+                    {property.property_taxes && (
+                        <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+                            <Receipt size={16} className="text-muted-foreground shrink-0" />
+                            <div>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Taxes{property.tax_year ? ` (${property.tax_year})` : ''}</p>
+                                <p className="text-sm font-semibold text-foreground">{formatCurrency(property.property_taxes)}/yr</p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </motion.div>
+
+            {/* Smart Alerts */}
+            {alerts.length > 0 && (
+                <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.08 }}
+                    className="space-y-2"
+                >
+                    {alerts.map((alert, i) => {
+                        const AlertIcon = alert.icon;
+                        const bgMap = {
+                            info: 'bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200',
+                            success: 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200',
+                            warning: 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200',
+                        };
+                        return (
+                            <div key={i} className={`flex items-center gap-3 p-3 rounded-lg border ${bgMap[alert.variant]}`}>
+                                <AlertIcon size={18} className="shrink-0" />
+                                <p className="text-sm">{alert.message}</p>
+                            </div>
+                        );
+                    })}
+                </motion.div>
+            )}
+
+            {/* Smart Insights Row */}
             <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.1 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+            >
+                {monthlyEquityVelocity !== null && (
+                    <div className="bg-card rounded-xl shadow-lg border border-border p-5">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Gauge size={18} className="text-emerald-600 dark:text-emerald-400" />
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Equity Velocity</span>
+                        </div>
+                        <p className="text-2xl font-bold text-foreground tabular-nums">~{formatCurrency(monthlyEquityVelocity)}<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
+                        <p className="text-xs text-muted-foreground mt-1">From appreciation + principal paydown</p>
+                    </div>
+                )}
+                {pricePerSqft !== null && (
+                    <div className="bg-card rounded-xl shadow-lg border border-border p-5">
+                        <div className="flex items-center gap-2 mb-2">
+                            <MapPin size={18} className="text-blue-600 dark:text-blue-400" />
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Price vs. Neighbors</span>
+                        </div>
+                        <p className="text-2xl font-bold text-foreground tabular-nums">${pricePerSqft}<span className="text-sm font-normal text-muted-foreground">/sf</span></p>
+                        {avgCompPricePerSqft && priceVsCompsPct && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                                Avg comp: ${avgCompPricePerSqft}/sf ·{' '}
+                                <span className={parseFloat(priceVsCompsPct) < 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}>
+                                    {parseFloat(priceVsCompsPct) < 0 ? `${Math.abs(parseFloat(priceVsCompsPct))}% below` : `${priceVsCompsPct}% above`}
+                                </span>
+                            </p>
+                        )}
+                    </div>
+                )}
+                {taxRate !== null && (
+                    <div className="bg-card rounded-xl shadow-lg border border-border p-5">
+                        <div className="flex items-center gap-2 mb-2">
+                            <Receipt size={18} className="text-purple-600 dark:text-purple-400" />
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Tax Burden</span>
+                        </div>
+                        <p className="text-2xl font-bold text-foreground tabular-nums">{taxRate}%</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                            {formatCurrency(property.property_taxes || 0)}/yr · Nat'l avg ~1.1%
+                        </p>
+                    </div>
+                )}
+                {annualAppreciation !== null && totalAppreciation !== 0 && (
+                    <div className="bg-card rounded-xl shadow-lg border border-border p-5">
+                        <div className="flex items-center gap-2 mb-2">
+                            <TrendingUp size={18} className={totalAppreciation > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"} />
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Since Purchase</span>
+                        </div>
+                        <p className={`text-2xl font-bold tabular-nums ${totalAppreciation > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                            {totalAppreciation > 0 ? '+' : ''}{formatCurrency(totalAppreciation)}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                            {formatCurrency(annualAppreciation)}/yr · {yoyAppreciation}% total
+                        </p>
+                    </div>
+                )}
+            </motion.div>
+
+            {/* Investment Scorecard */}
+            <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.12 }}
+                className="bg-card rounded-xl shadow-lg border border-border p-6"
+            >
+                <div className="flex items-center gap-2 mb-4">
+                    <Award size={20} className="text-amber-600 dark:text-amber-400" />
+                    <h3 className="text-lg font-bold text-foreground">Investment Scorecard</h3>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    {[
+                        { label: 'Equity Position', ...equityGrade, detail: `LTV ${ltvRatio}%` },
+                        { label: 'Cash Flow', ...cashFlowGrade, detail: rentalIncome > 0 ? formatCurrency(netRentalIncome) + '/mo' : 'No rental data' },
+                        { label: 'Appreciation', ...appreciationGrade, detail: `${yoyAppreciation}% total` },
+                        { label: 'Tax Efficiency', ...taxGrade, detail: taxRate ? `${taxRate}% rate` : 'No tax data' },
+                        { label: 'Comp Position', ...compGrade, detail: priceVsCompsPct ? `${parseFloat(priceVsCompsPct) > 0 ? '+' : ''}${priceVsCompsPct}% vs avg` : 'No comps' },
+                    ].map((item) => (
+                        <div key={item.label} className="text-center p-4 bg-muted/50 rounded-xl">
+                            <p className={`text-4xl font-black ${item.color}`}>{item.grade}</p>
+                            <p className="text-sm font-semibold text-foreground mt-1">{item.label}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{item.detail}</p>
+                        </div>
+                    ))}
+                </div>
+            </motion.div>
+
+            {/* Live Market Pulse */}
+            <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.15 }}
                 className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-4 text-white shadow-lg overflow-hidden"
             >
                 <div className="flex items-center gap-2 mb-3">
                     <Activity size={20} />
                     <span className="font-semibold">Live Market Pulse</span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
                         <p className="text-xs text-blue-100 mb-1">Current Market Value</p>
                         <p className="text-2xl font-bold tabular-nums">{formatCurrency(currentPropertyValue)}</p>
                     </div>
                     <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
                         <div className="flex items-center gap-2">
-                            <p className="text-xs text-blue-100 mb-1">YoY Appreciation</p>
-                            <ArrowUpRight size={16} className="text-emerald-300" />
+                            <p className="text-xs text-blue-100 mb-1">Appreciation</p>
+                            {parseFloat(yoyAppreciation) >= 0
+                                ? <ArrowUpRight size={16} className="text-emerald-300" />
+                                : <ArrowDownRight size={16} className="text-red-300" />
+                            }
                         </div>
-                        <p className="text-2xl font-bold tabular-nums text-emerald-300">+{yoyAppreciation}%</p>
+                        <p className={`text-2xl font-bold tabular-nums ${parseFloat(yoyAppreciation) >= 0 ? 'text-emerald-300' : 'text-red-300'}`}>
+                            {parseFloat(yoyAppreciation) >= 0 ? '+' : ''}{yoyAppreciation}%
+                        </p>
                     </div>
+                    {pricePerSqft && (
+                        <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
+                            <p className="text-xs text-blue-100 mb-1">Price / Sq Ft</p>
+                            <p className="text-2xl font-bold tabular-nums">${pricePerSqft}</p>
+                        </div>
+                    )}
                     <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
-                        <p className="text-xs text-blue-100 mb-1">Neighborhood Velocity</p>
+                        <p className="text-xs text-blue-100 mb-1">Neighborhood Activity</p>
                         <p className="text-2xl font-bold">
-                            <span className="text-emerald-300">High</span>
-                            <span className="text-sm font-normal text-blue-100 ml-2">5 recent sales</span>
+                            <span className={compSalesData.length >= 5 ? "text-emerald-300" : compSalesData.length >= 2 ? "text-yellow-300" : "text-blue-200"}>
+                                {compSalesData.length >= 5 ? 'High' : compSalesData.length >= 2 ? 'Moderate' : 'Low'}
+                            </span>
+                            <span className="text-sm font-normal text-blue-100 ml-2">{compSalesData.length} recent sales</span>
                         </p>
                     </div>
                 </div>
@@ -631,6 +920,8 @@ const HomeWealth = () => {
                                 <th className="text-right py-3 px-2 text-sm font-semibold text-foreground">Price</th>
                                 <th className="text-right py-3 px-2 text-sm font-semibold text-foreground">Sq Ft</th>
                                 <th className="text-right py-3 px-2 text-sm font-semibold text-foreground">$/Sq Ft</th>
+                                <th className="text-right py-3 px-2 text-sm font-semibold text-foreground">Distance</th>
+                                <th className="text-right py-3 px-2 text-sm font-semibold text-foreground">Match</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -646,6 +937,19 @@ const HomeWealth = () => {
                                     </td>
                                     <td className="py-3 px-2 text-sm font-semibold text-primary text-right tabular-nums">
                                         ${sale.price_per_sqft || '-'}
+                                    </td>
+                                    <td className="py-3 px-2 text-sm text-muted-foreground text-right tabular-nums">
+                                        {sale.distance_miles != null ? `${sale.distance_miles.toFixed(1)} mi` : '-'}
+                                    </td>
+                                    <td className="py-3 px-2 text-right">
+                                        {sale.similarity_score != null ? (
+                                            <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${sale.similarity_score >= 80 ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300' :
+                                                    sale.similarity_score >= 50 ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300' :
+                                                        'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300'
+                                                }`}>
+                                                {sale.similarity_score}%
+                                            </span>
+                                        ) : '-'}
                                     </td>
                                 </tr>
                             ))}

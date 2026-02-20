@@ -131,14 +131,18 @@ export const EditPropertyModal: React.FC<EditPropertyModalProps> = ({
                     {/* Property Details */}
                     <div className="space-y-2 pt-2 border-t">
                         <h4 className="text-sm font-medium leading-none">Property Details</h4>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-3 gap-3">
                             <div>
                                 <label className="text-xs font-medium text-muted-foreground">Year Built</label>
                                 <input type="number" name="year_built" value={formData.year_built || ""} onChange={handleChange} placeholder="2005" className={inputClass} />
                             </div>
                             <div>
-                                <label className="text-xs font-medium text-muted-foreground">Square Feet</label>
+                                <label className="text-xs font-medium text-muted-foreground">Sq. Ft</label>
                                 <input type="number" name="sqft" value={formData.sqft || ""} onChange={handleChange} placeholder="2000" className={inputClass} />
+                            </div>
+                            <div>
+                                <label className="text-xs font-medium text-muted-foreground">Lot Size (sf)</label>
+                                <input type="number" name="lot_size" value={formData.lot_size || ""} onChange={handleChange} placeholder="5000" className={inputClass} />
                             </div>
                             <div>
                                 <label className="text-xs font-medium text-muted-foreground">Bedrooms</label>
@@ -147,6 +151,10 @@ export const EditPropertyModal: React.FC<EditPropertyModalProps> = ({
                             <div>
                                 <label className="text-xs font-medium text-muted-foreground">Bathrooms</label>
                                 <input type="number" name="bathrooms" value={formData.bathrooms || ""} onChange={handleChange} step="0.5" placeholder="2" className={inputClass} />
+                            </div>
+                            <div>
+                                <label className="text-xs font-medium text-muted-foreground">Property Taxes ($)</label>
+                                <input type="number" name="property_taxes" value={formData.property_taxes || ""} onChange={handleChange} placeholder="5200" className={inputClass} />
                             </div>
                         </div>
                     </div>

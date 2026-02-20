@@ -11,6 +11,11 @@ const corsHeaders = {
   "Content-Type": "application/json",
 };
 
+const rcHeaders = {
+  "X-Api-Key": RENTCAST_API_KEY || "",
+  "Accept": "application/json",
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -41,13 +46,42 @@ serve(async (req) => {
 
     const { address_line1, city, state, zip_code, user_id } = property;
     const address = `${address_line1}, ${city}, ${state} ${zip_code}`;
+    const encodedAddress = encodeURIComponent(address);
 
-    // 2. Call RentCast Value Estimate endpoint
-    //    GET https://api.rentcast.io/v1/avm/value?address=...
-    //    Returns: { price, priceRangeLow, priceRangeHigh, comparables: [...] }
+    // ──────────────────────────────────────────────
+    // 2. Fetch Property Records (auto-populate details)
+    //    GET /v1/properties?address=...
+    //    Returns: [{ squareFootage, yearBuilt, lotSize, bedrooms, bathrooms,
+    //               propertyType, taxAssessments: [{ year, value }],
+    //               lastSalePrice, lastSaleDate, ... }]
+    // ──────────────────────────────────────────────
+    let propertyDetails: Record<string, any> = {};
+    try {
+      const recordRes = await fetch(
+        `https://api.rentcast.io/v1/properties?address=${encodedAddress}`,
+        { headers: rcHeaders }
+      );
+      if (recordRes.ok) {
+        const records = await recordRes.json();
+        // API returns an array; take the first match
+        if (Array.isArray(records) && records.length > 0) {
+          propertyDetails = records[0];
+          console.log("Property record found:", JSON.stringify(propertyDetails).slice(0, 200));
+        }
+      } else {
+        console.warn("Property records fetch returned", recordRes.status);
+      }
+    } catch (e) {
+      console.warn("Property records fetch failed, continuing:", e);
+    }
+
+    // ──────────────────────────────────────────────
+    // 3. Fetch Value Estimate (AVM)
+    //    GET /v1/avm/value?address=...
+    // ──────────────────────────────────────────────
     const valueRes = await fetch(
-      `https://api.rentcast.io/v1/avm/value?address=${encodeURIComponent(address)}`,
-      { headers: { "X-Api-Key": RENTCAST_API_KEY || "", "Accept": "application/json" } }
+      `https://api.rentcast.io/v1/avm/value?address=${encodedAddress}`,
+      { headers: rcHeaders }
     );
 
     if (!valueRes.ok) {
@@ -60,14 +94,15 @@ serve(async (req) => {
     }
     const valueData = await valueRes.json();
 
-    // 3. Call RentCast Rent Estimate endpoint
-    //    GET https://api.rentcast.io/v1/avm/rent/longTerm?address=...
-    //    Returns: { rent, rentRangeLow, rentRangeHigh, comparables: [...] }
+    // ──────────────────────────────────────────────
+    // 4. Fetch Rent Estimate
+    //    GET /v1/avm/rent/longTerm?address=...
+    // ──────────────────────────────────────────────
     let rentEstimate: number | null = null;
     try {
       const rentRes = await fetch(
-        `https://api.rentcast.io/v1/avm/rent/longTerm?address=${encodeURIComponent(address)}`,
-        { headers: { "X-Api-Key": RENTCAST_API_KEY || "", "Accept": "application/json" } }
+        `https://api.rentcast.io/v1/avm/rent/longTerm?address=${encodedAddress}`,
+        { headers: rcHeaders }
       );
       if (rentRes.ok) {
         const rentData = await rentRes.json();
@@ -77,7 +112,9 @@ serve(async (req) => {
       console.warn("Rent estimate fetch failed, continuing without it:", e);
     }
 
-    // 4. Update the property record with the new value + rent
+    // ──────────────────────────────────────────────
+    // 5. Build the updates object
+    // ──────────────────────────────────────────────
     const estimatedValue = valueData.price;
     if (!estimatedValue) {
       return new Response(
@@ -90,10 +127,58 @@ serve(async (req) => {
       current_value: estimatedValue,
       last_avm_sync: new Date().toISOString(),
     };
+
+    // Rent estimate
     if (rentEstimate !== null) {
       updates.monthly_rental_income = rentEstimate;
     }
 
+    // Auto-populate from property records (only fill in fields the user hasn't set)
+    if (propertyDetails.squareFootage && !property.sqft) {
+      updates.sqft = propertyDetails.squareFootage;
+    }
+    if (propertyDetails.yearBuilt && !property.year_built) {
+      updates.year_built = propertyDetails.yearBuilt;
+    }
+    if (propertyDetails.bedrooms && !property.bedrooms) {
+      updates.bedrooms = propertyDetails.bedrooms;
+    }
+    if (propertyDetails.bathrooms && !property.bathrooms) {
+      updates.bathrooms = propertyDetails.bathrooms;
+    }
+    if (propertyDetails.lotSize && !property.lot_size) {
+      updates.lot_size = propertyDetails.lotSize;
+    }
+    if (propertyDetails.propertyType && !property.property_type) {
+      updates.property_type = propertyDetails.propertyType;
+    }
+
+    // Tax assessment — get the most recent year
+    if (Array.isArray(propertyDetails.taxAssessments) && propertyDetails.taxAssessments.length > 0) {
+      // Sort by year descending to get the latest
+      const sorted = propertyDetails.taxAssessments.sort((a: any, b: any) => (b.year ?? 0) - (a.year ?? 0));
+      const latest = sorted[0];
+      if (latest.value) {
+        updates.property_taxes = latest.value;
+        updates.tax_year = latest.year ?? null;
+      }
+    }
+
+    // Last sale info
+    if (propertyDetails.lastSalePrice && !property.purchase_price) {
+      updates.purchase_price = propertyDetails.lastSalePrice;
+      updates.last_sale_price = propertyDetails.lastSalePrice;
+    }
+    if (propertyDetails.lastSaleDate) {
+      updates.last_sale_date = propertyDetails.lastSaleDate;
+      if (!property.purchase_date) {
+        updates.purchase_date = propertyDetails.lastSaleDate;
+      }
+    }
+
+    // ──────────────────────────────────────────────
+    // 6. Update the property record
+    // ──────────────────────────────────────────────
     const { error: updateErr } = await supabase
       .from("properties")
       .update(updates)
@@ -104,7 +189,9 @@ serve(async (req) => {
       throw updateErr;
     }
 
-    // 5. Save snapshot to value history
+    // ──────────────────────────────────────────────
+    // 7. Save snapshot to value history
+    // ──────────────────────────────────────────────
     await supabase.from("property_value_history").insert({
       property_id: propertyId,
       user_id,
@@ -115,10 +202,11 @@ serve(async (req) => {
       source: "rentcast_api",
     });
 
-    // 6. Save comparable sales from the value estimate response
+    // ──────────────────────────────────────────────
+    // 8. Save comparable sales
+    // ──────────────────────────────────────────────
     const comparables = valueData.comparables ?? [];
     if (comparables.length > 0) {
-      // Clear old comps for this property before inserting fresh ones
       await supabase
         .from("comparable_sales")
         .delete()
@@ -154,6 +242,7 @@ serve(async (req) => {
         new_value: estimatedValue,
         rent_estimate: rentEstimate,
         comps_saved: comparables.length,
+        auto_populated: Object.keys(updates).filter(k => !["current_value", "last_avm_sync", "monthly_rental_income"].includes(k)),
       }),
       { headers: corsHeaders }
     );

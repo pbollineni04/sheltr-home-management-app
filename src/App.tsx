@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import Landing from "./pages/Landing";
+import Onboarding from "./pages/Onboarding";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 
@@ -31,12 +32,13 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/auth" element={<Auth />} />
+              <Route path="/" element={<Landing />} />
               <Route
-                path="/"
+                path="/onboarding"
                 element={
-                  <PublicRoute>
-                    <Landing />
-                  </PublicRoute>
+                  <ProtectedRoute>
+                    <Onboarding />
+                  </ProtectedRoute>
                 }
               />
               <Route

@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useEffect } from 'react';
 import { Home, Loader2, Mail, Lock, User } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
@@ -26,15 +25,8 @@ const Auth = () => {
     password: ''
   });
 
-  const { signUp, signIn, user } = useAuth();
+  const { signUp, signIn } = useAuth();
   const navigate = useNavigate();
-
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (user) {
-      navigate('/');
-    }
-  }, [user, navigate]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +61,7 @@ const Auth = () => {
     } else {
       toast({
         title: "Success",
-        description: "Account created successfully! Please check your email to verify your account.",
+        description: "Check your email for a confirmation link.",
       });
       setSignUpForm({ email: '', password: '', fullName: '', confirmPassword: '' });
     }
@@ -93,7 +85,7 @@ const Auth = () => {
         title: "Success",
         description: "Logged in successfully!",
       });
-      navigate('/');
+      navigate('/onboarding');
     }
     setIsLoading(false);
   };
