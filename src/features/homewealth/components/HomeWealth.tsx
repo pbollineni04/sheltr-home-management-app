@@ -17,48 +17,16 @@ import {
     HardHat,
     Info,
     Activity,
+    Plus,
+    RefreshCw,
 } from "lucide-react";
 import { staggerContainer, staggerContainerFast, fadeUpItem } from "@/lib/motion";
+import { Button } from "@/components/ui/button";
 
-/* ───── Mock data ───── */
-const generateEquityHistory = () => {
-    const months = [
-        "Feb 25", "Mar 25", "Apr 25", "May 25", "Jun 25",
-        "Jul 25", "Aug 25", "Sep 25", "Oct 25", "Nov 25",
-        "Dec 25", "Jan 26", "Feb 26",
-    ];
-    return months.map((month, i) => ({
-        month,
-        propertyValue: 450000 + i * 3500 + Math.random() * 2000,
-        mortgageDebt: 320000 - i * 1200,
-        equity: 450000 + i * 3500 - (320000 - i * 1200),
-    }));
-};
-
-const compSalesData = [
-    { address: "123 Oak Street", soldDate: "Jan 15, 2026", price: 485000, sqft: 2100, pricePerSqft: 231 },
-    { address: "456 Maple Ave", soldDate: "Jan 8, 2026", price: 472000, sqft: 2050, pricePerSqft: 230 },
-    { address: "789 Pine Road", soldDate: "Dec 28, 2025", price: 495000, sqft: 2200, pricePerSqft: 225 },
-    { address: "321 Elm Street", soldDate: "Dec 18, 2025", price: 468000, sqft: 2000, pricePerSqft: 234 },
-    { address: "654 Cedar Lane", soldDate: "Dec 5, 2025", price: 478000, sqft: 2080, pricePerSqft: 230 },
-];
-
-const defaultImprovements = [
-    { id: "solar", name: "Solar Panels", icon: Zap, roi: 15000, cost: 25000, enabled: false },
-    { id: "kitchen", name: "Kitchen Remodel", icon: Palette, roi: 22000, cost: 35000, enabled: false },
-    { id: "bathroom", name: "Bathroom Upgrade", icon: Droplet, roi: 18000, cost: 28000, enabled: false },
-    { id: "hvac", name: "New HVAC System", icon: Wind, roi: 12000, cost: 18000, enabled: false },
-    { id: "landscaping", name: "Landscaping", icon: TreePine, roi: 8000, cost: 12000, enabled: false },
-    { id: "exterior", name: "Exterior Paint", icon: HardHat, roi: 6500, cost: 9000, enabled: false },
-];
-
-const amortizationSchedule = [
-    { year: 2026, principal: 14400, interest: 18200, balance: 305600, equity: 180000 },
-    { year: 2027, principal: 15100, interest: 17500, balance: 290500, equity: 195100 },
-    { year: 2028, principal: 15900, interest: 16700, balance: 274600, equity: 211000 },
-    { year: 2029, principal: 16700, interest: 15900, balance: 257900, equity: 227700 },
-    { year: 2030, principal: 17600, interest: 15000, balance: 240300, equity: 245300 },
-];
+import { useProperties, useImprovements, useEquityHistory, useComparableSales, useToggleImprovement, useSyncProperty } from "../api/queries";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EditPropertyModal } from "./EditPropertyModal";
+import { useToast } from "@/hooks/use-toast";
 
 /* ───── Helpers ───── */
 const formatCurrency = (value: number) =>
@@ -71,28 +39,120 @@ const formatCurrency = (value: number) =>
 
 /* ───── Component ───── */
 const HomeWealth = () => {
-    const [improvements, setImprovements] = useState(defaultImprovements);
+    // We assume the user has 1 property for this MVP
+    const { data: properties, isLoading: isLoadingProperty } = useProperties();
+    const property = properties?.[0]; // Get the primary property
+
+    const { data: dbImprovements, isLoading: isLoadingImprovements } = useImprovements(property?.id);
+    const { data: dbEquityHistory } = useEquityHistory(property?.id);
+    const { data: dbComps } = useComparableSales(property?.id);
+    const toggleMutation = useToggleImprovement(property?.id);
+    const syncMutation = useSyncProperty();
+    const { toast } = useToast();
+
     const [marketTrend, setMarketTrend] = useState(3.5);
-    const equityHistory = useMemo(() => generateEquityHistory(), []);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-    const currentPropertyValue = 495000;
-    const currentMortgageDebt = 305000;
+    const handleSync = (force = false) => {
+        if (!property?.id) return;
+
+        // Caching: skip if last sync was less than 30 days ago (unless forced)
+        if (!force && property.last_avm_sync) {
+            const lastSync = new Date(property.last_avm_sync);
+            const daysSinceSync = (Date.now() - lastSync.getTime()) / (1000 * 60 * 60 * 24);
+            if (daysSinceSync < 30) {
+                toast({ title: "Data is up to date", description: `Last synced ${Math.floor(daysSinceSync)} day(s) ago. Click again to force refresh.` });
+                return;
+            }
+        }
+
+        toast({ title: "Syncing market data...", description: "Fetching latest value from RentCast." });
+        syncMutation.mutate(property.id, {
+            onSuccess: () => {
+                toast({ title: "Market data updated!", description: "Property value and comps have been refreshed." });
+            },
+            onError: (err) => {
+                toast({ title: "Sync failed", description: err.message, variant: "destructive" });
+            },
+        });
+    };
+
+    // Track whether user already saw the "up to date" message (for force-refresh on second click)
+    const [syncClickedOnce, setSyncClickedOnce] = useState(false);
+    const onSyncClick = () => {
+        if (syncClickedOnce) {
+            handleSync(true); // force
+            setSyncClickedOnce(false);
+        } else {
+            handleSync(false);
+            setSyncClickedOnce(true);
+            // Reset after 5 seconds so they don't accidentally force-refresh later
+            setTimeout(() => setSyncClickedOnce(false), 5000);
+        }
+    };
+
+    if (isLoadingProperty) {
+        return (
+            <div className="max-w-7xl mx-auto space-y-6">
+                <Skeleton className="h-40 w-full rounded-2xl" />
+                <Skeleton className="h-32 w-full rounded-xl" />
+                <Skeleton className="h-64 w-full rounded-xl" />
+            </div>
+        )
+    }
+
+    if (!property) {
+        return (
+            <div className="max-w-7xl mx-auto space-y-6 text-center py-20">
+                <Home className="mx-auto h-16 w-16 text-muted-foreground mb-4 opacity-50" />
+                <h2 className="text-2xl font-bold mb-2">Welcome to HomeWealth</h2>
+                <p className="text-muted-foreground mb-6">Track your home's investment performance, calculate ROI on renovations, and build wealth.</p>
+                <Button className="gap-2" onClick={() => setIsEditModalOpen(true)}>
+                    <Plus size={16} /> Add Your Property
+                </Button>
+
+                <EditPropertyModal
+                    property={null}
+                    open={isEditModalOpen}
+                    onOpenChange={setIsEditModalOpen}
+                />
+            </div>
+        )
+    }
+
+    if (isLoadingImprovements) {
+        return (
+            <div className="max-w-7xl mx-auto space-y-6">
+                <Skeleton className="h-40 w-full rounded-2xl" />
+                <Skeleton className="h-32 w-full rounded-xl" />
+                <Skeleton className="h-64 w-full rounded-xl" />
+            </div>
+        )
+    }
+
+    // Map DB data or fallback to defaults
+    const currentPropertyValue = property.current_value || 0;
+    const currentMortgageDebt = property.current_mortgage_debt || 0;
     const currentEquity = currentPropertyValue - currentMortgageDebt;
-    const originalPurchasePrice = 425000;
-    const ltvRatio = ((currentMortgageDebt / currentPropertyValue) * 100).toFixed(1);
+    const originalPurchasePrice = property.purchase_price || currentPropertyValue;
+    const ltvRatio = currentPropertyValue > 0 ? ((currentMortgageDebt / currentPropertyValue) * 100).toFixed(1) : "0.0";
 
-    const totalROI = improvements.reduce((sum, imp) => (imp.enabled ? sum + imp.roi : sum), 0);
-    const totalCost = improvements.reduce((sum, imp) => (imp.enabled ? sum + imp.cost : sum), 0);
+    const improvements = dbImprovements || [];
+    const equityHistory = dbEquityHistory || [];
+    const compSalesData = dbComps || [];
+
+    const totalROI = improvements.reduce((sum, imp) => (imp.completed ? sum + (imp.estimated_roi || 0) : sum), 0);
+    const totalCost = improvements.reduce((sum, imp) => (imp.completed ? sum + imp.cost : sum), 0);
     const projectedValue = currentPropertyValue + totalROI + (currentPropertyValue * marketTrend) / 100;
 
-    const yoyAppreciation = (
+    const yoyAppreciation = originalPurchasePrice > 0 ? (
         ((currentPropertyValue - originalPurchasePrice) / originalPurchasePrice) *
         100
-    ).toFixed(1);
+    ).toFixed(1) : "0.0";
 
-    const rentalIncome = 2850;
-    const monthlyMortgage = 2100;
-    const estimatedExpenses = 450;
+    const rentalIncome = property.monthly_rental_income || 0;
+    const estimatedExpenses = property.estimated_monthly_expenses || 0;
+    const monthlyMortgage = 2100; // Simplified for MVP, ideally calculate from debt + interest
     const netRentalIncome = rentalIncome - monthlyMortgage - estimatedExpenses;
 
     // Profit Calculator
@@ -102,10 +162,9 @@ const HomeWealth = () => {
     const remainingMortgage = currentMortgageDebt;
     const netProceeds = salePrice - agentCommission - closingCosts - remainingMortgage;
 
-    const toggleImprovement = (id: string) =>
-        setImprovements((prev) =>
-            prev.map((imp) => (imp.id === id ? { ...imp, enabled: !imp.enabled } : imp))
-        );
+    const toggleImprovement = (id: string, currentStatus: boolean) => {
+        toggleMutation.mutate({ id, completed: !currentStatus });
+    }
 
     const getLTVColor = () => {
         const ltv = parseFloat(ltvRatio);
@@ -121,6 +180,26 @@ const HomeWealth = () => {
         return "High";
     };
 
+    // Calculate generic amortization schedule based on current debts (simplified)
+    const generateAmort = () => {
+        let balance = currentMortgageDebt;
+        let equity = currentEquity;
+        const rate = property.interest_rate || 6.5; // API or default
+        const yearStart = new Date().getFullYear();
+
+        const sched = [];
+        for (let i = 0; i < 5; i++) {
+            const interest = balance * (rate / 100);
+            // simplify principal to spread remaining over loan term, minus some interest
+            const principal = (balance / 30) - (interest * 0.2);
+            balance -= principal;
+            equity += principal;
+            sched.push({ year: yearStart + i, principal, interest, balance, equity });
+        }
+        return sched;
+    }
+    const amortizationSchedule = generateAmort();
+
     // Max value in amortization for simple bar chart scaling
     const maxAmort = Math.max(...amortizationSchedule.map((r) => r.principal + r.interest));
 
@@ -131,16 +210,34 @@ const HomeWealth = () => {
                 initial={{ opacity: 0, y: -12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-                className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-6 md:p-8 text-white shadow-xl"
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-6 md:p-8 text-white shadow-xl flex justify-between items-center"
             >
-                <div className="flex items-center gap-3 mb-2">
+                <div className="flex items-center gap-3">
                     <TrendingUp size={36} />
                     <div>
                         <h1 className="text-3xl md:text-4xl font-bold">HomeWealth</h1>
                         <p className="text-emerald-100 text-sm md:text-base mt-1">
-                            Track your home's investment performance and build wealth
+                            {property.address_line1}, {property.city}
                         </p>
                     </div>
+                </div>
+                <div className="flex gap-2">
+                    <Button
+                        variant="secondary"
+                        className="font-semibold text-emerald-900"
+                        onClick={onSyncClick}
+                        disabled={syncMutation.isPending}
+                    >
+                        <RefreshCw size={16} className={syncMutation.isPending ? "animate-spin" : ""} />
+                        {syncMutation.isPending ? "Syncing..." : "Sync Market Data"}
+                    </Button>
+                    <Button
+                        variant="secondary"
+                        className="font-semibold text-emerald-900"
+                        onClick={() => setIsEditModalOpen(true)}
+                    >
+                        Edit Property
+                    </Button>
                 </div>
             </motion.div>
 
@@ -201,21 +298,21 @@ const HomeWealth = () => {
                 <div className="space-y-2">
                     {equityHistory.slice(-6).map((d, i) => (
                         <div key={i} className="flex items-center gap-3 text-xs">
-                            <span className="w-14 text-muted-foreground text-right">{d.month}</span>
+                            <span className="w-14 text-muted-foreground text-right">{d.recorded_date}</span>
                             <div className="flex-1 flex gap-1 items-center h-5">
                                 <div
                                     className="bg-blue-500 rounded-sm h-4"
-                                    style={{ width: `${(d.propertyValue / 600000) * 100}%` }}
-                                    title={`Value: ${formatCurrency(d.propertyValue)}`}
+                                    style={{ width: `${(d.property_value / 600000) * 100}%` }}
+                                    title={`Value: ${formatCurrency(d.property_value)}`}
                                 />
                                 <div
                                     className="bg-red-400 rounded-sm h-4"
-                                    style={{ width: `${(d.mortgageDebt / 600000) * 100}%` }}
-                                    title={`Debt: ${formatCurrency(d.mortgageDebt)}`}
+                                    style={{ width: `${((d.mortgage_debt || 0) / 600000) * 100}%` }}
+                                    title={`Debt: ${formatCurrency(d.mortgage_debt || 0)}`}
                                 />
                             </div>
                             <span className="w-16 text-right font-medium text-emerald-600 dark:text-emerald-400 tabular-nums">
-                                {formatCurrency(d.equity)}
+                                {formatCurrency(d.equity || 0)}
                             </span>
                         </div>
                     ))}
@@ -381,30 +478,31 @@ const HomeWealth = () => {
                     className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
                 >
                     {improvements.map((improvement) => {
-                        const Icon = improvement.icon;
-                        const roiPercent = ((improvement.roi / improvement.cost) * 100).toFixed(0);
+                        // For MVP, map static icons based on name.
+                        const Icon = Zap;
+                        const roiPercent = (((improvement.estimated_roi || 0) / improvement.cost) * 100).toFixed(0);
                         return (
                             <motion.button
                                 key={improvement.id}
                                 variants={fadeUpItem}
-                                onClick={() => toggleImprovement(improvement.id)}
-                                className={`p-4 rounded-xl border-2 transition-all duration-300 text-left ${improvement.enabled
-                                        ? "border-primary bg-primary/10 shadow-md scale-105"
-                                        : "border-border bg-card hover:border-muted-foreground/40 hover:shadow"
+                                onClick={() => toggleImprovement(improvement.id, improvement.completed)}
+                                className={`p-4 rounded-xl border-2 transition-all duration-300 text-left ${improvement.completed
+                                    ? "border-primary bg-primary/10 shadow-md scale-105"
+                                    : "border-border bg-card hover:border-muted-foreground/40 hover:shadow"
                                     }`}
                             >
                                 <div className="flex items-start justify-between mb-3">
                                     <Icon
                                         size={24}
-                                        className={improvement.enabled ? "text-primary" : "text-muted-foreground"}
+                                        className={improvement.completed ? "text-primary" : "text-muted-foreground"}
                                     />
                                     <div
-                                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${improvement.enabled
-                                                ? "border-primary bg-primary"
-                                                : "border-muted-foreground/40"
+                                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${improvement.completed
+                                            ? "border-primary bg-primary"
+                                            : "border-muted-foreground/40"
                                             }`}
                                     >
-                                        {improvement.enabled && (
+                                        {improvement.completed && (
                                             <svg className="w-4 h-4 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                             </svg>
@@ -420,7 +518,7 @@ const HomeWealth = () => {
                                     <div className="flex justify-between">
                                         <span className="text-muted-foreground">ROI:</span>
                                         <span className="font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
-                                            {formatCurrency(improvement.roi)}
+                                            {formatCurrency(improvement.estimated_roi || 0)}
                                         </span>
                                     </div>
                                     <div className="flex justify-between">
@@ -539,15 +637,15 @@ const HomeWealth = () => {
                             {compSalesData.map((sale, idx) => (
                                 <tr key={idx} className="border-b border-border/40 hover:bg-muted/50">
                                     <td className="py-3 px-2 text-sm text-foreground">{sale.address}</td>
-                                    <td className="py-3 px-2 text-sm text-muted-foreground">{sale.soldDate}</td>
+                                    <td className="py-3 px-2 text-sm text-muted-foreground">{new Date(sale.sold_date).toLocaleDateString()}</td>
                                     <td className="py-3 px-2 text-sm font-semibold text-foreground text-right tabular-nums">
-                                        {formatCurrency(sale.price)}
+                                        {formatCurrency(sale.sold_price)}
                                     </td>
                                     <td className="py-3 px-2 text-sm text-muted-foreground text-right tabular-nums">
-                                        {sale.sqft.toLocaleString()}
+                                        {sale.sqft?.toLocaleString() || '-'}
                                     </td>
                                     <td className="py-3 px-2 text-sm font-semibold text-primary text-right tabular-nums">
-                                        ${sale.pricePerSqft}
+                                        ${sale.price_per_sqft || '-'}
                                     </td>
                                 </tr>
                             ))}
@@ -630,6 +728,14 @@ const HomeWealth = () => {
                     </table>
                 </div>
             </motion.div>
+
+            {property && (
+                <EditPropertyModal
+                    property={property as any}
+                    open={isEditModalOpen}
+                    onOpenChange={setIsEditModalOpen}
+                />
+            )}
         </div>
     );
 };

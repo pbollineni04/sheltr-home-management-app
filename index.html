@@ -1,43 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <title>Sheltr - Your Home Management Platform</title>
-    <meta name="description" content="All-in-one home management platform. Track expenses, manage maintenance, organize documents, and prevent costly repairs." />
-    <meta name="author" content="Sheltr" />
 
-    <meta property="og:title" content="Sheltr - Your Home Management Platform" />
-    <meta property="og:description" content="All-in-one home management platform. Track expenses, manage maintenance, organize documents, and prevent costly repairs." />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="/favicon.ico" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="/sheltr-logo.svg" />
+  <title>Sheltr - Your Home Management Platform</title>
+  <meta name="description"
+    content="All-in-one home management platform. Track expenses, manage maintenance, organize documents, and prevent costly repairs." />
+  <meta name="author" content="Sheltr" />
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Sheltr - Your Home Management Platform" />
-    <meta name="twitter:description" content="All-in-one home management platform for homeowners" />
-    <meta name="twitter:image" content="/favicon.ico" />
-    <script>
-      (function() {
-        try {
-          var storageKey = 'sheltr-theme';
-          var stored = localStorage.getItem(storageKey);
-          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-          var theme = stored || (prefersDark ? 'dark' : 'light');
-          if (theme === 'dark') {
-            document.documentElement.classList.add('dark');
-          } else {
-            document.documentElement.classList.remove('dark');
-          }
-        } catch (e) {
-          // ignore
+  <meta property="og:title" content="Sheltr - Your Home Management Platform" />
+  <meta property="og:description"
+    content="All-in-one home management platform. Track expenses, manage maintenance, organize documents, and prevent costly repairs." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/sheltr-logo.svg" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Sheltr - Your Home Management Platform" />
+  <meta name="twitter:description" content="All-in-one home management platform for homeowners" />
+  <meta name="twitter:image" content="/sheltr-logo.svg" />
+  <script>
+    (function () {
+      try {
+        var storageKey = 'sheltr-theme';
+        var stored = localStorage.getItem(storageKey);
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = stored || (prefersDark ? 'dark' : 'light');
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
         }
-      })();
-    </script>
-  </head>
+      } catch (e) {
+        // ignore
+      }
+    })();
+  </script>
+</head>
 
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>

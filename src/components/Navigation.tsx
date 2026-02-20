@@ -66,9 +66,7 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
       {/* Mobile Header */}
       <header className="mobile-header lg:hidden bg-background/80 backdrop-blur-sm">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary rounded-lg flex items-center justify-center">
-            <Home className="text-primary-foreground w-5 h-5" />
-          </div>
+          <img src="/sheltr-logo.svg" alt="Sheltr Logo" className="w-8 h-8" />
           <div>
             <h1 className="font-bold text-foreground text-base">Sheltr</h1>
           </div>
@@ -103,9 +101,7 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
         <div className="p-6 flex-1">
           {/* Desktop Logo */}
           <div className="hidden lg:flex items-center gap-3 mb-8">
-            <div className="p-2 rounded-lg flex items-center justify-center" style={{ background: 'hsl(var(--primary))' }}>
-              <Home className="w-6 h-6" style={{ color: 'hsl(var(--primary-foreground))' }} />
-            </div>
+            <img src="/sheltr-logo.svg" alt="Sheltr Logo" className="w-10 h-10" />
             <div>
               <h1 className="text-xl font-bold text-foreground">Sheltr</h1>
               <p className="text-xs text-muted-foreground">Home Management</p>
