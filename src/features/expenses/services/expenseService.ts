@@ -18,27 +18,43 @@ export class ExpenseService {
 
     if (error) throw error;
 
-    // Auto-suggest timeline entry for large expenses ($200+)
+    // Auto-create timeline entry for significant expenses ($50+)
     const createdExpense = data as ExpenseRow;
-    if (createdExpense.amount >= 200) {
+    if (createdExpense.amount >= 50) {
       try {
-        // Check if timeline entry suggestion has been dismissed for this expense
-        const isDismissed = (createdExpense.metadata as Record<string, unknown> | null)?.timeline_suggestion_dismissed;
+        const alreadyFromService = (createdExpense.metadata as Record<string, unknown> | null)?.source === 'service';
+        // Don't double-create if this expense was auto-logged from a service (services already create timeline events)
+        if (!alreadyFromService) {
+          await supabase
+            .from("timeline_events")
+            .insert({
+              user_id: userId,
+              title: createdExpense.description || "Purchase",
+              description: `${createdExpense.vendor ? `From ${createdExpense.vendor}` : ""} - ${createdExpense.category}`.replace(/^ - /, ""),
+              date: createdExpense.date,
+              category: createdExpense.category === "renovation" ? "renovation" : "purchase",
+              room: createdExpense.room,
+              cost: createdExpense.amount,
+              metadata: {
+                auto_created: true,
+                source: "expense",
+                expense_id: createdExpense.id
+              }
+            });
 
-        if (!isDismissed) {
-          // Mark expense as having a timeline suggestion
+          // Mark expense as having created a timeline entry
           await supabase
             .from("expenses")
             .update({
               metadata: {
                 ...((createdExpense.metadata as Record<string, unknown>) || {}),
-                timeline_suggestion: true
+                timeline_created: true
               }
             })
             .eq("id", createdExpense.id);
         }
       } catch (err) {
-        console.error('Error setting timeline suggestion:', err);
+        console.error('Error creating timeline event from expense:', err);
       }
     }
 

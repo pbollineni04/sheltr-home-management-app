@@ -275,7 +275,52 @@ const ExpenseTracker = () => {
   }, [selectedPeriod, refreshTick]);
 
   const totalExpenses = useMemo(() => allThisPeriod.reduce((sum, e) => sum + Number(e.amount || 0), 0), [allThisPeriod]);
-  const thisMonthExpenses = totalExpenses; // reflects selectedPeriod; rename is kept for existing UI prop names
+  const thisMonthExpenses = totalExpenses;
+
+  // Compute source breakdown for expense summary
+  const sourceBreakdown = useMemo(() => {
+    let manual = 0, service = 0, plaid = 0;
+    for (const e of allThisPeriod) {
+      const meta = e.metadata as Record<string, unknown> | null;
+      const source = meta?.source as string | undefined;
+      const autoImported = (e as any).auto_imported;
+      if (source === 'service') {
+        service += Number(e.amount || 0);
+      } else if (source === 'plaid' || autoImported) {
+        plaid += Number(e.amount || 0);
+      } else {
+        manual += Number(e.amount || 0);
+      }
+    }
+    return { manual: Math.round(manual), service: Math.round(service), plaid: Math.round(plaid) };
+  }, [allThisPeriod]);
+
+  // Compute real trend percentage
+  const [lastPeriodTotal, setLastPeriodTotal] = useState<number | null>(null);
+  useEffect(() => {
+    const fetchLastPeriod = async () => {
+      try {
+        const now = new Date();
+        let start: Date, end: Date;
+        if (selectedPeriod === "month") {
+          start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+          end = new Date(now.getFullYear(), now.getMonth(), 0);
+        } else {
+          start = new Date(now.getFullYear() - 1, 0, 1);
+          end = new Date(now.getFullYear() - 1, 11, 31);
+        }
+        const data = await ExpenseService.getByDateRange(start.toISOString(), end.toISOString());
+        setLastPeriodTotal(data.reduce((sum, e) => sum + Number(e.amount || 0), 0));
+      } catch {
+        setLastPeriodTotal(null);
+      }
+    };
+    fetchLastPeriod();
+  }, [selectedPeriod, refreshTick]);
+
+  const trendPct = lastPeriodTotal != null && lastPeriodTotal > 0
+    ? ((totalExpenses - lastPeriodTotal) / lastPeriodTotal) * 100
+    : null;
 
   const categories = useMemo(() => {
     const map = new Map<string, number>();
@@ -406,6 +451,8 @@ const ExpenseTracker = () => {
           <ExpenseSummaryCards
             thisMonthExpenses={thisMonthExpenses}
             totalExpenses={totalExpenses}
+            sourceBreakdown={sourceBreakdown}
+            trendPct={trendPct}
           />
         </motion.div>
       )}

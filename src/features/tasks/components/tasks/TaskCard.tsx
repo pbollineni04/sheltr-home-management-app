@@ -42,20 +42,20 @@ const TaskCard = ({ task, status, onToggleComplete, onDelete, dragDisabled }: Ta
   return (
     <div
       ref={setNodeRef}
-      className="bg-muted/40 border border-border rounded-lg p-4 hover:shadow-md transition-shadow"
+      {...(dragDisabled ? {} : listeners)}
+      {...(dragDisabled ? {} : attributes)}
+      className={`bg-muted/40 border border-border rounded-lg p-4 hover:shadow-md transition-shadow ${!dragDisabled ? 'cursor-grab active:cursor-grabbing' : ''}`}
       style={{ opacity: isDragging ? 0.4 : 1 }}
     >
       <div className="flex items-start gap-3">
-        {/* Drag handle */}
+        {/* Drag affordance icon (visual hint) */}
         {!dragDisabled && (
-          <button
-            {...listeners}
-            {...attributes}
-            className="flex-shrink-0 mt-0.5 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors"
-            aria-label="Drag to reorder"
+          <div
+            className="flex-shrink-0 mt-0.5 text-muted-foreground/50"
+            aria-hidden="true"
           >
             <GripVertical size={16} />
-          </button>
+          </div>
         )}
 
         {/* Status toggle icon */}

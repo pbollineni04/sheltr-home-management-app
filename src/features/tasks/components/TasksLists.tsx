@@ -42,7 +42,7 @@ const DroppableColumn = ({ id, children }: { id: string; children: (isOver: bool
 
 const TasksLists = () => {
     const { tasks, loading, addTask, deleteTask, toggleTaskComplete, updateTaskStatus } = useTasks();
-    const [selectedList, setSelectedList] = useState("maintenance");
+    const [selectedList, setSelectedList] = useState("all");
     const [showAddForm, setShowAddForm] = useState(false);
     const [showTemplates, setShowTemplates] = useState(false);
     const [showBundles, setShowBundles] = useState(false);
@@ -55,7 +55,7 @@ const TasksLists = () => {
         useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
     );
 
-    const filteredTasks = tasks.filter((t) => t.list_type === selectedList);
+    const filteredTasks = selectedList === "all" ? tasks : tasks.filter((t) => t.list_type === selectedList);
 
     const todoTasks = filteredTasks.filter((t) => t.status === 'todo');
     const inProgressTasks = filteredTasks.filter((t) => t.status === 'in_progress');

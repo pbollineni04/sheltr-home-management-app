@@ -271,7 +271,12 @@ const HomeTimeline = () => {
             <CardContent className="p-12 text-center">
               <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-heading-xl text-foreground">No events found</h3>
-              <p className="text-body-luxury text-muted-foreground">Try adjusting your filters or add your first event.</p>
+              <p className="text-body-luxury text-muted-foreground max-w-md mx-auto">
+                Your timeline builds automatically as you complete tasks, finish services, and log expenses over $50.
+              </p>
+              <p className="text-xs text-muted-foreground mt-3">
+                Or add an event manually to start documenting your home's history.
+              </p>
             </CardContent>
           </Card>
         ) : (

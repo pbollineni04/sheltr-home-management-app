@@ -1,5 +1,5 @@
 
-import { Wrench, Home, ShoppingCart } from "lucide-react";
+import { Wrench, Home, ShoppingCart, LayoutGrid } from "lucide-react";
 import { Task } from "../../hooks/useTasks";
 
 interface TaskListSelectorProps {
@@ -9,6 +9,7 @@ interface TaskListSelectorProps {
 }
 
 const taskLists = [
+  { id: "all", label: "All", icon: LayoutGrid },
   { id: "maintenance", label: "Maintenance", icon: Wrench },
   { id: "projects", label: "Projects", icon: Home },
   { id: "shopping", label: "Shopping", icon: ShoppingCart },
@@ -19,7 +20,7 @@ const TaskListSelector = ({ selectedList, onSelectList, tasks }: TaskListSelecto
     <div className="flex gap-2 flex-wrap">
       {taskLists.map((list) => {
         const IconComponent = list.icon;
-        const count = tasks.filter(t => t.list_type === list.id && !t.completed).length;
+        const count = tasks.filter(t => (list.id === "all" || t.list_type === list.id) && !t.completed).length;
         const isActive = selectedList === list.id;
         return (
           <button

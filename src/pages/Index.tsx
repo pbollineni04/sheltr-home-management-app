@@ -14,6 +14,7 @@ import { EnergyTracker } from "@/features/energy";
 import { SmartAlerts } from "@/features/alerts";
 import { ServicesMain } from "@/features/services";
 import { pageHeader } from "@/lib/motion";
+import QuickAdd from "@/components/QuickAdd";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -112,6 +113,9 @@ const Index = () => {
           </motion.div>
         </AnimatePresence>
       </main>
+
+      {/* Quick Add — always mounted, listens for Ctrl+K */}
+      <QuickAdd onNavigate={setActiveTab} />
     </div>
   );
 };
