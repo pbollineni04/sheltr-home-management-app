@@ -1,57 +1,50 @@
 
 
-# Landing Page Redesign
+# Fix Build Errors + Mobile Layout Issues
 
-## Current Issues
+## 1. Fix Build Errors (TypeScript type mismatches)
 
-1. **Hero is text-heavy** -- The stats callout box in the hero competes with the headline. Too much to read before the CTA.
-2. **Empty screenshot placeholders** -- The Features section shows "Expense Tracking Screenshot" placeholders instead of real content. Looks unfinished and hurts credibility.
-3. **Redundant visuals in How It Works** -- Each step has both a numbered circle AND an icon circle, making the cards feel cluttered.
-4. **No scroll animations** -- Content appears all at once with no entrance effects, making the page feel flat (framer-motion is already installed but unused on the landing page).
-5. **Header uses generic icon** -- The custom Sheltr SVG logo exists at `public/sheltr-logo.svg` but the header uses a generic Lucide `Home` icon instead.
-6. **"See How It Works" button misleads** -- It navigates to `/auth?mode=signup` instead of scrolling to the How It Works section.
-7. **No pricing section** -- The Final CTA mentions pricing ($4.99/mo early adopter) but there is no dedicated pricing comparison to help users decide.
+The services hooks use local types (`Record<string, unknown>`, `unknown[]`) that are incompatible with the Supabase-generated `Json` type. The fix is to cast `metadata` and `attachments` fields to `any` before passing to Supabase insert/update calls.
 
-## Proposed Changes
+**Files:**
+- `src/features/services/hooks/useServiceProviders.ts` -- cast `metadata` as `Json` on lines 65 (update)
+- `src/features/services/hooks/useServiceRecurrences.ts` -- cast `metadata` as `Json` on lines 42 (insert) and 66 (update)
+- `src/features/services/hooks/useServices.ts` -- cast `attachments` as `Json` and `metadata` as `Json` on lines 73 (insert) and 103 (update)
 
-### 1. Simplify the Hero Section
-- Remove the stats callout box from the hero (it duplicates the Problem Section below).
-- Keep the headline, subtitle, CTAs, and trust signals.
-- Make "See How It Works" scroll to the `#how-it-works` section instead of navigating to auth.
-- Add subtle framer-motion fade-in animations.
+Approach: Spread the data then override `metadata: insertData.metadata as any` and `attachments: insertData.attachments as any`.
 
-### 2. Use the Custom Logo
-- Replace the Lucide `Home` icon with the `sheltr-logo.svg` in both the header and footer.
+## 2. Landing Page Mobile Fixes
 
-### 3. Replace Feature Screenshot Placeholders
-- Instead of empty grey boxes, show styled mock UI cards with icon + key metrics that visually represent each feature (e.g., a mini expense chart, a task checklist, a timeline entry, a document grid). Pure CSS/JSX -- no images needed.
+Key issues at 390px viewport:
+- **HeroDashboardMockup** has `min-h-[450px]` and `aspect-[4/3]` making it huge on mobile, pushing content way below the fold. The sidebar uses `hidden xs:flex` but `xs` isn't a default Tailwind breakpoint.
+- **Hero grid** is `lg:grid-cols-2` which is fine, but the mockup is too tall on mobile.
+- **FeaturesSection** mock UI cards may overflow on small screens.
 
-### 4. Clean Up How It Works
-- Remove the redundant step number circle. Use the icon circle with the step number as a small badge on top instead.
-- Add a connecting line/arrow between steps on desktop.
+Fixes:
+- `HeroDashboardMockup.tsx`: Reduce `min-h-[450px]` to `min-h-[280px] sm:min-h-[450px]`, hide sidebar on mobile (`hidden sm:flex`), reduce padding on mobile.
+- `HeroSection.tsx`: Reduce hero text sizes for mobile (`text-3xl sm:text-4xl lg:text-6xl`), reduce vertical padding.
+- `HeroDashboardMockup.tsx`: Hide floating badges on mobile (already `hidden sm:flex` -- verify).
 
-### 5. Add Scroll Animations
-- Wrap each section in framer-motion `motion.div` with `whileInView` fade-up animations for a polished feel.
+## 3. HomeWealth Mobile Fixes
 
-### 6. Add a Simple Pricing Section
-- Add a new `PricingSection` component between FAQ and Final CTA showing Free vs Pro tiers so users can compare before signing up.
-
-### 7. Minor Polish
-- Add smooth scroll behavior to section anchor links.
-- Add `id` attributes to sections for in-page navigation.
+Key issues:
+- **Hero header** buttons stack poorly -- the `flex-row` with two buttons can overflow. Fix: make buttons `flex-col` on mobile.
+- **Property Overview grid**: `grid-cols-2 md:grid-cols-3 lg:grid-cols-6` -- fine but items may be cramped at 390px. Reduce to `grid-cols-1 sm:grid-cols-2`.
+- **Investment Scorecard**: `grid-cols-2 md:grid-cols-5` -- 5 items in 2 cols leaves orphan. Use `grid-cols-2 sm:grid-cols-3 md:grid-cols-5`.
+- **Live Market Pulse**: `grid-cols-1 md:grid-cols-4` -- fine on mobile.
+- **Comparable Sales table**: Already has `overflow-x-auto` -- fine.
+- **Amortization table**: Already has `overflow-x-auto` -- fine.
+- **ROI summary grid**: `grid-cols-1 md:grid-cols-4` can have tiny text. Use `grid-cols-2 md:grid-cols-4`.
+- **Hero header text**: `text-3xl md:text-4xl` -- reduce to `text-2xl sm:text-3xl md:text-4xl`.
 
 ## Files to Change
 
-| File | Action | What |
-|------|--------|------|
-| `src/components/landing/LandingHeader.tsx` | Modify | Use SVG logo |
-| `src/components/landing/LandingFooter.tsx` | Modify | Use SVG logo |
-| `src/components/landing/HeroSection.tsx` | Modify | Remove stats box, fix "See How It Works" to scroll, add motion |
-| `src/components/landing/FeaturesSection.tsx` | Modify | Replace screenshot placeholders with styled mock UI cards |
-| `src/components/landing/HowItWorksSection.tsx` | Modify | Clean up redundant circles, add step badge |
-| `src/components/landing/ProblemSection.tsx` | Modify | Add `whileInView` scroll animation |
-| `src/components/landing/FAQSection.tsx` | Modify | Add `whileInView` scroll animation |
-| `src/components/landing/FinalCTA.tsx` | Modify | Add `whileInView` scroll animation |
-| `src/components/landing/PricingSection.tsx` | Create | Free vs Pro pricing cards |
-| `src/pages/Landing.tsx` | Modify | Add PricingSection to page layout |
+| File | Changes |
+|------|---------|
+| `src/features/services/hooks/useServiceProviders.ts` | Cast metadata to `any` in update call |
+| `src/features/services/hooks/useServiceRecurrences.ts` | Cast metadata to `any` in insert and update calls |
+| `src/features/services/hooks/useServices.ts` | Cast attachments/metadata to `any` in insert and update calls |
+| `src/components/landing/HeroDashboardMockup.tsx` | Reduce min-height on mobile, hide sidebar below `sm` |
+| `src/components/landing/HeroSection.tsx` | Smaller heading sizes and padding on mobile |
+| `src/features/homewealth/components/HomeWealth.tsx` | Fix grid breakpoints, button stacking, and text sizes for mobile |
 
