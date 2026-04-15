@@ -288,6 +288,7 @@
   .sidebar-layout {
     display: flex;
     min-height: 100vh;
+    overflow-x: hidden;
   }
 
   .sidebar-nav {
@@ -316,8 +317,10 @@
 
   .sidebar-content {
     flex: 1;
+    min-width: 0;
     margin-left: 0;
     padding: var(--space-4);
+    overflow-x: hidden;
     transition: margin-left 0.3s var(--ease-luxury);
   }
 
