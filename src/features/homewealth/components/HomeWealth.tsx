@@ -299,7 +299,7 @@ const HomeWealth = () => {
                 <div className="flex items-center gap-3">
                     <TrendingUp size={36} />
                     <div>
-                        <h1 className="text-3xl md:text-4xl font-bold">HomeWealth</h1>
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">HomeWealth</h1>
                         <div className="flex items-center gap-2 mt-1">
                             <p className="text-emerald-100 text-sm md:text-base">
                                 {property.address_line1}, {property.city}
@@ -313,10 +313,10 @@ const HomeWealth = () => {
                         </div>
                     </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <Button
                         variant="secondary"
-                        className="font-semibold text-emerald-900"
+                        className="font-semibold text-emerald-900 text-sm"
                         onClick={onSyncClick}
                         disabled={syncMutation.isPending}
                     >
@@ -325,7 +325,7 @@ const HomeWealth = () => {
                     </Button>
                     <Button
                         variant="secondary"
-                        className="font-semibold text-emerald-900"
+                        className="font-semibold text-emerald-900 text-sm"
                         onClick={() => setIsEditModalOpen(true)}
                     >
                         Edit Property
@@ -344,7 +344,7 @@ const HomeWealth = () => {
                     <Building2 className="text-slate-600 dark:text-slate-400" size={20} />
                     <h3 className="text-lg font-bold text-foreground">Property Overview</h3>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                     {property.property_type && (
                         <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
                             <Home size={16} className="text-muted-foreground shrink-0" />
@@ -500,7 +500,7 @@ const HomeWealth = () => {
                     <Award size={20} className="text-amber-600 dark:text-amber-400" />
                     <h3 className="text-lg font-bold text-foreground">Investment Scorecard</h3>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
                     {[
                         { label: 'Equity Position', ...equityGrade, detail: `LTV ${ltvRatio}%` },
                         { label: 'Cash Flow', ...cashFlowGrade, detail: rentalIncome > 0 ? formatCurrency(netRentalIncome) + '/mo' : 'No rental data' },

@@ -5,7 +5,7 @@ export const HeroDashboardMockup = () => {
   return (
     <div className="relative w-full z-10">
       {/* App Window - Removed redundant animation as parent HeroSection handles entrance */}
-      <div className="relative rounded-xl border border-border/50 shadow-[0_20px_50px_rgba(8,_112,_184,_0.1)] overflow-hidden bg-background flex flex-col w-full aspect-[4/3] sm:aspect-[16/10] min-h-[450px] lg:min-h-[550px]">
+      <div className="relative rounded-xl border border-border/50 shadow-[0_20px_50px_rgba(8,_112,_184,_0.1)] overflow-hidden bg-background flex flex-col w-full aspect-[4/3] sm:aspect-[16/10] min-h-[280px] sm:min-h-[450px] lg:min-h-[550px]">
         {/* Top Bar (MacOS style) */}
         <div className="h-10 border-b border-border/50 bg-muted/30 flex items-center px-4 gap-2 shrink-0">
           <div className="flex gap-1.5">
@@ -21,7 +21,7 @@ export const HeroDashboardMockup = () => {
         {/* App Body */}
         <div className="flex flex-1 overflow-hidden">
           {/* Sidebar mockup */}
-          <div className="w-16 sm:w-48 border-r border-border/50 bg-muted/10 flex flex-col items-center sm:items-stretch py-4 shrink-0 hidden xs:flex">
+          <div className="w-16 sm:w-48 border-r border-border/50 bg-muted/10 hidden sm:flex flex-col items-center sm:items-stretch py-4 shrink-0">
             <div className="px-3 mb-6 flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
                 <Home className="w-4 h-4 text-primary" />

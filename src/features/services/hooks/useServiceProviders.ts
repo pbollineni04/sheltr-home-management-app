@@ -62,7 +62,7 @@ export const useServiceProviders = () => {
         try {
             const { data, error } = await supabase
                 .from('service_providers')
-                .update({ ...updates, updated_at: new Date().toISOString() })
+                .update({ ...updates, metadata: updates.metadata as any, updated_at: new Date().toISOString() })
                 .eq('id', id)
                 .select()
                 .single();

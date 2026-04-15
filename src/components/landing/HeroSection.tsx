@@ -20,7 +20,7 @@ export const HeroSection = () => {
         }}
       />
 
-      <div className="container px-4 sm:px-8 py-20 sm:py-32">
+      <div className="container px-4 sm:px-8 py-12 sm:py-20 lg:py-32">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left: Content */}
           <motion.div
@@ -30,7 +30,7 @@ export const HeroSection = () => {
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
             <div className="space-y-6">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold tracking-tight leading-tight">
                 Your Home Is a $300K+ Asset.
                 <span className="block text-primary mt-2">
                   Stop Managing It Like It's Not.

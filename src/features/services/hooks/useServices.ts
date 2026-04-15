@@ -72,6 +72,8 @@ export const useServices = () => {
                 .from('services')
                 .insert([{
                     ...insertData,
+                    metadata: insertData.metadata as any,
+                    attachments: insertData.attachments as any,
                     user_id: user.id,
                     task_id: taskId,
                 }])
@@ -100,7 +102,7 @@ export const useServices = () => {
             const { provider, recurrence, ...updateData } = updates as Partial<Service>;
             const { data, error } = await supabase
                 .from('services')
-                .update({ ...updateData, updated_at: new Date().toISOString() })
+                .update({ ...updateData, metadata: updateData.metadata as any, attachments: updateData.attachments as any, updated_at: new Date().toISOString() })
                 .eq('id', id)
                 .select('*, provider:service_providers(*), recurrence:service_recurrences(*)')
                 .single();
