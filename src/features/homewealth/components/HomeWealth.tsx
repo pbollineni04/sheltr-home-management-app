@@ -294,7 +294,7 @@ const HomeWealth = () => {
                 initial={{ opacity: 0, y: -12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-                className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-4 sm:p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row justify-between md:items-center gap-4 overflow-hidden">
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-4 sm:p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row justify-between md:items-center gap-4 overflow-hidden"
             >
                 <div className="flex items-start sm:items-center gap-3 min-w-0">
                     <TrendingUp size={28} className="shrink-0 sm:w-9 sm:h-9" />
