@@ -2,17 +2,11 @@ import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { CostSummary, UtilityType } from '../types';
+import { useChartTheme, UTILITY_COLORS } from '@/lib/chartTheme';
 
 interface CostBreakdownChartProps {
   costSummary: CostSummary | null;
 }
-
-const COLORS: Record<UtilityType, string> = {
-  electricity: '#eab308',
-  gas: '#f97316',
-  water: '#3b82f6',
-  internet: '#a855f7',
-};
 
 const UTILITY_LABELS: Record<UtilityType, string> = {
   electricity: 'Electricity',
@@ -22,6 +16,8 @@ const UTILITY_LABELS: Record<UtilityType, string> = {
 };
 
 const CostBreakdownChart = ({ costSummary }: CostBreakdownChartProps) => {
+  const chart = useChartTheme();
+
   const chartData = React.useMemo(() => {
     if (!costSummary) return [];
 
@@ -30,7 +26,7 @@ const CostBreakdownChart = ({ costSummary }: CostBreakdownChartProps) => {
       .map(([utilityType, cost]) => ({
         name: UTILITY_LABELS[utilityType as UtilityType],
         value: cost,
-        color: COLORS[utilityType as UtilityType],
+        color: UTILITY_COLORS[utilityType as UtilityType],
       }));
   }, [costSummary]);
 
@@ -74,8 +70,8 @@ const CostBreakdownChart = ({ costSummary }: CostBreakdownChartProps) => {
             <Tooltip
               formatter={(value: number) => `$${value.toFixed(2)}`}
               contentStyle={{
-                backgroundColor: 'white',
-                border: '1px solid #e5e7eb',
+                backgroundColor: chart.tooltipBg,
+                border: `1px solid ${chart.tooltipBorder}`,
                 borderRadius: '6px',
               }}
             />

@@ -1,6 +1,3 @@
-
-import { createWorker } from 'tesseract.js';
-
 // Define a local interface for document processing
 interface DocumentForm {
   name: string;
@@ -13,7 +10,8 @@ interface DocumentForm {
 
 export const processDocument = async (file: File): Promise<Partial<DocumentForm>> => {
   try {
-    // Create Tesseract worker
+    // Dynamic import — tesseract.js is ~14MB; only load when OCR is actually needed
+    const { createWorker } = await import('tesseract.js');
     const worker = await createWorker('eng');
     
     // Convert file to image URL for OCR processing

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   Home,
   LayoutDashboard,
@@ -61,6 +61,36 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
 
   const enabledNavItems = navItems.filter((item) => item.flag);
 
+  const handleNavKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      const currentIndex = enabledNavItems.findIndex((item) => item.id === activeTab);
+      let nextIndex = currentIndex;
+
+      if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+        e.preventDefault();
+        nextIndex = (currentIndex + 1) % enabledNavItems.length;
+      } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+        e.preventDefault();
+        nextIndex = (currentIndex - 1 + enabledNavItems.length) % enabledNavItems.length;
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        nextIndex = 0;
+      } else if (e.key === "End") {
+        e.preventDefault();
+        nextIndex = enabledNavItems.length - 1;
+      } else {
+        return;
+      }
+
+      const nextItem = enabledNavItems[nextIndex];
+      handleNavClick(nextItem.id);
+      // Focus the button
+      const btn = document.getElementById(`nav-tab-${nextItem.id}`);
+      btn?.focus();
+    },
+    [activeTab, enabledNavItems, handleNavClick]
+  );
+
   return (
     <>
       {/* Mobile Header */}
@@ -86,9 +116,14 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div
+          role="presentation"
+          aria-hidden="true"
           className="sidebar-overlay lg:hidden"
           style={{ marginTop: "65px" }}
           onClick={() => setIsMobileMenuOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setIsMobileMenuOpen(false);
+          }}
         />
       )}
 
@@ -109,13 +144,24 @@ const SidebarNavigation = ({ activeTab, onTabChange }: SidebarNavigationProps) =
           </div>
 
           {/* Navigation items */}
-          <nav className="space-y-1">
+          <nav
+            role="tablist"
+            aria-label="Main navigation"
+            aria-orientation="vertical"
+            className="space-y-1"
+            onKeyDown={handleNavKeyDown}
+          >
             {enabledNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
               return (
                 <button
                   key={item.id}
+                  id={`nav-tab-${item.id}`}
+                  role="tab"
+                  aria-selected={isActive}
+                  aria-controls={`tabpanel-${item.id}`}
+                  tabIndex={isActive ? 0 : -1}
                   onClick={() => handleNavClick(item.id)}
                   className={`sidebar-nav-item transition-colors ${isActive ? "active" : ""}`}
                 >

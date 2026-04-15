@@ -86,3 +86,31 @@ Edge function secrets (set in Supabase Dashboard):
 PLAID_CLIENT_ID, PLAID_SECRET, PLAID_ENV
 UTILITYAPI_CLIENT_SECRET, UTILITYAPI_ENVIRONMENT
 ```
+
+## Design Context
+
+### Users
+Homeowners managing a significant financial asset. They check in periodically (weekly or after events like a repair, bill, or purchase) to stay on top of maintenance, spending, and property value. They are not power users or analysts — they want clarity without effort.
+
+### Brand Personality
+**Confident, Clean, Capable.** Sheltr speaks like a knowledgeable advisor, not a chatty assistant. Tone is direct and reassuring. Avoids jargon but doesn't dumb things down. Every screen should feel like it was built by someone who respects your time.
+
+### Emotional Goals
+- **Calm** — "Nothing is falling through the cracks." Reduce the anxiety of homeownership.
+- **Confidence** — "I'm on top of my home." Clear data, clear actions, no guesswork.
+- **Delight** — "This is actually nice to use." Polish in the details, smooth transitions, considered typography.
+
+### Aesthetic Direction
+- **Tone**: Premium fintech — think Wealthfront/Betterment. Data-rich but breathable. Purposeful whitespace.
+- **Theme**: Light and dark mode supported. Primary blue (#3B82F6), warm neutrals, feature-specific accent colors (green=expenses, blue=tasks, purple=timeline, orange=documents, yellow=energy).
+- **Typography**: Inter (300–700). Semantic scale: `.text-display-xl`, `.text-heading-xl`, `.text-body-luxury`, `.text-caption-refined`.
+- **Motion**: Framer Motion with tokens from `src/lib/motion.ts`. Entrance animations (fade-up, stagger), micro-interactions (scale on hover/tap). Never bounce easing. Keep durations 0.15–0.35s.
+- **Layout**: Centered container (max 1200px) for readability. Cards with `rounded-xl`, subtle borders, soft shadows that elevate on hover.
+- **Anti-references**: Generic SaaS admin panels (gray tables, no personality). Overly playful/gamified apps (confetti, badges, cartoons). Data-heavy analyst dashboards (overwhelming, tiny text). Skeuomorphic/dated design (glossy, heavy drop shadows).
+
+### Design Principles
+1. **Clarity over density** — Show the most important information prominently. Progressive disclosure for details. Never overwhelm.
+2. **Purposeful polish** — Every animation, shadow, and color choice should earn its place. No decoration for decoration's sake.
+3. **Consistent tokens** — Use design tokens from `index.css` and motion tokens from `motion.ts`. Never hard-code colors, shadows, or transitions inline.
+4. **Calm confidence** — The UI should feel quietly competent. Muted backgrounds, clear hierarchy, generous spacing. Let data breathe.
+5. **Action-oriented** — Every screen should make the next step obvious. Empty states guide, dashboards surface what needs attention, CTAs are clear and singular.

@@ -8,6 +8,7 @@ import {
     X,
 } from "lucide-react";
 import { useState } from "react";
+import { easeDefault } from "@/lib/motion";
 import type { DashboardMetrics } from "../hooks/useDashboardMetrics";
 
 interface NeedsAttentionBannerProps {
@@ -84,7 +85,7 @@ const NeedsAttentionBanner = ({ metrics, onNavigate }: NeedsAttentionBannerProps
             initial={{ opacity: 0, y: -8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.3 }}
+            transition={easeDefault}
             className="relative bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200 dark:border-amber-800/50 rounded-xl p-4 shadow-sm"
         >
             {/* Dismiss button */}

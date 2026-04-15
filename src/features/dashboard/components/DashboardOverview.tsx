@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useDashboardMetrics } from "@/features/dashboard/hooks/useDashboardMetrics";
 import { useBudget } from "@/hooks/useBudget";
-import { staggerContainer, staggerContainerFast, fadeUpItem } from "@/lib/motion";
+import { staggerContainer, staggerContainerFast, fadeUpItem, easeDefault } from "@/lib/motion";
 import NeedsAttentionBanner from "./NeedsAttentionBanner";
 import MonthlyReport from "./MonthlyReport";
 
@@ -75,13 +75,13 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+        transition={easeDefault}
         className="bg-gradient-to-r from-primary to-purple-600 rounded-2xl p-6 md:p-8 text-primary-foreground shadow-lg"
       >
         <div className="flex items-center gap-3 mb-3">
           <HomeIcon size={32} className="hidden md:block" />
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold">Welcome Home!</h1>
+            <h1 className="text-heading-xl md:text-display-lg">Welcome Home!</h1>
             <p className="text-primary-foreground/70 text-sm md:text-base mt-1">
               Here's what's happening with your home today
             </p>
@@ -146,7 +146,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
             <ArrowRight className="text-muted-foreground group-hover:text-primary transition-colors" size={20} />
           </div>
           <p className="text-sm text-muted-foreground mb-1">Monthly Expenses</p>
-          <p className="text-2xl font-bold text-foreground">
+          <p className="text-heading-xl text-foreground">
             {loading ? "—" : `$${monthlyExpenses.toFixed(2)}`}
           </p>
           {!loading && trendPct != null && (
@@ -179,7 +179,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
             <ArrowRight className="text-muted-foreground group-hover:text-primary transition-colors" size={20} />
           </div>
           <p className="text-sm text-muted-foreground mb-1">Upcoming Services</p>
-          <p className="text-2xl font-bold text-foreground">{loading ? "—" : upcomingEvents.length}</p>
+          <p className="text-heading-xl text-foreground">{loading ? "—" : upcomingEvents.length}</p>
           <p className="text-xs text-muted-foreground mt-2">
             {upcomingEvents.length > 0
               ? `Next: ${upcomingEvents[0]?.title}`
@@ -200,7 +200,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
             <ArrowRight className="text-muted-foreground group-hover:text-primary transition-colors" size={20} />
           </div>
           <p className="text-sm text-muted-foreground mb-1">Tasks Progress</p>
-          <p className="text-2xl font-bold text-foreground">
+          <p className="text-heading-xl text-foreground">
             {loading ? "—" : `${completedTasks}/${completedTasks + pendingTasks}`}
           </p>
           <div className="mt-2 bg-muted rounded-full h-2">
@@ -228,7 +228,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
             <ArrowRight className="text-muted-foreground group-hover:text-primary transition-colors" size={20} />
           </div>
           <p className="text-sm text-muted-foreground mb-1">Utilities Cost</p>
-          <p className="text-2xl font-bold text-foreground">
+          <p className="text-heading-xl text-foreground">
             {loading
               ? "—"
               : utilities.length > 0
@@ -251,7 +251,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
         {/* Recent Expenses */}
         <motion.div variants={fadeUpItem} className="bg-card rounded-xl shadow-sm border border-border">
           <div className="p-4 md:p-6 border-b border-border flex items-center justify-between">
-            <h2 className="font-semibold text-lg text-foreground">Recent Expenses</h2>
+            <h2 className="text-heading-lg text-foreground">Recent Expenses</h2>
             <button
               onClick={() => onNavigate("expenses")}
               className="text-sm text-primary hover:text-primary/80"
@@ -299,7 +299,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
         {/* Upcoming Events (Services + Recurrences) */}
         <motion.div variants={fadeUpItem} className="bg-card rounded-xl shadow-sm border border-border">
           <div className="p-4 md:p-6 border-b border-border flex items-center justify-between">
-            <h2 className="font-semibold text-lg text-foreground">Upcoming Services</h2>
+            <h2 className="text-heading-lg text-foreground">Upcoming Services</h2>
             <button
               onClick={() => onNavigate("services")}
               className="text-sm text-primary hover:text-primary/80"
@@ -361,7 +361,7 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
         {/* Urgent Tasks */}
         <motion.div variants={fadeUpItem} className="bg-card rounded-xl shadow-sm border border-border">
           <div className="p-4 md:p-6 border-b border-border flex items-center justify-between">
-            <h2 className="font-semibold text-lg text-foreground">Urgent Tasks</h2>
+            <h2 className="text-heading-lg text-foreground">Urgent Tasks</h2>
             <button
               onClick={() => onNavigate("tasks")}
               className="text-sm text-primary hover:text-primary/80"
@@ -438,11 +438,11 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.3 }}
+        transition={{ ...easeDefault, delay: 0.3 }}
         className="bg-card rounded-xl shadow-sm border border-border"
       >
         <div className="p-4 md:p-6 border-b border-border flex items-center justify-between">
-          <h2 className="font-semibold text-lg text-foreground">Utilities Overview</h2>
+          <h2 className="text-heading-lg text-foreground">Utilities Overview</h2>
           <button
             onClick={() => onNavigate("energy")}
             className="text-sm text-primary hover:text-primary/80"
@@ -493,10 +493,10 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.4 }}
+        transition={{ ...easeDefault, delay: 0.4 }}
         className="bg-gradient-to-br from-muted/30 to-primary/5 rounded-xl p-4 md:p-6 border border-border"
       >
-        <h2 className="font-semibold text-lg text-foreground mb-4">Quick Actions</h2>
+        <h2 className="text-heading-lg text-foreground mb-4">Quick Actions</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <button
             onClick={() => onNavigate("homewealth")}

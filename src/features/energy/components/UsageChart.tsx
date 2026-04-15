@@ -3,6 +3,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { UtilityReadingRow, ChartDataPoint, Period } from '../types';
 import { format } from 'date-fns';
+import { useChartTheme, UTILITY_COLORS } from '@/lib/chartTheme';
 
 interface UsageChartProps {
   readings: UtilityReadingRow[];
@@ -11,6 +12,8 @@ interface UsageChartProps {
 
 const UsageChart = ({ readings, period = 'month' }: UsageChartProps) => {
   const periodLabel = period === 'quarter' ? 'Quarter' : period === 'year' ? 'Year' : 'Month';
+  const chart = useChartTheme();
+
   // Transform readings into chart data
   const chartData: ChartDataPoint[] = React.useMemo(() => {
     // Group readings by date
@@ -58,17 +61,17 @@ const UsageChart = ({ readings, period = 'month' }: UsageChartProps) => {
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
             <XAxis
               dataKey="date"
-              stroke="#6b7280"
+              stroke={chart.axis}
               fontSize={12}
             />
-            <YAxis stroke="#6b7280" fontSize={12} />
+            <YAxis stroke={chart.axis} fontSize={12} />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'white',
-                border: '1px solid #e5e7eb',
+                backgroundColor: chart.tooltipBg,
+                border: `1px solid ${chart.tooltipBorder}`,
                 borderRadius: '6px',
               }}
             />
@@ -76,7 +79,7 @@ const UsageChart = ({ readings, period = 'month' }: UsageChartProps) => {
             <Line
               type="monotone"
               dataKey="electricity"
-              stroke="#eab308"
+              stroke={UTILITY_COLORS.electricity}
               strokeWidth={2}
               name="Electricity (kWh)"
               dot={{ r: 4 }}
@@ -85,7 +88,7 @@ const UsageChart = ({ readings, period = 'month' }: UsageChartProps) => {
             <Line
               type="monotone"
               dataKey="gas"
-              stroke="#f97316"
+              stroke={UTILITY_COLORS.gas}
               strokeWidth={2}
               name="Gas (therms)"
               dot={{ r: 4 }}
@@ -94,7 +97,7 @@ const UsageChart = ({ readings, period = 'month' }: UsageChartProps) => {
             <Line
               type="monotone"
               dataKey="water"
-              stroke="#3b82f6"
+              stroke={UTILITY_COLORS.water}
               strokeWidth={2}
               name="Water (gal)"
               dot={{ r: 4 }}
@@ -103,7 +106,7 @@ const UsageChart = ({ readings, period = 'month' }: UsageChartProps) => {
             <Line
               type="monotone"
               dataKey="internet"
-              stroke="#a855f7"
+              stroke={UTILITY_COLORS.internet}
               strokeWidth={2}
               name="Internet (GB)"
               dot={{ r: 4 }}

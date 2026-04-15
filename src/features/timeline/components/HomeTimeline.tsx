@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useTimeline } from "../hooks/useTimeline";
 import AddTimelineEventDialog from "./AddTimelineEventDialog";
+import FeatureGuide from "@/components/FeatureGuide";
 import { cn } from "@/lib/utils";
 import { timelineItemAnim } from "@/lib/motion";
 
@@ -28,6 +29,7 @@ const HomeTimeline = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [collapsedYears, setCollapsedYears] = useState<Set<string>>(new Set());
   const [collapsedMonths, setCollapsedMonths] = useState<Set<string>>(new Set());
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   const { events, loading, deleteEvent } = useTimeline();
 
@@ -166,7 +168,7 @@ const HomeTimeline = () => {
           <h2 className="text-heading-xl text-foreground">Home Timeline</h2>
           <p className="text-body-luxury text-muted-foreground">Your home's complete service history</p>
         </div>
-        <AddTimelineEventDialog />
+        <AddTimelineEventDialog externalOpen={addDialogOpen} onExternalOpenChange={setAddDialogOpen} />
       </div>
 
       {/* Simplified Filters */}
@@ -267,18 +269,22 @@ const HomeTimeline = () => {
       {/* Visual Timeline */}
       <div className="relative">
         {sortedYears.length === 0 ? (
-          <Card className="card-luxury">
-            <CardContent className="p-12 text-center">
-              <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-heading-xl text-foreground">No events found</h3>
-              <p className="text-body-luxury text-muted-foreground max-w-md mx-auto">
-                Your timeline builds automatically as you complete tasks, finish services, and log expenses over $50.
-              </p>
-              <p className="text-xs text-muted-foreground mt-3">
-                Or add an event manually to start documenting your home's history.
-              </p>
-            </CardContent>
-          </Card>
+          <FeatureGuide
+            icon={Clock}
+            title="Build your home's timeline"
+            description="A chronological history of everything that happens in your home."
+            bullets={[
+              "Auto-populates from completed tasks and larger expenses",
+              "Track renovations, maintenance, inspections, and purchases",
+              "Search and filter by category, date range, or keyword",
+            ]}
+            ctaLabel="Add your first event"
+            onCtaClick={() => setAddDialogOpen(true)}
+            iconBgClass="bg-purple-100 dark:bg-purple-900/30"
+            iconColorClass="text-purple-600"
+            bulletDotClass="bg-purple-600"
+            accentBorderClass="border-t-purple-500"
+          />
         ) : (
           sortedYears.map((year) => {
             const isYearCollapsed = collapsedYears.has(year);

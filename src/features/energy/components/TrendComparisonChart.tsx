@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { TrendData, UtilityType } from '../types';
+import { useChartTheme, UTILITY_COLORS } from '@/lib/chartTheme';
 
 interface TrendComparisonChartProps {
   trends: TrendData[];
@@ -17,6 +18,7 @@ const UTILITY_LABELS: Record<UtilityType, string> = {
 
 const TrendComparisonChart = ({ trends }: TrendComparisonChartProps) => {
   const [viewMode, setViewMode] = useState<'usage' | 'cost'>('usage');
+  const chart = useChartTheme();
 
   const chartData = React.useMemo(() => {
     return trends.map(trend => ({
@@ -67,22 +69,22 @@ const TrendComparisonChart = ({ trends }: TrendComparisonChartProps) => {
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis dataKey="name" stroke="#6b7280" fontSize={12} />
-            <YAxis stroke="#6b7280" fontSize={12} />
+            <CartesianGrid strokeDasharray="3 3" stroke={chart.grid} />
+            <XAxis dataKey="name" stroke={chart.axis} fontSize={12} />
+            <YAxis stroke={chart.axis} fontSize={12} />
             <Tooltip
               formatter={(value: number) =>
                 viewMode === 'cost' ? `$${value.toFixed(2)}` : value.toFixed(2)
               }
               contentStyle={{
-                backgroundColor: 'white',
-                border: '1px solid #e5e7eb',
+                backgroundColor: chart.tooltipBg,
+                border: `1px solid ${chart.tooltipBorder}`,
                 borderRadius: '6px',
               }}
             />
             <Legend />
-            <Bar dataKey="current" fill="#3b82f6" name="Current Period" />
-            <Bar dataKey="previous" fill="#94a3b8" name="Previous Period" />
+            <Bar dataKey="current" fill={UTILITY_COLORS.water} name="Current Period" />
+            <Bar dataKey="previous" fill={chart.axis} name="Previous Period" />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>

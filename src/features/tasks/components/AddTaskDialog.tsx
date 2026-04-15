@@ -15,10 +15,14 @@ import { searchTasks } from "../data/taskTemplates";
 
 interface AddTaskDialogProps {
   selectedList: string;
+  externalOpen?: boolean;
+  onExternalOpenChange?: (open: boolean) => void;
 }
 
-const AddTaskDialog = ({ selectedList }: AddTaskDialogProps) => {
-  const [open, setOpen] = useState(false);
+const AddTaskDialog = ({ selectedList, externalOpen, onExternalOpenChange }: AddTaskDialogProps) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen ?? internalOpen;
+  const setOpen = onExternalOpenChange ?? setInternalOpen;
   const [activeTab, setActiveTab] = useState("templates");
   const [suggestions, setSuggestions] = useState<TaskTemplate[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);

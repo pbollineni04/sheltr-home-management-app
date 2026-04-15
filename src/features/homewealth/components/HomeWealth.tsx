@@ -33,7 +33,9 @@ import {
     Receipt,
 } from "lucide-react";
 import { staggerContainer, staggerContainerFast, fadeUpItem } from "@/lib/motion";
+import { STATUS_COLORS } from "@/lib/chartTheme";
 import { Button } from "@/components/ui/button";
+import FeatureGuide from "@/components/FeatureGuide";
 
 import { useProperties, useImprovements, useEquityHistory, useComparableSales, useToggleImprovement, useSyncProperty } from "../api/queries";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -115,13 +117,23 @@ const HomeWealth = () => {
 
     if (!property) {
         return (
-            <div className="max-w-7xl mx-auto space-y-6 text-center py-20">
-                <Home className="mx-auto h-16 w-16 text-muted-foreground mb-4 opacity-50" />
-                <h2 className="text-2xl font-bold mb-2">Welcome to HomeWealth</h2>
-                <p className="text-muted-foreground mb-6">Track your home's investment performance, calculate ROI on renovations, and build wealth.</p>
-                <Button className="gap-2" onClick={() => setIsEditModalOpen(true)}>
-                    <Plus size={16} /> Add Your Property
-                </Button>
+            <div className="max-w-7xl mx-auto space-y-6">
+                <FeatureGuide
+                    icon={TrendingUp}
+                    title="Track your home's wealth"
+                    description="Monitor your property's value, equity, and investment performance over time."
+                    bullets={[
+                        "Track property value with automated market data syncing",
+                        "See how much equity you've built and track net worth over time",
+                        "Simulate ROI on home improvements before you invest",
+                    ]}
+                    ctaLabel="Add your property"
+                    onCtaClick={() => setIsEditModalOpen(true)}
+                    iconBgClass="bg-emerald-100 dark:bg-emerald-900/30"
+                    iconColorClass="text-emerald-600"
+                    bulletDotClass="bg-emerald-600"
+                    accentBorderClass="border-t-emerald-500"
+                />
 
                 <EditPropertyModal
                     property={null}
@@ -252,9 +264,9 @@ const HomeWealth = () => {
 
     const getLTVColor = () => {
         const ltv = parseFloat(ltvRatio);
-        if (ltv < 60) return "#10b981";
-        if (ltv < 80) return "#f59e0b";
-        return "#ef4444";
+        if (ltv < 60) return STATUS_COLORS.success;
+        if (ltv < 80) return STATUS_COLORS.warning;
+        return STATUS_COLORS.error;
     };
 
     const getLTVStatus = () => {

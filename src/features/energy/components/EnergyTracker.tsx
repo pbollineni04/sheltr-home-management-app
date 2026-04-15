@@ -33,6 +33,7 @@ import UtilityConnectionDialog from "./UtilityConnectionDialog";
 import UtilityConnectionSettings from "./UtilityConnectionSettings";
 import BillReviewDialog from "./BillReviewDialog";
 import ExportButton from "./ExportButton";
+import FeatureGuide from "@/components/FeatureGuide";
 import type { UtilityType, ReadingFormData } from "../types";
 import { staggerContainer, fadeUpItem, cardItemAnim, listItemAnim } from "@/lib/motion";
 
@@ -389,23 +390,28 @@ const EnergyTracker = () => {
                   ))}
                 </div>
               ) : utilityData.length === 0 ? (
-                <div className="text-center py-8">
-                  <Zap className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="font-semibold text-lg mb-2">No utility readings yet</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Add readings manually or connect your utility provider for automatic import.
-                  </p>
-                  <div className="flex justify-center gap-2">
-                    <Button onClick={() => setAddDialogOpen(true)} variant="outline">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Manually
-                    </Button>
-                    <Button onClick={() => setConnectionDialogOpen(true)}>
-                      <Plug className="w-4 h-4 mr-2" />
-                      Connect Provider
-                    </Button>
-                  </div>
-                </div>
+                <FeatureGuide
+                  icon={Zap}
+                  title="Track your utility usage"
+                  description="Monitor electricity, gas, water, and internet costs in one place."
+                  bullets={[
+                    "Track usage trends and spot cost anomalies",
+                    "Get personalized efficiency tips based on your data",
+                    "Calculate your carbon footprint and efficiency score",
+                  ]}
+                  ctaLabel="Add your first bill"
+                  onCtaClick={() => setAddDialogOpen(true)}
+                  secondaryCta={{
+                    label: "Connect your provider",
+                    onClick: () => setConnectionDialogOpen(true),
+                    variant: "outline",
+                    icon: Plug,
+                  }}
+                  iconBgClass="bg-yellow-100 dark:bg-yellow-900/30"
+                  iconColorClass="text-yellow-600"
+                  bulletDotClass="bg-yellow-600"
+                  accentBorderClass="border-t-yellow-500"
+                />
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {utilityData.map((utility) => {

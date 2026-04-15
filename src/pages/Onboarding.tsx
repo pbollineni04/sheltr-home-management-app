@@ -9,65 +9,28 @@ import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
-import { pageEnter, fadeUpItem, staggerContainer } from '@/lib/motion';
+import { pageEnter, staggerContainer, fadeUpItem, easeDefault } from '@/lib/motion';
 import {
   Home,
   MapPin,
   DollarSign,
   Loader2,
-  LayoutDashboard,
   Clock,
   CheckSquare,
   Receipt,
-  FileText,
-  ChevronRight,
-  ChevronLeft,
+  Zap,
+  TrendingUp,
   ArrowRight,
   Pencil,
 } from 'lucide-react';
 
-const TOUR_SLIDES = [
-  {
-    icon: LayoutDashboard,
-    title: 'Dashboard',
-    description: 'Get a bird\'s-eye view of your home — equity, expenses, tasks, and more all in one place.',
-  },
-  {
-    icon: Clock,
-    title: 'Timeline',
-    description: 'Track every home event chronologically — repairs, upgrades, inspections, and milestones.',
-  },
-  {
-    icon: CheckSquare,
-    title: 'Tasks',
-    description: 'Stay on top of maintenance with smart task management, reminders, and recurring schedules.',
-  },
-  {
-    icon: Receipt,
-    title: 'Expenses',
-    description: 'Monitor all home-related spending with automatic categorization and trend insights.',
-  },
-  {
-    icon: FileText,
-    title: 'Document Vault',
-    description: 'Securely store warranties, contracts, receipts, and important home documents.',
-  },
+const FEATURES = [
+  { icon: CheckSquare, title: 'Tasks', description: 'Smart task management with reminders', iconBg: 'bg-blue-100 dark:bg-blue-900/30', iconColor: 'text-blue-600' },
+  { icon: Receipt, title: 'Expenses', description: 'Track and categorize home spending', iconBg: 'bg-green-100 dark:bg-green-900/30', iconColor: 'text-green-600' },
+  { icon: Clock, title: 'Timeline', description: 'Chronological home service history', iconBg: 'bg-purple-100 dark:bg-purple-900/30', iconColor: 'text-purple-600' },
+  { icon: Zap, title: 'Energy', description: 'Monitor utility usage and costs', iconBg: 'bg-yellow-100 dark:bg-yellow-900/30', iconColor: 'text-yellow-600' },
+  { icon: TrendingUp, title: 'HomeWealth', description: 'Track property value and equity', iconBg: 'bg-emerald-100 dark:bg-emerald-900/30', iconColor: 'text-emerald-600' },
 ];
-
-const slideVariants = {
-  enter: (direction: number) => ({
-    x: direction > 0 ? 80 : -80,
-    opacity: 0,
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-  },
-  exit: (direction: number) => ({
-    x: direction > 0 ? -80 : 80,
-    opacity: 0,
-  }),
-};
 
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -84,8 +47,6 @@ const Onboarding = () => {
   const [homeAddress, setHomeAddress] = useState('');
   const [homeValue, setHomeValue] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const [slideIndex, setSlideIndex] = useState(0);
-  const [slideDirection, setSlideDirection] = useState(1);
 
   // Address autocomplete state
   const [addressQuery, setAddressQuery] = useState('');
@@ -246,23 +207,7 @@ const Onboarding = () => {
     setIsSaving(false);
   };
 
-  const nextSlide = () => {
-    if (slideIndex < TOUR_SLIDES.length - 1) {
-      setSlideDirection(1);
-      setSlideIndex((i) => i + 1);
-    } else {
-      completeOnboarding();
-    }
-  };
-
-  const prevSlide = () => {
-    if (slideIndex > 0) {
-      setSlideDirection(-1);
-      setSlideIndex((i) => i - 1);
-    }
-  };
-
-  const progress = step === 1 ? 50 : 50 + ((slideIndex + 1) / TOUR_SLIDES.length) * 50;
+  const progress = step === 1 ? 50 : 100;
 
   const showAutoValue = autoValue && !isManualOverride;
   const showManualInput = !autoValue || isManualOverride;
@@ -282,7 +227,7 @@ const Onboarding = () => {
           <div className="inline-flex items-center justify-center w-14 h-14 mb-3 shadow-lg overflow-hidden rounded-2xl">
             <img src="/sheltr-logo.svg" alt="Sheltr Logo" className="w-full h-full object-cover" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Welcome to Sheltr</h1>
+          <h1 className="text-heading-xl text-foreground">Welcome to Sheltr</h1>
           <p className="text-muted-foreground text-sm mt-1">Let's get your home set up</p>
         </div>
 
@@ -296,7 +241,7 @@ const Onboarding = () => {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16 }}
-              transition={{ duration: 0.3 }}
+              transition={easeDefault}
             >
               <Card className="rounded-2xl shadow-xl border-border/50">
                 <CardHeader>
@@ -337,13 +282,24 @@ const Onboarding = () => {
                               if (suggestions.length > 0) setShowSuggestions(true);
                             }}
                             autoComplete="off"
+                            role="combobox"
+                            aria-expanded={showSuggestions && suggestions.length > 0}
+                            aria-controls="address-listbox"
+                            aria-autocomplete="list"
                           />
                           {showSuggestions && suggestions.length > 0 && (
-                            <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg overflow-hidden">
+                            <div
+                              id="address-listbox"
+                              role="listbox"
+                              aria-label="Address suggestions"
+                              className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg overflow-hidden"
+                            >
                               {suggestions.map((suggestion, i) => (
                                 <button
                                   key={i}
                                   type="button"
+                                  role="option"
+                                  aria-selected={false}
                                   className="w-full text-left px-3 py-2.5 text-sm hover:bg-accent transition-colors flex items-center gap-2"
                                   onClick={() => handleSelectSuggestion(suggestion)}
                                 >
@@ -439,88 +395,40 @@ const Onboarding = () => {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16 }}
-              transition={{ duration: 0.3 }}
+              transition={easeDefault}
             >
               <Card className="rounded-2xl shadow-xl border-border/50">
                 <CardHeader>
-                  <CardTitle className="text-xl text-center">Explore Sheltr</CardTitle>
+                  <CardTitle className="text-xl text-center">You're all set!</CardTitle>
                   <CardDescription className="text-center">Here's what you can do with Sheltr</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="relative overflow-hidden min-h-[200px] flex items-center justify-center">
-                    <AnimatePresence mode="wait" custom={slideDirection}>
-                      <motion.div
-                        key={slideIndex}
-                        custom={slideDirection}
-                        variants={slideVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={{ duration: 0.25 }}
-                        className="flex flex-col items-center text-center px-4"
-                      >
-                        {(() => {
-                          const slide = TOUR_SLIDES[slideIndex];
-                          const Icon = slide.icon;
-                          return (
-                            <>
-                              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
-                                <Icon className="w-8 h-8 text-primary" />
-                              </div>
-                              <h3 className="text-lg font-semibold mb-2">{slide.title}</h3>
-                              <p className="text-muted-foreground text-sm max-w-sm">{slide.description}</p>
-                            </>
-                          );
-                        })()}
-                      </motion.div>
-                    </AnimatePresence>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                    {FEATURES.map((feat) => {
+                      const Icon = feat.icon;
+                      return (
+                        <div key={feat.title} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                          <div className={`w-9 h-9 rounded-lg ${feat.iconBg} flex items-center justify-center shrink-0`}>
+                            <Icon className={`w-4 h-4 ${feat.iconColor}`} />
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-foreground">{feat.title}</p>
+                            <p className="text-xs text-muted-foreground">{feat.description}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
 
-                  {/* Dot indicators */}
-                  <div className="flex justify-center gap-2 mt-4 mb-6">
-                    {TOUR_SLIDES.map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => {
-                          setSlideDirection(i > slideIndex ? 1 : -1);
-                          setSlideIndex(i);
-                        }}
-                        className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                          i === slideIndex ? 'bg-primary w-6' : 'bg-muted-foreground/30'
-                        }`}
-                      />
-                    ))}
-                  </div>
-
-                  {/* Navigation buttons */}
-                  <div className="flex gap-3">
-                    {slideIndex > 0 ? (
-                      <Button variant="outline" onClick={prevSlide} className="flex-1">
-                        <ChevronLeft className="mr-1 h-4 w-4" />
-                        Back
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="ghost"
-                        onClick={completeOnboarding}
-                        className="flex-1"
-                        disabled={isSaving}
-                      >
-                        Skip tour
-                      </Button>
-                    )}
-                    <Button onClick={nextSlide} className="flex-1 font-semibold" disabled={isSaving}>
-                      {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      {slideIndex < TOUR_SLIDES.length - 1 ? (
-                        <>
-                          Next
-                          <ChevronRight className="ml-1 h-4 w-4" />
-                        </>
-                      ) : (
-                        'Get Started'
-                      )}
-                    </Button>
-                  </div>
+                  <Button
+                    onClick={completeOnboarding}
+                    className="w-full font-semibold"
+                    disabled={isSaving}
+                  >
+                    {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Go to Dashboard
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
                 </CardContent>
               </Card>
             </motion.div>

@@ -11,12 +11,14 @@ import { ExpenseBudgetProgress } from "./expense/ExpenseBudgetProgress";
 import { ExpenseService, type ExpenseRow } from "@/features/expenses/services/expenseService";
 import { useBudget } from "@/hooks/useBudget";
 import { toast } from "sonner";
+import FeatureGuide from "@/components/FeatureGuide";
 import {
   Home as IconHome,
   Wrench as IconWrench,
   ShoppingBag as IconShoppingBag,
   Calendar as IconCalendar,
-  Lightbulb as IconLightbulb
+  Lightbulb as IconLightbulb,
+  Receipt,
 } from "lucide-react";
 
 const ExpenseTracker = () => {
@@ -244,18 +246,7 @@ const ExpenseTracker = () => {
           ? new Date(now.getFullYear(), now.getMonth(), 1)
           : new Date(now.getFullYear(), 0, 1);
 
-        console.log('🔍 Fetching expenses from database...', {
-          period: selectedPeriod,
-          startDate: start.toISOString(),
-          endDate: now.toISOString()
-        });
-
         const periodData = await ExpenseService.getByDateRange(start.toISOString(), now.toISOString());
-
-        console.log('✅ Fetched from database:', {
-          periodCount: periodData.length,
-          periodCategories: periodData.map(e => ({ desc: e.description, cat: e.category, amt: e.amount, date: e.date }))
-        });
 
         if (!mounted) return;
         setAllThisPeriod(periodData);
@@ -324,11 +315,6 @@ const ExpenseTracker = () => {
 
   const categories = useMemo(() => {
     const map = new Map<string, number>();
-    console.log('📊 All expenses for category calculation:', allThisPeriod.map(e => ({
-      description: e.description,
-      category: e.category,
-      amount: e.amount
-    })));
     allThisPeriod.forEach(e => map.set(e.category, (map.get(e.category) || 0) + Number(e.amount || 0)));
     const result = Array.from(map.entries()).map(([id, amount]) => ({
       id,
@@ -343,9 +329,32 @@ const ExpenseTracker = () => {
                   : 'gray',
       amount,
     }));
-    console.log('📊 Category breakdown:', result);
     return result;
   }, [allThisPeriod]);
+
+  if (!loading && allThisPeriod.length === 0) {
+    return (
+      <div className="space-y-6 px-3 sm:px-4">
+        <ExpenseHeader />
+        <FeatureGuide
+          icon={Receipt}
+          title="Track your home expenses"
+          description="Monitor all home-related spending with categorization and trend insights. Try sample data to see how it works."
+          bullets={[
+            "Categorize spending by renovation, maintenance, utilities, and more",
+            "See monthly and yearly trends at a glance",
+            "Auto-import transactions via Plaid bank connection",
+          ]}
+          ctaLabel="Try with sample expenses"
+          onCtaClick={loadSampleData}
+          iconBgClass="bg-green-100 dark:bg-green-900/30"
+          iconColorClass="text-green-600"
+          bulletDotClass="bg-green-600"
+          accentBorderClass="border-t-green-500"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 px-3 sm:px-4">

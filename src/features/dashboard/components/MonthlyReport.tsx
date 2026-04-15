@@ -8,6 +8,7 @@ import {
     Zap,
     BarChart3,
 } from "lucide-react";
+import { easeDefault } from "@/lib/motion";
 import type { DashboardMetrics } from "../hooks/useDashboardMetrics";
 
 interface MonthlyReportProps {
@@ -50,13 +51,13 @@ const MonthlyReport = ({ metrics }: MonthlyReportProps) => {
         <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.5 }}
+            transition={{ ...easeDefault, delay: 0.5 }}
             className="bg-card rounded-xl shadow-sm border border-border"
         >
             <div className="p-4 md:p-6 border-b border-border flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <BarChart3 className="text-primary" size={20} />
-                    <h2 className="font-semibold text-lg text-foreground">Monthly Report</h2>
+                    <h2 className="text-heading-lg text-foreground">Monthly Report</h2>
                 </div>
                 <span className="text-xs text-muted-foreground">
                     {new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" })}

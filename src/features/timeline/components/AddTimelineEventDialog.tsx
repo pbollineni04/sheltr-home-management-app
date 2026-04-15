@@ -9,8 +9,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus } from 'lucide-react';
 import { useTimeline } from '../hooks/useTimeline';
 
-const AddTimelineEventDialog = () => {
-  const [open, setOpen] = useState(false);
+interface AddTimelineEventDialogProps {
+  externalOpen?: boolean;
+  onExternalOpenChange?: (open: boolean) => void;
+}
+
+const AddTimelineEventDialog = ({ externalOpen, onExternalOpenChange }: AddTimelineEventDialogProps = {}) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = externalOpen ?? internalOpen;
+  const setOpen = onExternalOpenChange ?? setInternalOpen;
   const [formData, setFormData] = useState({
     title: '',
     description: '',

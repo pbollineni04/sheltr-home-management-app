@@ -16,6 +16,34 @@ import { ServicesMain } from "@/features/services";
 import { pageHeader } from "@/lib/motion";
 import QuickAdd from "@/components/QuickAdd";
 
+const pageTitles: Record<string, string> = {
+  dashboard: "Dashboard",
+  homewealth: "HomeWealth",
+  timeline: "Home Timeline",
+  tasks: "Tasks",
+  expenses: "Expenses",
+  vault: "Document Vault",
+  services: "Services",
+  move: "Move In/Out",
+  helper: "Sheltr Helper",
+  energy: "Utilities",
+  alerts: "Smart Alerts",
+};
+
+const pageSubtitles: Record<string, string> = {
+  dashboard: "Welcome back! Here's your home overview.",
+  homewealth: "Track your home's investment performance and build wealth",
+  timeline: "A history of everything that happens in your home",
+  tasks: "Manage your household to-dos",
+  expenses: "Track your household spending",
+  vault: "Your documents stored securely",
+  services: "Manage your home service providers and appointments",
+  energy: "Monitor utility bills and usage across your household",
+  alerts: "Stay on top of your home alerts",
+  move: "Manage your move-in/out process",
+  helper: "Your AI-powered home assistant",
+};
+
 const Index = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
 
@@ -48,35 +76,6 @@ const Index = () => {
     }
   };
 
-  // Map tab IDs to readable page titles
-  const pageTitles: Record<string, string> = {
-    dashboard: "Dashboard",
-    homewealth: "HomeWealth",
-    timeline: "Home Timeline",
-    tasks: "Tasks",
-    expenses: "Expenses",
-    vault: "Document Vault",
-    services: "Services",
-    move: "Move In/Out",
-    helper: "Sheltr Helper",
-    energy: "Utilities",
-    alerts: "Smart Alerts",
-  };
-
-  const pageSubtitles: Record<string, string> = {
-    dashboard: "Welcome back! Here's your home overview.",
-    homewealth: "Track your home's investment performance and build wealth",
-    timeline: "A history of everything that happens in your home",
-    tasks: "Manage your household to-dos",
-    expenses: "Track your household spending",
-    vault: "Your documents stored securely",
-    services: "Manage your home service providers and appointments",
-    energy: "Monitor utility bills and usage across your household",
-    alerts: "Stay on top of your home alerts",
-    move: "Manage your move-in/out process",
-    helper: "Your AI-powered home assistant",
-  };
-
   return (
     <div className="sidebar-layout" style={{ background: 'hsl(var(--background))' }}>
       <SidebarNavigation activeTab={activeTab} onTabChange={setActiveTab} />
@@ -104,6 +103,9 @@ const Index = () => {
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
+            id={`tabpanel-${activeTab}`}
+            role="tabpanel"
+            aria-labelledby={`nav-tab-${activeTab}`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}

@@ -49,6 +49,7 @@ const TasksLists = () => {
     const [showLibrary, setShowLibrary] = useState(false);
     const [activeTask, setActiveTask] = useState<Task | null>(null);
     const [activeTemplate, setActiveTemplate] = useState<TaskTemplate | null>(null);
+    const [addDialogOpen, setAddDialogOpen] = useState(false);
 
     /* ── DnD sensors ────────────────────────────── */
     const sensors = useSensors(
@@ -223,7 +224,7 @@ const TasksLists = () => {
                     >
                         Templates
                     </button>
-                    <AddTaskDialog selectedList={selectedList} />
+                    <AddTaskDialog selectedList={selectedList} externalOpen={addDialogOpen} onExternalOpenChange={setAddDialogOpen} />
                 </div>
             </motion.div>
 
@@ -309,7 +310,7 @@ const TasksLists = () => {
 
                 {/* Kanban Board */}
                 {filteredTasks.length === 0 ? (
-                    <EmptyTasksState />
+                    <EmptyTasksState onAddTask={() => setAddDialogOpen(true)} />
                 ) : (
                     <motion.div
                         variants={staggerContainerFast}
