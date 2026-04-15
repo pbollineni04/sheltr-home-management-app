@@ -350,11 +350,11 @@ const HomeWealth = () => {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.05 }}
-                className="bg-card rounded-xl shadow-lg border border-border p-6"
+                className="bg-card rounded-xl shadow-lg border border-border p-4 sm:p-6"
             >
                 <div className="flex items-center gap-2 mb-4">
                     <Building2 className="text-slate-600 dark:text-slate-400" size={20} />
-                    <h3 className="text-lg font-bold text-foreground">Property Overview</h3>
+                    <h3 className="text-base sm:text-lg font-bold text-foreground">Property Overview</h3>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                     {property.property_type && (
@@ -444,25 +444,25 @@ const HomeWealth = () => {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.1 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
             >
                 {monthlyEquityVelocity !== null && (
-                    <div className="bg-card rounded-xl shadow-lg border border-border p-5">
+                    <div className="bg-card rounded-xl shadow-lg border border-border p-4 sm:p-5">
                         <div className="flex items-center gap-2 mb-2">
                             <Gauge size={18} className="text-emerald-600 dark:text-emerald-400" />
                             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Equity Velocity</span>
                         </div>
-                        <p className="text-2xl font-bold text-foreground tabular-nums">~{formatCurrency(monthlyEquityVelocity)}<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
+                        <p className="text-xl sm:text-2xl font-bold text-foreground tabular-nums">~{formatCurrency(monthlyEquityVelocity)}<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
                         <p className="text-xs text-muted-foreground mt-1">From appreciation + principal paydown</p>
                     </div>
                 )}
                 {pricePerSqft !== null && (
-                    <div className="bg-card rounded-xl shadow-lg border border-border p-5">
+                    <div className="bg-card rounded-xl shadow-lg border border-border p-4 sm:p-5">
                         <div className="flex items-center gap-2 mb-2">
                             <MapPin size={18} className="text-blue-600 dark:text-blue-400" />
                             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Price vs. Neighbors</span>
                         </div>
-                        <p className="text-2xl font-bold text-foreground tabular-nums">${pricePerSqft}<span className="text-sm font-normal text-muted-foreground">/sf</span></p>
+                        <p className="text-xl sm:text-2xl font-bold text-foreground tabular-nums">${pricePerSqft}<span className="text-sm font-normal text-muted-foreground">/sf</span></p>
                         {avgCompPricePerSqft && priceVsCompsPct && (
                             <p className="text-xs text-muted-foreground mt-1">
                                 Avg comp: ${avgCompPricePerSqft}/sf ·{' '}
@@ -474,24 +474,24 @@ const HomeWealth = () => {
                     </div>
                 )}
                 {taxRate !== null && (
-                    <div className="bg-card rounded-xl shadow-lg border border-border p-5">
+                    <div className="bg-card rounded-xl shadow-lg border border-border p-4 sm:p-5">
                         <div className="flex items-center gap-2 mb-2">
                             <Receipt size={18} className="text-purple-600 dark:text-purple-400" />
                             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Tax Burden</span>
                         </div>
-                        <p className="text-2xl font-bold text-foreground tabular-nums">{taxRate}%</p>
+                        <p className="text-xl sm:text-2xl font-bold text-foreground tabular-nums">{taxRate}%</p>
                         <p className="text-xs text-muted-foreground mt-1">
                             {formatCurrency(property.property_taxes || 0)}/yr · Nat'l avg ~1.1%
                         </p>
                     </div>
                 )}
                 {annualAppreciation !== null && totalAppreciation !== 0 && (
-                    <div className="bg-card rounded-xl shadow-lg border border-border p-5">
+                    <div className="bg-card rounded-xl shadow-lg border border-border p-4 sm:p-5">
                         <div className="flex items-center gap-2 mb-2">
                             <TrendingUp size={18} className={totalAppreciation > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"} />
                             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Since Purchase</span>
                         </div>
-                        <p className={`text-2xl font-bold tabular-nums ${totalAppreciation > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                        <p className={`text-xl sm:text-2xl font-bold tabular-nums ${totalAppreciation > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
                             {totalAppreciation > 0 ? '+' : ''}{formatCurrency(totalAppreciation)}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
@@ -506,13 +506,13 @@ const HomeWealth = () => {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.12 }}
-                className="bg-card rounded-xl shadow-lg border border-border p-6"
+                className="bg-card rounded-xl shadow-lg border border-border p-4 sm:p-6"
             >
                 <div className="flex items-center gap-2 mb-4">
                     <Award size={20} className="text-amber-600 dark:text-amber-400" />
-                    <h3 className="text-lg font-bold text-foreground">Investment Scorecard</h3>
+                    <h3 className="text-base sm:text-lg font-bold text-foreground">Investment Scorecard</h3>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
                     {[
                         { label: 'Equity Position', ...equityGrade, detail: `LTV ${ltvRatio}%` },
                         { label: 'Cash Flow', ...cashFlowGrade, detail: rentalIncome > 0 ? formatCurrency(netRentalIncome) + '/mo' : 'No rental data' },
@@ -520,10 +520,10 @@ const HomeWealth = () => {
                         { label: 'Tax Efficiency', ...taxGrade, detail: taxRate ? `${taxRate}% rate` : 'No tax data' },
                         { label: 'Comp Position', ...compGrade, detail: priceVsCompsPct ? `${parseFloat(priceVsCompsPct) > 0 ? '+' : ''}${priceVsCompsPct}% vs avg` : 'No comps' },
                     ].map((item) => (
-                        <div key={item.label} className="text-center p-4 bg-muted/50 rounded-xl">
-                            <p className={`text-4xl font-black ${item.color}`}>{item.grade}</p>
-                            <p className="text-sm font-semibold text-foreground mt-1">{item.label}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5">{item.detail}</p>
+                        <div key={item.label} className="text-center p-3 sm:p-4 bg-muted/50 rounded-xl">
+                            <p className={`text-2xl sm:text-4xl font-black ${item.color}`}>{item.grade}</p>
+                            <p className="text-xs sm:text-sm font-semibold text-foreground mt-1">{item.label}</p>
+                            <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">{item.detail}</p>
                         </div>
                     ))}
                 </div>
@@ -580,11 +580,11 @@ const HomeWealth = () => {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.15 }}
-                className="bg-card rounded-xl shadow-lg border border-border p-6"
+                className="bg-card rounded-xl shadow-lg border border-border p-4 sm:p-6"
             >
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-4">
                     <div>
-                        <h2 className="text-xl sm:text-2xl font-bold text-foreground">Total Household Wealth</h2>
+                        <h2 className="text-lg sm:text-2xl font-bold text-foreground">Total Household Wealth</h2>
                         <p className="text-muted-foreground text-sm mt-1">Property Value vs. Mortgage Debt</p>
                     </div>
                     <div className="text-right">
@@ -598,8 +598,8 @@ const HomeWealth = () => {
                 {/* Mini equity trend bars */}
                 <div className="space-y-2">
                     {equityHistory.slice(-6).map((d, i) => (
-                        <div key={i} className="flex items-center gap-3 text-xs">
-                            <span className="w-14 text-muted-foreground text-right">{d.recorded_date}</span>
+                        <div key={i} className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs">
+                            <span className="w-10 sm:w-14 text-muted-foreground text-right shrink-0">{d.recorded_date}</span>
                             <div className="flex-1 flex gap-1 items-center h-5">
                                 <div
                                     className="bg-blue-500 rounded-sm h-4"
@@ -612,7 +612,7 @@ const HomeWealth = () => {
                                     title={`Debt: ${formatCurrency(d.mortgage_debt || 0)}`}
                                 />
                             </div>
-                            <span className="w-16 text-right font-medium text-emerald-600 dark:text-emerald-400 tabular-nums">
+                            <span className="w-12 sm:w-16 text-right font-medium text-emerald-600 dark:text-emerald-400 tabular-nums shrink-0">
                                 {formatCurrency(d.equity || 0)}
                             </span>
                         </div>
@@ -631,10 +631,10 @@ const HomeWealth = () => {
                 className="grid grid-cols-1 lg:grid-cols-2 gap-6"
             >
                 {/* LTV Ratio Gauge */}
-                <motion.div variants={fadeUpItem} className="bg-card rounded-xl shadow-lg border border-border p-6">
-                    <h3 className="text-xl font-bold text-foreground mb-4">Loan-to-Value Ratio</h3>
+                <motion.div variants={fadeUpItem} className="bg-card rounded-xl shadow-lg border border-border p-4 sm:p-6">
+                    <h3 className="text-lg sm:text-xl font-bold text-foreground mb-4">Loan-to-Value Ratio</h3>
                     <div className="flex flex-col items-center">
-                        <div className="relative w-48 h-48">
+                        <div className="relative w-36 h-36 sm:w-48 sm:h-48">
                             <svg viewBox="0 0 200 200" className="transform -rotate-90">
                                 <circle cx="100" cy="100" r="80" fill="none" stroke="hsl(var(--muted))" strokeWidth="20" />
                                 <circle
@@ -650,7 +650,7 @@ const HomeWealth = () => {
                                 />
                             </svg>
                             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                <p className="text-4xl font-bold tabular-nums" style={{ color: getLTVColor() }}>
+                                <p className="text-2xl sm:text-4xl font-bold tabular-nums" style={{ color: getLTVColor() }}>
                                     {ltvRatio}%
                                 </p>
                                 <p className="text-sm text-muted-foreground mt-1">{getLTVStatus()}</p>
@@ -677,16 +677,16 @@ const HomeWealth = () => {
                 </motion.div>
 
                 {/* Rental Potential Card */}
-                <motion.div variants={fadeUpItem} className="bg-card rounded-xl shadow-lg border border-border p-6">
+                <motion.div variants={fadeUpItem} className="bg-card rounded-xl shadow-lg border border-border p-4 sm:p-6">
                     <div className="flex items-center gap-2 mb-4">
                         <Home className="text-purple-600 dark:text-purple-400" size={24} />
-                        <h3 className="text-xl font-bold text-foreground">Rental Potential</h3>
+                        <h3 className="text-lg sm:text-xl font-bold text-foreground">Rental Potential</h3>
                     </div>
 
                     <div className="space-y-4">
                         <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/40 dark:to-pink-950/40 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
                             <p className="text-sm text-purple-700 dark:text-purple-300 mb-1">Estimated Monthly Rental Income</p>
-                            <p className="text-3xl font-bold text-purple-900 dark:text-purple-200 tabular-nums">
+                            <p className="text-2xl sm:text-3xl font-bold text-purple-900 dark:text-purple-200 tabular-nums">
                                 {formatCurrency(rentalIncome)}
                             </p>
                             <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">Based on local market averages</p>
@@ -708,7 +708,7 @@ const HomeWealth = () => {
                             <div className="h-px bg-border" />
                             <div className="flex items-center justify-between p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-lg">
                                 <span className="font-semibold text-foreground">Net Monthly Cash Flow</span>
-                                <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                                <span className="text-base sm:text-xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
                                     {formatCurrency(netRentalIncome)}
                                 </span>
                             </div>
@@ -723,7 +723,7 @@ const HomeWealth = () => {
                                 <Calculator size={16} className="text-blue-600 dark:text-blue-400" />
                                 <span className="text-sm font-semibold text-blue-900 dark:text-blue-200">Cap Rate</span>
                             </div>
-                            <p className="text-2xl font-bold text-blue-900 dark:text-blue-200 tabular-nums">
+                            <p className="text-xl sm:text-2xl font-bold text-blue-900 dark:text-blue-200 tabular-nums">
                                 {(((netRentalIncome * 12) / currentPropertyValue) * 100).toFixed(2)}%
                             </p>
                         </div>
@@ -736,16 +736,16 @@ const HomeWealth = () => {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.25 }}
-                className="bg-card rounded-xl shadow-lg border border-border p-6"
+                className="bg-card rounded-xl shadow-lg border border-border p-4 sm:p-6"
             >
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-4">
                     <div className="flex items-center gap-2">
                         <Lightbulb className="text-yellow-600 dark:text-yellow-400" size={24} />
-                        <h3 className="text-xl font-bold text-foreground">ROI Simulator</h3>
+                        <h3 className="text-lg sm:text-xl font-bold text-foreground">ROI Simulator</h3>
                     </div>
                     <div className="text-right">
                         <p className="text-sm text-muted-foreground">Projected Valuation</p>
-                        <p className="text-2xl font-bold text-primary tabular-nums transition-all duration-300">
+                        <p className="text-xl sm:text-2xl font-bold text-primary tabular-nums transition-all duration-300">
                             {formatCurrency(projectedValue)}
                         </p>
                     </div>
@@ -837,19 +837,19 @@ const HomeWealth = () => {
                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div>
                                 <p className="text-sm text-muted-foreground mb-1">Total Investment</p>
-                                <p className="text-xl font-bold text-foreground tabular-nums">{formatCurrency(totalCost)}</p>
+                                <p className="text-base sm:text-xl font-bold text-foreground tabular-nums">{formatCurrency(totalCost)}</p>
                             </div>
                             <div>
                                 <p className="text-sm text-muted-foreground mb-1">Total Value Add</p>
-                                <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{formatCurrency(totalROI)}</p>
+                                <p className="text-base sm:text-xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{formatCurrency(totalROI)}</p>
                             </div>
                             <div>
                                 <p className="text-sm text-muted-foreground mb-1">Net Gain</p>
-                                <p className="text-xl font-bold text-teal-600 dark:text-teal-400 tabular-nums">{formatCurrency(totalROI - totalCost)}</p>
+                                <p className="text-base sm:text-xl font-bold text-teal-600 dark:text-teal-400 tabular-nums">{formatCurrency(totalROI - totalCost)}</p>
                             </div>
                             <div>
                                 <p className="text-sm text-muted-foreground mb-1">Combined ROI</p>
-                                <p className="text-xl font-bold text-purple-600 dark:text-purple-400 tabular-nums">
+                                <p className="text-base sm:text-xl font-bold text-purple-600 dark:text-purple-400 tabular-nums">
                                     {((totalROI / totalCost) * 100).toFixed(0)}%
                                 </p>
                             </div>
@@ -863,17 +863,17 @@ const HomeWealth = () => {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.3 }}
-                className="bg-card rounded-xl shadow-lg border border-border p-6"
+                className="bg-card rounded-xl shadow-lg border border-border p-4 sm:p-6"
             >
-                <div className="flex items-center gap-2 mb-6">
+                <div className="flex items-center gap-2 mb-4 sm:mb-6">
                     <Calculator className="text-green-600 dark:text-green-400" size={24} />
-                    <h3 className="text-xl font-bold text-foreground">Sale Profit Calculator</h3>
+                    <h3 className="text-lg sm:text-xl font-bold text-foreground">Sale Profit Calculator</h3>
                 </div>
 
                 <div className="space-y-3">
                     <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                         <span className="text-foreground">Projected Sale Price</span>
-                        <span className="text-xl font-bold text-foreground tabular-nums">{formatCurrency(salePrice)}</span>
+                        <span className="text-base sm:text-xl font-bold text-foreground tabular-nums">{formatCurrency(salePrice)}</span>
                     </div>
 
                     <div className="space-y-2 pl-4">
@@ -920,10 +920,45 @@ const HomeWealth = () => {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.35 }}
-                className="bg-card rounded-xl shadow-lg border border-border p-6"
+                className="bg-card rounded-xl shadow-lg border border-border p-4 sm:p-6"
             >
-                <h3 className="text-xl font-bold text-foreground mb-4">Recent Comparable Sales</h3>
-                <div className="overflow-x-auto">
+                <h3 className="text-lg sm:text-xl font-bold text-foreground mb-4">Recent Comparable Sales</h3>
+
+                {/* Mobile: card layout */}
+                <div className="space-y-3 sm:hidden">
+                    {compSalesData.map((sale, idx) => (
+                        <div key={idx} className="p-3 bg-muted/50 rounded-lg space-y-2">
+                            <div className="flex items-start justify-between gap-2">
+                                <p className="text-sm font-semibold text-foreground">{sale.address}</p>
+                                {sale.similarity_score != null && (
+                                    <span className={`shrink-0 px-2 py-0.5 rounded-full text-xs font-semibold ${sale.similarity_score >= 80 ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300' :
+                                            sale.similarity_score >= 50 ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300' :
+                                                'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300'
+                                        }`}>
+                                        {sale.similarity_score}%
+                                    </span>
+                                )}
+                            </div>
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                                <span className="text-muted-foreground">Sold</span>
+                                <span className="text-foreground text-right tabular-nums">{new Date(sale.sold_date).toLocaleDateString()}</span>
+                                <span className="text-muted-foreground">Price</span>
+                                <span className="text-foreground font-semibold text-right tabular-nums">{formatCurrency(sale.sold_price)}</span>
+                                <span className="text-muted-foreground">$/Sq Ft</span>
+                                <span className="text-primary font-semibold text-right tabular-nums">${sale.price_per_sqft || '-'}</span>
+                                {sale.distance_miles != null && (
+                                    <>
+                                        <span className="text-muted-foreground">Distance</span>
+                                        <span className="text-foreground text-right tabular-nums">{sale.distance_miles.toFixed(1)} mi</span>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Desktop: table layout */}
+                <div className="overflow-x-auto hidden sm:block">
                     <table className="w-full">
                         <thead>
                             <tr className="border-b border-border">
@@ -975,9 +1010,9 @@ const HomeWealth = () => {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.4 }}
-                className="bg-card rounded-xl shadow-lg border border-border p-6"
+                className="bg-card rounded-xl shadow-lg border border-border p-4 sm:p-6"
             >
-                <h3 className="text-xl font-bold text-foreground mb-4">5-Year Mortgage Projection</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-foreground mb-4">5-Year Mortgage Projection</h3>
 
                 {/* Simple CSS bar chart */}
                 <div className="space-y-3 mb-6">
