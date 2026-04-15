@@ -39,7 +39,7 @@ export const useServiceRecurrences = () => {
             const { provider, ...insertData } = recurrenceData as ServiceRecurrence;
             const { data, error } = await supabase
                 .from('service_recurrences')
-                .insert([{ ...insertData, user_id: user.id }])
+                .insert([{ ...insertData, metadata: insertData.metadata as any, user_id: user.id }])
                 .select('*, provider:service_providers(*)')
                 .single();
 
@@ -63,7 +63,7 @@ export const useServiceRecurrences = () => {
             const { provider, ...updateData } = updates as Partial<ServiceRecurrence>;
             const { data, error } = await supabase
                 .from('service_recurrences')
-                .update({ ...updateData, updated_at: new Date().toISOString() })
+                .update({ ...updateData, metadata: updateData.metadata as any, updated_at: new Date().toISOString() })
                 .eq('id', id)
                 .select('*, provider:service_providers(*)')
                 .single();
