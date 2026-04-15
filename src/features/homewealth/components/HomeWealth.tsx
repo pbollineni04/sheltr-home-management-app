@@ -288,20 +288,20 @@ const HomeWealth = () => {
     const maxAmort = Math.max(...amortizationSchedule.map((r) => r.principal + r.interest));
 
     return (
-        <div className="max-w-7xl mx-auto space-y-6">
+        <div className="max-w-7xl mx-auto space-y-6 overflow-x-hidden">
             {/* Hero Header */}
             <motion.div
                 initial={{ opacity: 0, y: -12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-                className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row justify-between md:items-center gap-4"
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-4 sm:p-6 md:p-8 text-white shadow-xl flex flex-col md:flex-row justify-between md:items-center gap-4 overflow-hidden"
             >
-                <div className="flex items-center gap-3">
-                    <TrendingUp size={36} />
+                <div className="flex items-start sm:items-center gap-3 min-w-0">
+                    <TrendingUp size={28} className="shrink-0 sm:w-9 sm:h-9" />
                     <div>
                         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">HomeWealth</h1>
-                        <div className="flex items-center gap-2 mt-1">
-                            <p className="text-emerald-100 text-sm md:text-base">
+                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                            <p className="text-emerald-100 text-xs sm:text-sm md:text-base truncate max-w-[200px] sm:max-w-none">
                                 {property.address_line1}, {property.city}
                             </p>
                             {daysSinceSync !== null && (
@@ -528,10 +528,10 @@ const HomeWealth = () => {
                     <Activity size={20} />
                     <span className="font-semibold">Live Market Pulse</span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                     <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
                         <p className="text-xs text-blue-100 mb-1">Current Market Value</p>
-                        <p className="text-2xl font-bold tabular-nums">{formatCurrency(currentPropertyValue)}</p>
+                        <p className="text-lg sm:text-2xl font-bold tabular-nums">{formatCurrency(currentPropertyValue)}</p>
                     </div>
                     <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
                         <div className="flex items-center gap-2">
@@ -541,24 +541,24 @@ const HomeWealth = () => {
                                 : <ArrowDownRight size={16} className="text-red-300" />
                             }
                         </div>
-                        <p className={`text-2xl font-bold tabular-nums ${parseFloat(yoyAppreciation) >= 0 ? 'text-emerald-300' : 'text-red-300'}`}>
-                            {parseFloat(yoyAppreciation) >= 0 ? '+' : ''}{yoyAppreciation}%
-                        </p>
+                         <p className={`text-lg sm:text-2xl font-bold tabular-nums ${parseFloat(yoyAppreciation) >= 0 ? 'text-emerald-300' : 'text-red-300'}`}>
+                             {parseFloat(yoyAppreciation) >= 0 ? '+' : ''}{yoyAppreciation}%
+                         </p>
                     </div>
                     {pricePerSqft && (
                         <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
                             <p className="text-xs text-blue-100 mb-1">Price / Sq Ft</p>
-                            <p className="text-2xl font-bold tabular-nums">${pricePerSqft}</p>
+                            <p className="text-lg sm:text-2xl font-bold tabular-nums">${pricePerSqft}</p>
                         </div>
                     )}
                     <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
                         <p className="text-xs text-blue-100 mb-1">Neighborhood Activity</p>
-                        <p className="text-2xl font-bold">
-                            <span className={compSalesData.length >= 5 ? "text-emerald-300" : compSalesData.length >= 2 ? "text-yellow-300" : "text-blue-200"}>
-                                {compSalesData.length >= 5 ? 'High' : compSalesData.length >= 2 ? 'Moderate' : 'Low'}
-                            </span>
-                            <span className="text-sm font-normal text-blue-100 ml-2">{compSalesData.length} recent sales</span>
-                        </p>
+                         <p className="text-lg sm:text-2xl font-bold">
+                             <span className={compSalesData.length >= 5 ? "text-emerald-300" : compSalesData.length >= 2 ? "text-yellow-300" : "text-blue-200"}>
+                                 {compSalesData.length >= 5 ? 'High' : compSalesData.length >= 2 ? 'Moderate' : 'Low'}
+                             </span>
+                             <span className="block sm:inline text-xs sm:text-sm font-normal text-blue-100 sm:ml-2">{compSalesData.length} sales</span>
+                         </p>
                     </div>
                 </div>
             </motion.div>
@@ -572,12 +572,12 @@ const HomeWealth = () => {
             >
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
                     <div>
-                        <h2 className="text-2xl font-bold text-foreground">Total Household Wealth</h2>
+                        <h2 className="text-xl sm:text-2xl font-bold text-foreground">Total Household Wealth</h2>
                         <p className="text-muted-foreground text-sm mt-1">Property Value vs. Mortgage Debt</p>
                     </div>
                     <div className="text-right">
                         <p className="text-sm text-muted-foreground">Current Equity</p>
-                        <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                        <p className="text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
                             {formatCurrency(currentEquity)}
                         </p>
                     </div>
@@ -822,7 +822,7 @@ const HomeWealth = () => {
 
                 {totalCost > 0 && (
                     <div className="mt-6 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-lg border border-emerald-200 dark:border-emerald-800">
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div>
                                 <p className="text-sm text-muted-foreground mb-1">Total Investment</p>
                                 <p className="text-xl font-bold text-foreground tabular-nums">{formatCurrency(totalCost)}</p>
@@ -881,9 +881,9 @@ const HomeWealth = () => {
 
                     <div className="h-px bg-border" />
 
-                    <div className="flex items-center justify-between p-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg text-white">
-                        <span className="text-lg font-semibold">Net Proceeds (Your Profit)</span>
-                        <span className="text-3xl font-bold tabular-nums">{formatCurrency(netProceeds)}</span>
+                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg text-white gap-2">
+                         <span className="text-base sm:text-lg font-semibold">Net Proceeds</span>
+                         <span className="text-2xl sm:text-3xl font-bold tabular-nums">{formatCurrency(netProceeds)}</span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 mt-4">
