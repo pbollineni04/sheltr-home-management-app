@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Document, DocumentFilter, DocumentStats, NewDocumentForm } from "../types";
 import { useToast } from '@/hooks/use-toast';
+import { TimelineService } from '@/lib/timelineService';
+import { findMatches } from '@/lib/autoLinker';
 
 export const useDocuments = () => {
   const { user } = useAuth();
@@ -101,6 +103,30 @@ export const useDocuments = () => {
 
       if (error) throw error;
 
+      const createdDoc = data as Document;
+
+      // Auto-create timeline entry for important document types
+      try {
+        await TimelineService.createFromDocument({
+          id: createdDoc.id,
+          name: createdDoc.name,
+          category_enum: createdDoc.category_enum,
+          description: createdDoc.description,
+          expiration_date: createdDoc.expiration_date,
+        });
+      } catch {
+        // Non-blocking — timeline entry is optional
+      }
+
+      // Auto-link to related entities (non-blocking)
+      findMatches('document', createdDoc.id, {
+        label: createdDoc.name,
+        date: createdDoc.created_at,
+        title: createdDoc.name,
+        description: createdDoc.description,
+        category: createdDoc.category_enum,
+      }).catch(() => {});
+
       await fetchDocuments();
 
       toast({
@@ -108,7 +134,7 @@ export const useDocuments = () => {
         description: `${file.name} has been uploaded to your vault.`
       });
 
-      return data as Document;
+      return createdDoc;
     } catch (err) {
       console.error('Error uploading document:', err);
       toast({

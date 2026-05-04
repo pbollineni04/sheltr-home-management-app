@@ -19,6 +19,7 @@ import { useBudget } from "@/hooks/useBudget";
 import { staggerContainer, staggerContainerFast, fadeUpItem, easeDefault } from "@/lib/motion";
 import NeedsAttentionBanner from "./NeedsAttentionBanner";
 import MonthlyReport from "./MonthlyReport";
+import RecentActivityFeed from "./RecentActivityFeed";
 
 interface DashboardOverviewProps {
   onNavigate: (tab: string) => void;
@@ -248,52 +249,13 @@ const DashboardOverview = ({ onNavigate }: DashboardOverviewProps) => {
         animate="show"
         className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6"
       >
-        {/* Recent Expenses */}
-        <motion.div variants={fadeUpItem} className="bg-card rounded-xl shadow-sm border border-border">
-          <div className="p-4 md:p-6 border-b border-border flex items-center justify-between">
-            <h2 className="text-heading-lg text-foreground">Recent Expenses</h2>
-            <button
-              onClick={() => onNavigate("expenses")}
-              className="text-sm text-primary hover:text-primary/80"
-            >
-              View All
-            </button>
-          </div>
-          <div className="divide-y divide-border">
-            {loading ? (
-              <div className="p-6 text-center text-muted-foreground text-sm">Loading...</div>
-            ) : recentExpenses.length === 0 ? (
-              <div className="p-6 text-center">
-                <DollarSign className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">No expenses yet</p>
-                <button
-                  onClick={() => onNavigate("expenses")}
-                  className="text-xs text-primary hover:underline mt-1"
-                >
-                  Add your first expense →
-                </button>
-              </div>
-            ) : (
-              recentExpenses.map((expense) => (
-                <div key={expense.id} className="p-4 hover:bg-muted/50 transition-colors">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium text-foreground text-sm truncate">{expense.description}</p>
-                        {expense.metadata && (expense.metadata as any).source === "service" && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400 shrink-0">
-                            From Service
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">{expense.category}</p>
-                    </div>
-                    <span className="font-semibold text-foreground text-sm">${expense.amount.toFixed(2)}</span>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+        {/* Recent Activity Feed */}
+        <motion.div variants={fadeUpItem}>
+          <RecentActivityFeed
+            activities={metrics?.recent_activity ?? []}
+            loading={loading}
+            onNavigate={onNavigate}
+          />
         </motion.div>
 
         {/* Upcoming Events (Services + Recurrences) */}

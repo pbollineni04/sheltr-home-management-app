@@ -7,6 +7,7 @@ import {
     TrendingDown,
     Zap,
     BarChart3,
+    Home,
 } from "lucide-react";
 import { easeDefault } from "@/lib/motion";
 import type { DashboardMetrics } from "../hooks/useDashboardMetrics";
@@ -28,6 +29,9 @@ const MonthlyReport = ({ metrics }: MonthlyReportProps) => {
     if (!hasMeaningfulData) return null;
 
     const totalUtilities = metrics.utility_summary.reduce((s, u) => s + u.latest_cost, 0);
+    const estimatedServiceCosts = metrics.upcoming_recurrences.reduce(
+        (s, r) => s + (r.estimated_cost || 0), 0
+    );
 
     // Simple bar chart data from category breakdown
     const categoryTotals = metrics.recent_expenses.reduce<Record<string, number>>((acc, e) => {
@@ -130,6 +134,41 @@ const MonthlyReport = ({ metrics }: MonthlyReportProps) => {
                         </p>
                     </div>
                 </div>
+
+                {/* Total Home Costs */}
+                {(metrics.monthly_expenses > 0 || totalUtilities > 0) && (
+                    <div className="mb-6 bg-gradient-to-r from-primary/5 to-purple-500/5 rounded-lg p-4 border border-primary/10">
+                        <div className="flex items-center gap-2 mb-3">
+                            <Home size={14} className="text-primary" />
+                            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                                Total Home Costs
+                            </span>
+                        </div>
+                        <p className="text-2xl font-bold text-foreground mb-3">
+                            ${(metrics.monthly_expenses + totalUtilities + estimatedServiceCosts).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                        </p>
+                        <div className="grid grid-cols-3 gap-2">
+                            <div>
+                                <p className="text-[10px] text-muted-foreground">Expenses</p>
+                                <p className="text-sm font-semibold text-foreground">
+                                    ${metrics.monthly_expenses.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-[10px] text-muted-foreground">Utilities</p>
+                                <p className="text-sm font-semibold text-foreground">
+                                    {totalUtilities > 0 ? `$${totalUtilities.toFixed(0)}` : "—"}
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-[10px] text-muted-foreground">Services</p>
+                                <p className="text-sm font-semibold text-foreground">
+                                    {estimatedServiceCosts > 0 ? `$${estimatedServiceCosts.toFixed(0)}` : "—"}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Simple Category Bars */}
                 {topCategories.length > 0 && (

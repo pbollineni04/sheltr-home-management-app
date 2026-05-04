@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { UtilityReadingRow, UtilityType, AnomalyAlert } from '../types';
+import { TimelineService } from '@/lib/timelineService';
 
 const SPIKE_THRESHOLD = 0.20; // 20% above rolling average
 const ROLLING_MONTHS = 3;
@@ -109,5 +110,13 @@ async function createAnomalyAlert(userId: string, anomaly: AnomalyAlert): Promis
 
   if (error) {
     console.error('Error creating anomaly alert:', error);
+    return;
+  }
+
+  // Also create a timeline entry for the anomaly
+  try {
+    await TimelineService.createFromAnomaly(userId, anomaly);
+  } catch {
+    // Non-blocking — timeline entry is optional
   }
 }

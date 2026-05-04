@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { TimelineService } from '@/lib/timelineService';
+import { findMatches } from '@/lib/autoLinker';
 
 export type TaskStatus = 'todo' | 'in_progress' | 'completed';
 
@@ -154,31 +156,32 @@ export const useTasks = () => {
     const completed = newStatus === 'completed';
     const success = await updateTask(id, { status: newStatus, completed });
 
-    // Auto-create timeline entry for completed maintenance tasks
+    // Auto-create timeline entry for all completed tasks
     if (success && completed) {
       const task = tasks.find(t => t.id === id);
-      if (task && task.list_type === 'maintenance') {
+      if (task) {
         try {
-          const { data: { user } } = await supabase.auth.getUser();
-          if (!user) return success;
-
-          await supabase.from('timeline_events').insert([{
-            user_id: user.id,
+          await TimelineService.createFromTask({
+            id: task.id,
             title: task.title,
             description: task.description,
-            date: new Date().toISOString(),
-            category: 'maintenance',
+            list_type: task.list_type,
             room: task.room,
-            task_id: task.id,
-            metadata: {
-              auto_created: true,
-              source: 'task'
-            }
-          }]);
+          });
+
+          // Auto-link to related entities (non-blocking)
+          findMatches('task', task.id, {
+            label: task.title,
+            date: new Date().toISOString(),
+            title: task.title,
+            description: task.description,
+            category: task.list_type,
+            room: task.room,
+          }).catch(() => {});
 
           toast({
             title: "Timeline Updated",
-            description: "This maintenance task was added to your home timeline",
+            description: "This task was added to your home timeline",
           });
         } catch (error) {
           console.error('Error creating timeline entry:', error);

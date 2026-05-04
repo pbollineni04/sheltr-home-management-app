@@ -1,5 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { TimelineService } from "@/lib/timelineService";
+import { findMatches } from "@/lib/autoLinker";
 
 export type ExpenseRow = Database["public"]["Tables"]["expenses"]["Row"];
 export type ExpenseInsert = Database["public"]["Tables"]["expenses"]["Insert"];
@@ -22,41 +24,31 @@ export class ExpenseService {
     const createdExpense = data as ExpenseRow;
     if (createdExpense.amount >= 50) {
       try {
-        const alreadyFromService = (createdExpense.metadata as Record<string, unknown> | null)?.source === 'service';
-        // Don't double-create if this expense was auto-logged from a service (services already create timeline events)
-        if (!alreadyFromService) {
-          await supabase
-            .from("timeline_events")
-            .insert({
-              user_id: userId,
-              title: createdExpense.description || "Purchase",
-              description: `${createdExpense.vendor ? `From ${createdExpense.vendor}` : ""} - ${createdExpense.category}`.replace(/^ - /, ""),
-              date: createdExpense.date,
-              category: createdExpense.category === "renovation" ? "renovation" : "purchase",
-              room: createdExpense.room,
-              cost: createdExpense.amount,
-              metadata: {
-                auto_created: true,
-                source: "expense",
-                expense_id: createdExpense.id
-              }
-            });
-
-          // Mark expense as having created a timeline entry
-          await supabase
-            .from("expenses")
-            .update({
-              metadata: {
-                ...((createdExpense.metadata as Record<string, unknown>) || {}),
-                timeline_created: true
-              }
-            })
-            .eq("id", createdExpense.id);
-        }
+        await TimelineService.createFromExpense({
+          id: createdExpense.id,
+          description: createdExpense.description,
+          vendor: createdExpense.vendor,
+          category: createdExpense.category,
+          date: createdExpense.date,
+          room: createdExpense.room,
+          amount: createdExpense.amount,
+          metadata: createdExpense.metadata as Record<string, unknown> | null,
+        });
       } catch (err) {
         console.error('Error creating timeline event from expense:', err);
       }
     }
+
+    // Auto-link to related entities (non-blocking)
+    findMatches('expense', createdExpense.id, {
+      label: `${createdExpense.description || 'Expense'} - $${createdExpense.amount.toFixed(0)}`,
+      date: createdExpense.date,
+      amount: createdExpense.amount,
+      title: createdExpense.description,
+      description: createdExpense.vendor,
+      category: createdExpense.category,
+      room: createdExpense.room,
+    }).catch(() => {}); // Fire and forget
 
     return createdExpense;
   }

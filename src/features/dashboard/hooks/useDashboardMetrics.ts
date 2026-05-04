@@ -53,6 +53,18 @@ export type ExpiringDocument = {
   folder?: string | null;
 };
 
+export type RecentActivity = {
+  id: string;
+  title: string;
+  description?: string | null;
+  date: string;
+  category: string;
+  cost?: number | null;
+  source: string;
+  source_id?: string | null;
+  created_at: string;
+};
+
 export type DashboardMetrics = {
   // Counts
   pending_tasks: number;
@@ -69,6 +81,11 @@ export type DashboardMetrics = {
   upcoming_recurrences: UpcomingRecurrence[];
   utility_summary: UtilitySummary[];
   expiring_documents: ExpiringDocument[];
+
+  // Cross-feature integration
+  recent_activity: RecentActivity[];
+  unresolved_anomalies: number;
+  expenses_needing_review: number;
 
   // Trend & HomeWealth
   expense_trend_pct: number | null;
@@ -117,6 +134,9 @@ export const useDashboardMetrics = () => {
           utilityReadingsRes,
           expiringDocsRes,
           propertyRes,
+          recentActivityRes,
+          anomalyAlertsRes,
+          expensesReviewRes,
         ] = await Promise.all([
           // Tasks (all)
           supabase
@@ -198,6 +218,30 @@ export const useDashboardMetrics = () => {
             .select("current_value, current_mortgage_debt")
             .eq("user_id", userId)
             .limit(1),
+
+          // Recent activity (cross-feature timeline feed)
+          supabase
+            .from("timeline_events")
+            .select("id, title, description, date, category, cost, metadata, created_at")
+            .eq("user_id", userId)
+            .order("created_at", { ascending: false })
+            .limit(8),
+
+          // Unresolved energy anomaly alerts
+          supabase
+            .from("alerts")
+            .select("id")
+            .eq("user_id", userId)
+            .eq("alert_type", "utility_anomaly")
+            .eq("resolved", false),
+
+          // Expenses needing review (auto-imported low confidence)
+          supabase
+            .from("expenses")
+            .select("id")
+            .eq("user_id", userId)
+            .eq("needs_review", true)
+            .is("deleted_at", null),
         ]);
 
         if (!mounted) return;
@@ -308,6 +352,23 @@ export const useDashboardMetrics = () => {
           ? (property.current_value || 0) - (property.current_mortgage_debt || 0)
           : null;
 
+        // ---- Process Recent Activity ----
+        const recent_activity: RecentActivity[] = (recentActivityRes.data ?? []).map((e: any) => ({
+          id: e.id,
+          title: e.title,
+          description: e.description,
+          date: e.date,
+          category: e.category,
+          cost: e.cost,
+          source: (e.metadata as any)?.source || 'manual',
+          source_id: (e.metadata as any)?.source_id || null,
+          created_at: e.created_at,
+        }));
+
+        // ---- Process Anomalies & Review Counts ----
+        const unresolved_anomalies = anomalyAlertsRes.data?.length ?? 0;
+        const expenses_needing_review = expensesReviewRes.data?.length ?? 0;
+
         // ---- Last Activity ----
         const dateVals: number[] = [];
         tasks.forEach((t: any) => t.updated_at && dateVals.push(new Date(t.updated_at).getTime()));
@@ -328,6 +389,9 @@ export const useDashboardMetrics = () => {
             upcoming_recurrences,
             utility_summary,
             expiring_documents,
+            recent_activity,
+            unresolved_anomalies,
+            expenses_needing_review,
             expense_trend_pct,
             last_month_expenses,
             home_value,
@@ -362,6 +426,9 @@ export const useDashboardMetrics = () => {
         setRefreshTick((t) => t + 1);
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "services" }, () => {
+        setRefreshTick((t) => t + 1);
+      })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "timeline_events" }, () => {
         setRefreshTick((t) => t + 1);
       })
       .subscribe();

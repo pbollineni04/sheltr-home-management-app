@@ -6,6 +6,8 @@ import {
     Wrench,
     ChevronRight,
     X,
+    Zap,
+    DollarSign,
 } from "lucide-react";
 import { useState } from "react";
 import { easeDefault } from "@/lib/motion";
@@ -72,6 +74,28 @@ const NeedsAttentionBanner = ({ metrics, onNavigate }: NeedsAttentionBannerProps
             icon: Wrench,
             tab: "services",
             color: "text-blue-600 dark:text-blue-400",
+        });
+    }
+
+    if (metrics.unresolved_anomalies > 0) {
+        items.push({
+            id: "energy-anomalies",
+            label: `energy anomal${metrics.unresolved_anomalies !== 1 ? "ies" : "y"} detected`,
+            count: metrics.unresolved_anomalies,
+            icon: Zap,
+            tab: "energy",
+            color: "text-yellow-600 dark:text-yellow-400",
+        });
+    }
+
+    if (metrics.expenses_needing_review > 0) {
+        items.push({
+            id: "expenses-review",
+            label: `expense${metrics.expenses_needing_review !== 1 ? "s" : ""} to review`,
+            count: metrics.expenses_needing_review,
+            icon: DollarSign,
+            tab: "expenses",
+            color: "text-green-600 dark:text-green-400",
         });
     }
 
